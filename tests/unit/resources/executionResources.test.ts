@@ -952,5 +952,333 @@ describe('ExecutionResourceManager', () => {
       const data = JSON.parse(result.text);
       expect(data.executions[0].workflowName).toBeUndefined();
     });
+
+    it('should handle client not initialized for logs resource', async () => {
+      (getClientFn as jest.Mock).mockReturnValue(null);
+
+      const templateCall = mockServer.addResourceTemplate.mock.calls.find(
+        call => call[0].uriTemplate === 'n8n://executions/{id}/logs'
+      );
+      if (!templateCall) throw new Error('Template call not found');
+      const template = templateCall[0];
+
+      await expect(template.load({ id: 'exec-123' })).rejects.toThrow(
+        'n8n client not initialized. Run init-n8n first.'
+      );
+    });
+
+    it('should handle client not initialized for recent executions', async () => {
+      (getClientFn as jest.Mock).mockReturnValue(null);
+
+      const resourceCall = mockServer.addResource.mock.calls.find(
+        call => call[0].uri === 'n8n://executions/recent'
+      );
+      if (!resourceCall) throw new Error('Resource call not found');
+      const resource = resourceCall[0];
+
+      await expect(resource.load()).rejects.toThrow(
+        'n8n client not initialized. Run init-n8n first.'
+      );
+    });
+
+    it('should handle client not initialized for failed executions', async () => {
+      (getClientFn as jest.Mock).mockReturnValue(null);
+
+      const resourceCall = mockServer.addResource.mock.calls.find(
+        call => call[0].uri === 'n8n://executions/failures'
+      );
+      if (!resourceCall) throw new Error('Resource call not found');
+      const resource = resourceCall[0];
+
+      await expect(resource.load()).rejects.toThrow(
+        'n8n client not initialized. Run init-n8n first.'
+      );
+    });
+
+    it('should handle client not initialized for execution stats', async () => {
+      (getClientFn as jest.Mock).mockReturnValue(null);
+
+      const resourceCall = mockServer.addResource.mock.calls.find(
+        call => call[0].uri === 'n8n://executions/stats'
+      );
+      if (!resourceCall) throw new Error('Resource call not found');
+      const resource = resourceCall[0];
+
+      await expect(resource.load()).rejects.toThrow(
+        'n8n client not initialized. Run init-n8n first.'
+      );
+    });
+
+    it('should handle client not initialized for workflow executions', async () => {
+      (getClientFn as jest.Mock).mockReturnValue(null);
+
+      const templateCall = mockServer.addResourceTemplate.mock.calls.find(
+        call => call[0].uriTemplate === 'n8n://executions/workflow/{workflowId}'
+      );
+      if (!templateCall) throw new Error('Template call not found');
+      const template = templateCall[0];
+
+      await expect(template.load({ workflowId: 'workflow-123' })).rejects.toThrow(
+        'n8n client not initialized. Run init-n8n first.'
+      );
+    });
+
+    it('should handle workflow executions API errors', async () => {
+      mockClient.getExecutions.mockRejectedValue(new Error('Workflow API Error'));
+
+      const templateCall = mockServer.addResourceTemplate.mock.calls.find(
+        call => call[0].uriTemplate === 'n8n://executions/workflow/{workflowId}'
+      );
+      if (!templateCall) throw new Error('Template call not found');
+      const template = templateCall[0];
+
+      await expect(template.load({ workflowId: 'workflow-123' })).rejects.toThrow(
+        'Failed to load workflow executions workflow-123: Workflow API Error'
+      );
+    });
+
+    it('should handle primitive data types in sanitization', async () => {
+      // Clear previous mocks first
+      jest.clearAllMocks();
+      mockConsoleLog.mockClear();
+
+      executionManager = new ExecutionResourceManager({ includeData: true });
+      executionManager.register(mockServer, getClientFn);
+
+      const executionWithPrimitiveData = {
+        ...mockExecution,
+        data: { primitiveString: 'primitive string data' },
+      };
+      mockClient.getExecution.mockResolvedValue(executionWithPrimitiveData);
+
+      const templateCall = mockServer.addResourceTemplate.mock.calls.find(
+        call => call[0].uriTemplate === 'n8n://executions/{id}'
+      );
+      if (!templateCall) throw new Error('Template call not found');
+      const template = templateCall[0];
+      const result = await template.load({ id: 'exec-123' });
+
+      const data = JSON.parse(result.text);
+      expect(data.data.primitiveString).toBe('primitive string data');
+    });
+
+    it('should handle array data in sanitization', async () => {
+      // Clear previous mocks first
+      jest.clearAllMocks();
+      mockConsoleLog.mockClear();
+
+      executionManager = new ExecutionResourceManager({ includeData: true });
+      executionManager.register(mockServer, getClientFn);
+
+      const executionWithArrayData = {
+        ...mockExecution,
+        data: {
+          resultData: {
+            arrayData: [
+              { password: 'secret123', normalData: 'safe' },
+              { token: 'token456', publicInfo: 'visible' },
+            ],
+          },
+        },
+      };
+      mockClient.getExecution.mockResolvedValue(executionWithArrayData);
+
+      const templateCall = mockServer.addResourceTemplate.mock.calls.find(
+        call => call[0].uriTemplate === 'n8n://executions/{id}'
+      );
+      if (!templateCall) throw new Error('Template call not found');
+      const template = templateCall[0];
+      const result = await template.load({ id: 'exec-123' });
+
+      const data = JSON.parse(result.text);
+      expect(data.data.resultData.arrayData[0].password).toBe('[REDACTED]');
+      expect(data.data.resultData.arrayData[0].normalData).toBe('safe');
+      expect(data.data.resultData.arrayData[1].token).toBe('[REDACTED]');
+      expect(data.data.resultData.arrayData[1].publicInfo).toBe('visible');
+    });
+
+    it('should handle executions with only stoppedAt status in status calculation', async () => {
+      const stoppedExecution = {
+        ...mockExecution,
+        finished: false,
+        stoppedAt: '2023-01-01T10:05:00Z',
+        data: {
+          resultData: {
+            // No error, just stopped
+          },
+        },
+      };
+
+      mockClient.getExecutions.mockResolvedValue({
+        data: [stoppedExecution],
+      });
+
+      const resourceCall = mockServer.addResource.mock.calls.find(
+        call => call[0].uri === 'n8n://executions/stats'
+      );
+      if (!resourceCall) throw new Error('Resource call not found');
+      const resource = resourceCall[0];
+      const result = await resource.load();
+
+      const data = JSON.parse(result.text);
+      expect(data.executionsByStatus.stopped).toBe(1);
+      expect(data.executionsByStatus.success).toBe(0);
+      expect(data.executionsByStatus.error).toBe(0);
+      expect(data.executionsByStatus.running).toBe(0);
+    });
+  });
+
+  describe('Duplicate Resource Template Coverage', () => {
+    beforeEach(() => {
+      executionManager = new ExecutionResourceManager();
+      executionManager.register(mockServer, getClientFn);
+    });
+
+    it('should handle client not initialized for executionId template', async () => {
+      (getClientFn as jest.Mock).mockReturnValue(null);
+
+      const templateCall = mockServer.addResourceTemplate.mock.calls.find(
+        call => call[0].uriTemplate === 'n8n://executions/{executionId}'
+      );
+      if (!templateCall) throw new Error('Template call not found');
+      const template = templateCall[0];
+
+      await expect(template.load({ executionId: 'exec-123' })).rejects.toThrow(
+        'n8n client not initialized. Run init-n8n first.'
+      );
+    });
+
+    it('should load execution by executionId template successfully', async () => {
+      mockClient.getExecution.mockResolvedValue(mockExecution);
+
+      const templateCall = mockServer.addResourceTemplate.mock.calls.find(
+        call => call[0].uriTemplate === 'n8n://executions/{executionId}'
+      );
+      if (!templateCall) throw new Error('Template call not found');
+      const template = templateCall[0];
+      const result = await template.load({ executionId: 'exec-123' });
+
+      expect(result.text).toBeDefined();
+      const data = JSON.parse(result.text);
+      expect(data.id).toBe('exec-123');
+      expect(data.resourceInfo.type).toBe('n8n-execution');
+    });
+  });
+
+  describe('Cache Expiration Edge Cases', () => {
+    beforeEach(() => {
+      jest.useFakeTimers();
+      executionManager = new ExecutionResourceManager({ cacheDuration: 50 }); // Very short cache
+      executionManager.register(mockServer, getClientFn);
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    it('should handle cache expiration for logs', async () => {
+      mockClient.getExecution.mockResolvedValue(mockExecution);
+
+      const templateCall = mockServer.addResourceTemplate.mock.calls.find(
+        call => call[0].uriTemplate === 'n8n://executions/{id}/logs'
+      );
+      if (!templateCall) throw new Error('Template call not found');
+      const template = templateCall[0];
+
+      // First call
+      await template.load({ id: 'exec-123' });
+      expect(mockClient.getExecution).toHaveBeenCalledTimes(1);
+
+      // Fast-forward time to expire cache
+      jest.advanceTimersByTime(60);
+
+      // Second call should fetch again
+      await template.load({ id: 'exec-123' });
+      expect(mockClient.getExecution).toHaveBeenCalledTimes(2);
+    });
+
+    it('should handle cache expiration for recent executions', async () => {
+      mockClient.getExecutions.mockResolvedValue({ data: [mockExecution] });
+
+      const resourceCall = mockServer.addResource.mock.calls.find(
+        call => call[0].uri === 'n8n://executions/recent'
+      );
+      if (!resourceCall) throw new Error('Resource call not found');
+      const resource = resourceCall[0];
+
+      // First call
+      await resource.load();
+      expect(mockClient.getExecutions).toHaveBeenCalledTimes(1);
+
+      // Fast-forward time to expire cache
+      jest.advanceTimersByTime(60);
+
+      // Second call should fetch again
+      await resource.load();
+      expect(mockClient.getExecutions).toHaveBeenCalledTimes(2);
+    });
+
+    it('should handle cache expiration for failed executions', async () => {
+      mockClient.getExecutions.mockResolvedValue({ data: [mockFailedExecution] });
+
+      const resourceCall = mockServer.addResource.mock.calls.find(
+        call => call[0].uri === 'n8n://executions/failures'
+      );
+      if (!resourceCall) throw new Error('Resource call not found');
+      const resource = resourceCall[0];
+
+      // First call
+      await resource.load();
+      expect(mockClient.getExecutions).toHaveBeenCalledTimes(1);
+
+      // Fast-forward time to expire cache
+      jest.advanceTimersByTime(60);
+
+      // Second call should fetch again
+      await resource.load();
+      expect(mockClient.getExecutions).toHaveBeenCalledTimes(2);
+    });
+
+    it('should handle cache expiration for execution stats', async () => {
+      mockClient.getExecutions.mockResolvedValue({ data: [mockExecution] });
+
+      const resourceCall = mockServer.addResource.mock.calls.find(
+        call => call[0].uri === 'n8n://executions/stats'
+      );
+      if (!resourceCall) throw new Error('Resource call not found');
+      const resource = resourceCall[0];
+
+      // First call
+      await resource.load();
+      expect(mockClient.getExecutions).toHaveBeenCalledTimes(1);
+
+      // Fast-forward time to expire cache
+      jest.advanceTimersByTime(60);
+
+      // Second call should fetch again
+      await resource.load();
+      expect(mockClient.getExecutions).toHaveBeenCalledTimes(2);
+    });
+
+    it('should handle cache expiration for workflow executions', async () => {
+      mockClient.getExecutions.mockResolvedValue({ data: [mockExecution] });
+
+      const templateCall = mockServer.addResourceTemplate.mock.calls.find(
+        call => call[0].uriTemplate === 'n8n://executions/workflow/{workflowId}'
+      );
+      if (!templateCall) throw new Error('Template call not found');
+      const template = templateCall[0];
+
+      // First call
+      await template.load({ workflowId: 'workflow-456' });
+      expect(mockClient.getExecutions).toHaveBeenCalledTimes(1);
+
+      // Fast-forward time to expire cache
+      jest.advanceTimersByTime(60);
+
+      // Second call should fetch again
+      await template.load({ workflowId: 'workflow-456' });
+      expect(mockClient.getExecutions).toHaveBeenCalledTimes(2);
+    });
   });
 });
