@@ -117,25 +117,25 @@
     {
       "id": "linter_task_active",
       "title": "Fix Linter Errors - IMMEDIATE",
-      "description": "Fix 0 errors and 0 warnings found in recently edited files: .eslintignore",
+      "description": "Fix 0 errors and 1 warning found in recently edited files: projects.test.ts",
       "mode": "DEVELOPMENT",
       "priority": "high",
-      "status": "completed",
+      "status": "pending",
       "important_files": [
         "development/linter-errors.md",
-        ".eslintignore"
+        "tests/unit/tools/projects.test.ts"
       ],
       "success_criteria": [
         "All linter errors in edited files resolved",
         "development/linter-errors.md shows no issues for edited files",
         "Code passes linting without warnings or errors"
       ],
-      "created_at": "2025-07-31T07:59:52.218Z",
+      "created_at": "2025-07-31T08:28:37.404Z",
       "is_linter_task": true,
       "linter_summary": {
-        "total_violations": 0,
+        "total_violations": 1,
         "errors": 0,
-        "warnings": 0,
+        "warnings": 1,
         "files_affected": 1
       }
     },
@@ -1720,8 +1720,8 @@
   "strikes_completed_last_run": false,
   "current_task_index": 0,
   "last_mode": "DEVELOPMENT",
-  "execution_count": 138,
-  "last_hook_activation": 1753948836850,
+  "execution_count": 143,
+  "last_hook_activation": 1753950517404,
   "__removedLinterTasks": {
     "removedCount": 1,
     "finalTaskCount": 41

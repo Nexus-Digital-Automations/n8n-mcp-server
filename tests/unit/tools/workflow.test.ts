@@ -19,7 +19,7 @@ describe('Workflow Tools', () => {
   });
 
   it('should register all workflow tools', () => {
-    expect(mockServer.addTool).toHaveBeenCalledTimes(8);
+    expect(mockServer.addTool).toHaveBeenCalledTimes(7);
 
     const toolNames = mockServer.addTool.mock.calls.map((call: any) => call[0].name);
     expect(toolNames).toContain('list-workflows');

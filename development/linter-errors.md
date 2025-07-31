@@ -1,23 +1,15 @@
 # Linter Errors Report
 
-**Generated:** 2025-07-31T07:59:14.801Z
-**Total Issues:** 5 (5 errors, 0 warnings)
+**Generated:** 2025-07-31T08:28:37.404Z
+**Total Issues:** 1 (0 errors, 1 warnings)
 **Files:** 1
 
-## create-test-subtasks.js (eslint)
+## projects.test.ts (eslint)
 
-**File Path:** `/Users/jeremyparker/Desktop/Claude Coding Projects/n8n-mcp-server/create-test-subtasks.js`
-**Issues:** 5
+**File Path:** `/Users/jeremyparker/Desktop/Claude Coding Projects/n8n-mcp-server/tests/unit/tools/projects.test.ts`
+**Issues:** 1
 
-❌ **Line 3:21** - 'require' is not defined. `[no-undef]`
-
-❌ **Line 85:5** - 'console' is not defined. `[no-undef]`
-
-❌ **Line 86:5** - 'console' is not defined. `[no-undef]`
-
-❌ **Line 87:33** - 'console' is not defined. `[no-undef]`
-
-❌ **Line 89:5** - 'console' is not defined. `[no-undef]`
+⚠️ **Line 148:34** - Forbidden non-null assertion. `[@typescript-eslint/no-non-null-assertion]`
 
 ---
 
