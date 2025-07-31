@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
-import { createWorkflowTools } from '../../../src/tools/workflow.js';
-import { N8nClient } from '../../../src/client/n8nClient.js';
+import { createWorkflowTools } from '../../../src/tools/workflow';
+import { N8nClient } from '../../../src/client/n8nClient';
 
 describe('Workflow Tools', () => {
   let mockClient: jest.Mocked<N8nClient>;
@@ -77,7 +77,9 @@ describe('Workflow Tools', () => {
         (call: any) => call[0].name === 'list-workflows'
       )?.[0];
 
-      await expect(tool?.execute({})).rejects.toThrow(
+      expect(tool).toBeDefined();
+      expect(tool).toHaveProperty('execute');
+      await expect((tool as any).execute({})).rejects.toThrow(
         'n8n client not initialized. Please run init-n8n first.'
       );
     });

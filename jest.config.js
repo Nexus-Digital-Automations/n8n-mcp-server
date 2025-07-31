@@ -57,6 +57,11 @@ export default {
     }
   },
   
+  // Transform ignore patterns for ES modules
+  transformIgnorePatterns: [
+    'node_modules/(?!(node-fetch|fastmcp)/)'
+  ],
+  
   // Files to include in coverage
   collectCoverageFrom: [
     'src/**/*.ts',

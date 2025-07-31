@@ -2,8 +2,9 @@ import { describe, it, expect, beforeEach, jest, afterEach } from '@jest/globals
 import { N8nClient } from '../../../src/client/n8nClient';
 
 // Mock node-fetch before importing
-const mockFetch = jest.fn();
-jest.mock('node-fetch', () => mockFetch);
+jest.mock('node-fetch');
+import fetch, { Response } from 'node-fetch';
+const mockFetch = fetch as jest.MockedFunction<typeof fetch>;
 
 describe('N8nClient', () => {
   let client: N8nClient;
@@ -38,8 +39,8 @@ describe('N8nClient', () => {
           get: jest.fn().mockReturnValue('application/json'),
         },
         json: jest.fn(() => Promise.resolve({ success: true })),
-      };
-      mockFetch.mockResolvedValue(mockResponse as any);
+      } as unknown as Response;
+      mockFetch.mockResolvedValue(mockResponse as unknown as Response);
 
       const result = await client.getWorkflows();
 
@@ -62,7 +63,7 @@ describe('N8nClient', () => {
         status: 404,
         text: jest.fn(() => Promise.resolve('Not Found')),
       };
-      mockFetch.mockResolvedValue(mockResponse as any);
+      mockFetch.mockResolvedValue(mockResponse as unknown as Response);
 
       await expect(client.getWorkflows()).rejects.toThrow(
         'n8n API request failed: HTTP 404: Not Found'
@@ -83,7 +84,7 @@ describe('N8nClient', () => {
         },
         text: jest.fn(() => Promise.resolve('Plain text response')),
       };
-      mockFetch.mockResolvedValue(mockResponse as any);
+      mockFetch.mockResolvedValue(mockResponse as unknown as Response);
 
       const result = await client.getWorkflows();
       expect(result).toBe('Plain text response');
@@ -99,7 +100,7 @@ describe('N8nClient', () => {
         },
         json: jest.fn(),
       };
-      mockFetch.mockResolvedValue(mockResponse);
+      mockFetch.mockResolvedValue(mockResponse as unknown as Response);
     });
 
     it('should get workflows with pagination', async () => {
@@ -113,7 +114,7 @@ describe('N8nClient', () => {
           ok: true,
           headers: { get: () => 'application/json' },
           json: () => Promise.resolve({ data: mockWorkflows }),
-        })
+        } as unknown as Response)
       );
 
       const result = await client.getWorkflows({ limit: 10, cursor: 'abc123' });
@@ -133,7 +134,7 @@ describe('N8nClient', () => {
           ok: true,
           headers: { get: () => 'application/json' },
           json: () => Promise.resolve(mockWorkflow),
-        })
+        } as unknown as Response)
       );
 
       const result = await client.getWorkflow('workflow-123');
@@ -158,7 +159,7 @@ describe('N8nClient', () => {
           ok: true,
           headers: { get: () => 'application/json' },
           json: () => Promise.resolve(mockWorkflow),
-        })
+        } as unknown as Response)
       );
 
       const result = await client.createWorkflow(workflowData);
@@ -179,7 +180,7 @@ describe('N8nClient', () => {
           ok: true,
           headers: { get: () => 'application/json' },
           text: () => Promise.resolve(''),
-        })
+        } as unknown as Response)
       );
 
       await client.deleteWorkflow('workflow-123');
@@ -205,7 +206,7 @@ describe('N8nClient', () => {
           ok: true,
           headers: { get: () => 'application/json' },
           json: () => Promise.resolve({ data: mockUsers }),
-        })
+        } as unknown as Response)
       );
 
       const result = await client.getUsers();
@@ -231,7 +232,7 @@ describe('N8nClient', () => {
           ok: true,
           headers: { get: () => 'application/json' },
           json: () => Promise.resolve(mockUser),
-        })
+        } as unknown as Response)
       );
 
       const result = await client.createUser(userData);
@@ -259,7 +260,7 @@ describe('N8nClient', () => {
           ok: true,
           headers: { get: () => 'application/json' },
           json: () => Promise.resolve({ data: mockExecutions }),
-        })
+        } as unknown as Response)
       );
 
       const result = await client.getExecutions();
@@ -277,7 +278,7 @@ describe('N8nClient', () => {
           ok: true,
           headers: { get: () => 'application/json' },
           text: () => Promise.resolve(''),
-        })
+        } as unknown as Response)
       );
 
       await client.deleteExecution('execution-123');
