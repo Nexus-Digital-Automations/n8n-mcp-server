@@ -1,7 +1,6 @@
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { ListToolsRequestSchema, CallToolRequestSchema } from "@modelcontextprotocol/sdk/types.js";
-import { z } from "zod";
 import fetch from 'node-fetch';
 
 // Type definitions for n8n API responses
@@ -103,6 +102,8 @@ class N8nClient {
   ) {
     // Remove trailing slash if present
     this.baseUrl = baseUrl.replace(/\/$/, '');
+    // Ensure apiKey is properly assigned for ESLint
+    this.apiKey = apiKey;
   }
 
   private async makeRequest<T>(endpoint: string, options: any = {}): Promise<T> {
