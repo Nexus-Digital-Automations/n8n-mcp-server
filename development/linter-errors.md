@@ -1,15 +1,25 @@
 # Linter Errors Report
 
-**Generated:** 2025-07-31T08:28:37.404Z
-**Total Issues:** 1 (0 errors, 1 warnings)
+**Generated:** 2025-07-31T09:23:05.098Z
+**Total Issues:** 6 (6 errors, 0 warnings)
 **Files:** 1
 
-## projects.test.ts (eslint)
+## fastmcp-cli.test.ts (eslint)
 
-**File Path:** `/Users/jeremyparker/Desktop/Claude Coding Projects/n8n-mcp-server/tests/unit/tools/projects.test.ts`
-**Issues:** 1
+**File Path:** `/Users/jeremyparker/Desktop/Claude Coding Projects/n8n-mcp-server/tests/e2e/fastmcp-cli.test.ts`
+**Issues:** 6
 
-⚠️ **Line 148:34** - Forbidden non-null assertion. `[@typescript-eslint/no-non-null-assertion]`
+❌ **Line 58:38** - '__dirname' is not defined. `[no-undef]`
+
+❌ **Line 148:38** - '__dirname' is not defined. `[no-undef]`
+
+❌ **Line 216:38** - '__dirname' is not defined. `[no-undef]`
+
+❌ **Line 345:38** - '__dirname' is not defined. `[no-undef]`
+
+❌ **Line 413:36** - '__dirname' is not defined. `[no-undef]`
+
+❌ **Line 466:36** - '__dirname' is not defined. `[no-undef]`
 
 ---
 

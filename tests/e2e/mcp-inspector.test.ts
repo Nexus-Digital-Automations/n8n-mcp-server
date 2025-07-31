@@ -1,12 +1,11 @@
 import { describe, beforeAll, afterAll, it, expect } from '@jest/globals';
 import { spawn, ChildProcess } from 'child_process';
 import { setTimeout, clearTimeout } from 'timers';
-import { MockN8nServer } from '../mocks/mockN8nServer.js';
+import { MockN8nServer } from '../mocks/mockN8nServer';
 import * as path from 'path';
-import { fileURLToPath } from 'url';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// Use process.cwd() + relative path for Jest compatibility
+const testDir = path.join(process.cwd(), 'tests', 'e2e');
 
 /**
  * MCP Inspector integration tests
@@ -44,7 +43,7 @@ describe('MCP Inspector Integration Tests', () => {
     it(
       'should pass MCP Inspector protocol validation',
       async () => {
-        const serverPath = path.join(__dirname, '../../build/index-fastmcp.js');
+        const serverPath = path.join(testDir, '../../build/index-fastmcp.js');
 
         const runInspectorValidation = (): Promise<string> => {
           return new Promise((resolve, reject) => {
@@ -219,7 +218,7 @@ describe('MCP Inspector Integration Tests', () => {
     it(
       'should handle MCP Inspector error scenarios',
       async () => {
-        const serverPath = path.join(__dirname, '../../build/index-fastmcp.js');
+        const serverPath = path.join(testDir, '../../build/index-fastmcp.js');
 
         const testErrorHandling = (): Promise<string> => {
           return new Promise((resolve, reject) => {
@@ -355,7 +354,7 @@ describe('MCP Inspector Integration Tests', () => {
     it(
       'should handle rapid sequential requests',
       async () => {
-        const serverPath = path.join(__dirname, '../../build/index-fastmcp.js');
+        const serverPath = path.join(testDir, '../../build/index-fastmcp.js');
 
         const testRapidRequests = (): Promise<string> => {
           return new Promise((resolve, reject) => {

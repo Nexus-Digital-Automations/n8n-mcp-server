@@ -1,13 +1,12 @@
 import { describe, beforeAll, afterAll, beforeEach, afterEach, it, expect } from '@jest/globals';
 import { spawn, ChildProcess } from 'child_process';
 import { setTimeout, clearTimeout } from 'timers';
-import { MockN8nServer } from '../mocks/mockN8nServer.js';
+import { MockN8nServer } from '../mocks/mockN8nServer';
 import * as path from 'path';
 import * as fs from 'fs';
-import { fileURLToPath } from 'url';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// Use process.cwd() + relative path for Jest compatibility
+const testDir = path.join(process.cwd(), 'tests', 'e2e');
 
 /**
  * FastMCP dev CLI automated testing
@@ -56,7 +55,7 @@ describe('FastMCP Dev CLI Automated Tests', () => {
     it(
       'should start FastMCP dev server with debug mode',
       async () => {
-        const serverPath = path.join(__dirname, '../../build/index-fastmcp.js');
+        const serverPath = path.join(testDir, '../../build/index-fastmcp.js');
 
         const startDevServer = (): Promise<string> => {
           return new Promise((resolve, reject) => {
@@ -146,7 +145,7 @@ describe('FastMCP Dev CLI Automated Tests', () => {
     it(
       'should support FastMCP CLI tool inspection',
       async () => {
-        const serverPath = path.join(__dirname, '../../build/index-fastmcp.js');
+        const serverPath = path.join(testDir, '../../build/index-fastmcp.js');
 
         const inspectTools = (): Promise<string> => {
           return new Promise((resolve, reject) => {
@@ -214,7 +213,7 @@ describe('FastMCP Dev CLI Automated Tests', () => {
     it(
       'should support automated testing workflow',
       async () => {
-        const serverPath = path.join(__dirname, '../../build/index-fastmcp.js');
+        const serverPath = path.join(testDir, '../../build/index-fastmcp.js');
 
         const runAutomatedWorkflow = (): Promise<string> => {
           return new Promise((resolve, reject) => {
@@ -343,7 +342,7 @@ describe('FastMCP Dev CLI Automated Tests', () => {
     it(
       'should handle CLI configuration validation',
       async () => {
-        const serverPath = path.join(__dirname, '../../build/index-fastmcp.js');
+        const serverPath = path.join(testDir, '../../build/index-fastmcp.js');
 
         const validateConfiguration = (): Promise<{ output: string; exitCode: number }> => {
           return new Promise((resolve, reject) => {
@@ -411,7 +410,7 @@ describe('FastMCP Dev CLI Automated Tests', () => {
 
   describe('CLI Help and Documentation', () => {
     it('should provide comprehensive help information', async () => {
-      const serverPath = path.join(__dirname, '../../build/index-fastmcp.js');
+      const serverPath = path.join(testDir, '../../build/index-fastmcp.js');
 
       const getHelpInfo = (): Promise<string> => {
         return new Promise((resolve, reject) => {
@@ -464,7 +463,7 @@ describe('FastMCP Dev CLI Automated Tests', () => {
     }, 10000);
 
     it('should handle version information requests', async () => {
-      const serverPath = path.join(__dirname, '../../build/index-fastmcp.js');
+      const serverPath = path.join(testDir, '../../build/index-fastmcp.js');
 
       const getVersionInfo = (): Promise<string> => {
         return new Promise((resolve, reject) => {

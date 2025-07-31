@@ -1,12 +1,11 @@
 import { describe, beforeAll, afterAll, beforeEach, afterEach, it, expect } from '@jest/globals';
 import { spawn, ChildProcess } from 'child_process';
 import { setTimeout, clearTimeout } from 'timers';
-import { MockN8nServer } from '../mocks/mockN8nServer.js';
+import { MockN8nServer } from '../mocks/mockN8nServer';
 import * as path from 'path';
-import { fileURLToPath } from 'url';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// Use process.cwd() + relative path for Jest compatibility
+const testDir = path.join(process.cwd(), 'tests', 'e2e');
 
 /**
  * End-to-End tests for MCP protocol compliance
@@ -55,7 +54,7 @@ describe('MCP Protocol E2E Tests', () => {
     it(
       'should start MCP server successfully with stdio transport',
       async () => {
-        const serverPath = path.join(__dirname, '../../build/index-fastmcp.js');
+        const serverPath = path.join(testDir, '../../build/index-fastmcp.js');
 
         const startServer = (): Promise<void> => {
           return new Promise((resolve, reject) => {
@@ -133,7 +132,7 @@ describe('MCP Protocol E2E Tests', () => {
     it(
       'should handle MCP initialization protocol',
       async () => {
-        const serverPath = path.join(__dirname, '../../build/index-fastmcp.js');
+        const serverPath = path.join(testDir, '../../build/index-fastmcp.js');
 
         const testInitialization = (): Promise<any> => {
           return new Promise((resolve, reject) => {
@@ -241,7 +240,7 @@ describe('MCP Protocol E2E Tests', () => {
 
     beforeEach(async () => {
       // Initialize server for tools testing
-      const serverPath = path.join(__dirname, '../../build/index-fastmcp.js');
+      const serverPath = path.join(testDir, '../../build/index-fastmcp.js');
 
       initializedServer = await new Promise((resolve, reject) => {
         mcpServerProcess = spawn('node', [serverPath], {
@@ -525,7 +524,7 @@ describe('MCP Protocol E2E Tests', () => {
   describe('Error Handling', () => {
     it('should handle invalid tool names gracefully', async () => {
       // Initialize server first
-      const serverPath = path.join(__dirname, '../../build/index-fastmcp.js');
+      const serverPath = path.join(testDir, '../../build/index-fastmcp.js');
 
       mcpServerProcess = spawn('node', [serverPath], {
         env: {
