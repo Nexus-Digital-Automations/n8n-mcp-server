@@ -22,6 +22,31 @@
       "created_at": "2025-07-31T08:50:25.502Z"
     },
     {
+      "id": "linter_task_active",
+      "title": "Fix Linter Errors - IMMEDIATE",
+      "description": "Fix 0 errors and 0 warnings found in recently edited files: BUILD.md",
+      "mode": "DEVELOPMENT",
+      "priority": "high",
+      "status": "pending",
+      "important_files": [
+        "development/linter-errors.md",
+        "BUILD.md"
+      ],
+      "success_criteria": [
+        "All linter errors in edited files resolved",
+        "development/linter-errors.md shows no issues for edited files",
+        "Code passes linting without warnings or errors"
+      ],
+      "created_at": "2025-07-31T09:12:52.185Z",
+      "is_linter_task": true,
+      "linter_summary": {
+        "total_violations": 0,
+        "errors": 0,
+        "warnings": 0,
+        "files_affected": 1
+      }
+    },
+    {
       "id": "quality_improve_coverage",
       "title": "Improve Test Coverage to Meet Quality Standards",
       "description": "Increase test coverage from 38.65% to 80%+ by creating tests for auth, resources, and transport modules",
@@ -167,7 +192,7 @@
       "description": "Ensure build process meets quality standards and document requirements",
       "mode": "DEVELOPMENT",
       "priority": "medium",
-      "status": "pending",
+      "status": "completed",
       "success_criteria": [
         "TypeScript compilation passes without errors",
         "Build artifacts are properly generated",
@@ -294,31 +319,6 @@
           "created_at": "2025-07-31T00:18:30.669Z"
         }
       ]
-    },
-    {
-      "id": "linter_task_active",
-      "title": "Fix Linter Errors - IMMEDIATE",
-      "description": "Fix 0 errors and 1 warning found in recently edited files: projects.test.ts",
-      "mode": "DEVELOPMENT",
-      "priority": "high",
-      "status": "completed",
-      "important_files": [
-        "development/linter-errors.md",
-        "tests/unit/tools/projects.test.ts"
-      ],
-      "success_criteria": [
-        "All linter errors in edited files resolved",
-        "development/linter-errors.md shows no issues for edited files",
-        "Code passes linting without warnings or errors"
-      ],
-      "created_at": "2025-07-31T08:28:37.404Z",
-      "is_linter_task": true,
-      "linter_summary": {
-        "total_violations": 1,
-        "errors": 0,
-        "warnings": 1,
-        "files_affected": 1
-      }
     },
     {
       "id": "fix-linter-create-quality-tasks-1753944690069",
@@ -1988,10 +1988,10 @@
   "strikes_completed_last_run": false,
   "current_task_index": 0,
   "last_mode": "DEVELOPMENT",
-  "execution_count": 149,
-  "last_hook_activation": 1753952710681,
+  "execution_count": 151,
+  "last_hook_activation": 1753953172185,
   "__removedLinterTasks": {
     "removedCount": 1,
-    "finalTaskCount": 41
+    "finalTaskCount": 49
   }
 }
