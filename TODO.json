@@ -117,24 +117,24 @@
     {
       "id": "linter_task_active",
       "title": "Fix Linter Errors - IMMEDIATE",
-      "description": "Fix 6 errors and 0 warnings found in recently edited files: fastmcp-server.test.ts",
+      "description": "Fix 0 errors and 0 warnings found in recently edited files: .eslintignore",
       "mode": "DEVELOPMENT",
       "priority": "high",
-      "status": "pending",
+      "status": "completed",
       "important_files": [
         "development/linter-errors.md",
-        "tests/integration/fastmcp-server.test.ts"
+        ".eslintignore"
       ],
       "success_criteria": [
         "All linter errors in edited files resolved",
         "development/linter-errors.md shows no issues for edited files",
         "Code passes linting without warnings or errors"
       ],
-      "created_at": "2025-07-31T07:48:40.386Z",
+      "created_at": "2025-07-31T07:59:52.218Z",
       "is_linter_task": true,
       "linter_summary": {
-        "total_violations": 6,
-        "errors": 6,
+        "total_violations": 0,
+        "errors": 0,
         "warnings": 0,
         "files_affected": 1
       }
@@ -1435,8 +1435,81 @@
         "tests/unit/resources/",
         "src/"
       ],
-      "estimate": "6-8 hours",
-      "created_at": "2025-07-31T07:34:23.116Z"
+      "estimate": "11-16 hours total",
+      "created_at": "2025-07-31T07:34:23.116Z",
+      "subtasks": [
+        {
+          "id": "unit-tests-tools-modules-1753948783053",
+          "title": "Create Unit Tests for All Tools Modules",
+          "description": "Implement comprehensive unit tests for all tool modules to achieve 80%+ coverage",
+          "mode": "DEVELOPMENT",
+          "priority": "high",
+          "status": "pending",
+          "success_criteria": [
+            "Unit tests for all tools modules with 80%+ coverage",
+            "All tool tests pass without failures"
+          ],
+          "important_files": [
+            "tests/unit/tools/",
+            "src/tools/"
+          ],
+          "estimate": "4-6 hours",
+          "created_at": "2025-07-31T07:59:43.053Z"
+        },
+        {
+          "id": "unit-tests-auth-modules-1753948783054",
+          "title": "Create Unit Tests for Authentication Modules",
+          "description": "Implement comprehensive unit tests for auth modules to achieve 80%+ coverage",
+          "mode": "DEVELOPMENT",
+          "priority": "high",
+          "status": "pending",
+          "success_criteria": [
+            "Unit tests for auth modules with 80%+ coverage",
+            "All auth tests pass without failures"
+          ],
+          "important_files": [
+            "tests/unit/auth/",
+            "src/auth/"
+          ],
+          "estimate": "3-4 hours",
+          "created_at": "2025-07-31T07:59:43.053Z"
+        },
+        {
+          "id": "unit-tests-resources-modules-1753948783055",
+          "title": "Create Unit Tests for Resource Modules",
+          "description": "Implement comprehensive unit tests for resource modules to achieve 80%+ coverage",
+          "mode": "DEVELOPMENT",
+          "priority": "high",
+          "status": "pending",
+          "success_criteria": [
+            "Unit tests for resource modules with 80%+ coverage",
+            "All resource tests pass without failures"
+          ],
+          "important_files": [
+            "tests/unit/resources/",
+            "src/resources/"
+          ],
+          "estimate": "3-4 hours",
+          "created_at": "2025-07-31T07:59:43.053Z"
+        },
+        {
+          "id": "fix-existing-test-failures-1753948783056",
+          "title": "Fix Existing Test Failures",
+          "description": "Fix failing workflow test and improve existing test coverage",
+          "mode": "DEVELOPMENT",
+          "priority": "high",
+          "status": "pending",
+          "success_criteria": [
+            "All existing tests pass without failures",
+            "workflow.test.ts tool count issue resolved"
+          ],
+          "important_files": [
+            "tests/unit/tools/workflow.test.ts"
+          ],
+          "estimate": "1-2 hours",
+          "created_at": "2025-07-31T07:59:43.053Z"
+        }
+      ]
     },
     {
       "id": "fix-test-mock-configuration-1753947200004",
@@ -1647,8 +1720,8 @@
   "strikes_completed_last_run": false,
   "current_task_index": 0,
   "last_mode": "DEVELOPMENT",
-  "execution_count": 130,
-  "last_hook_activation": 1753948120387,
+  "execution_count": 138,
+  "last_hook_activation": 1753948836850,
   "__removedLinterTasks": {
     "removedCount": 1,
     "finalTaskCount": 41

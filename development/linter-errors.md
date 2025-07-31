@@ -1,25 +1,23 @@
 # Linter Errors Report
 
-**Generated:** 2025-07-31T07:48:40.387Z
-**Total Issues:** 6 (6 errors, 0 warnings)
+**Generated:** 2025-07-31T07:59:14.801Z
+**Total Issues:** 5 (5 errors, 0 warnings)
 **Files:** 1
 
-## fastmcp-server.test.ts (eslint)
+## create-test-subtasks.js (eslint)
 
-**File Path:** `/Users/jeremyparker/Desktop/Claude Coding Projects/n8n-mcp-server/tests/integration/fastmcp-server.test.ts`
-**Issues:** 6
+**File Path:** `/Users/jeremyparker/Desktop/Claude Coding Projects/n8n-mcp-server/create-test-subtasks.js`
+**Issues:** 5
 
-❌ **Line 30:71** - 'MockedFunction' is not defined. `[no-undef]`
+❌ **Line 3:21** - 'require' is not defined. `[no-undef]`
 
-❌ **Line 44:76** - 'MockedFunction' is not defined. `[no-undef]`
+❌ **Line 85:5** - 'console' is not defined. `[no-undef]`
 
-❌ **Line 74:95** - 'MockedFunction' is not defined. `[no-undef]`
+❌ **Line 86:5** - 'console' is not defined. `[no-undef]`
 
-❌ **Line 84:81** - 'MockedFunction' is not defined. `[no-undef]`
+❌ **Line 87:33** - 'console' is not defined. `[no-undef]`
 
-❌ **Line 103:33** - 'MockedFunction' is not defined. `[no-undef]`
-
-❌ **Line 132:69** - 'MockedFunction' is not defined. `[no-undef]`
+❌ **Line 89:5** - 'console' is not defined. `[no-undef]`
 
 ---
 
