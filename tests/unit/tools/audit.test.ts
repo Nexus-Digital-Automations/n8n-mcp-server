@@ -205,5 +205,203 @@ describe('Audit Tools', () => {
       // Check that a date is included in the report
       expect(result).toMatch(/\*\*Generated:\*\* \d{1,2}\/\d{1,2}\/\d{4}/);
     });
+
+    it('should handle credentials risk report as non-object (null)', async () => {
+      const mockAuditReport = {
+        'Database Settings': { type: 'test' },
+        'Credentials Risk Report': null,
+      } as any;
+
+      mockClient.generateAuditReport.mockResolvedValue(mockAuditReport);
+
+      const result = await generateAuditReportTool.execute({});
+
+      // null is falsy, so the credentials section should not appear
+      expect(result).not.toContain('## Credentials Risk Assessment');
+    });
+
+    it('should handle credentials risk report as primitive string', async () => {
+      const mockAuditReport = {
+        'Database Settings': { type: 'test' },
+        'Credentials Risk Report': 'No risk assessment available',
+      } as any;
+
+      mockClient.generateAuditReport.mockResolvedValue(mockAuditReport);
+
+      const result = await generateAuditReportTool.execute({});
+
+      expect(result).toContain('## Credentials Risk Assessment');
+      expect(result).toContain('```json\n"No risk assessment available"\n```');
+    });
+
+    it('should handle nodes risk report as non-object (array)', async () => {
+      const mockAuditReport = {
+        'Database Settings': { type: 'test' },
+        'Nodes Risk Report': ['node1', 'node2', 'node3'],
+      } as any;
+
+      mockClient.generateAuditReport.mockResolvedValue(mockAuditReport);
+
+      const result = await generateAuditReportTool.execute({});
+
+      expect(result).toContain('## Nodes Risk Assessment');
+      // Arrays are objects in JavaScript, so Object.entries() converts indices to keys
+      expect(result).toContain('**0:** "node1"');
+      expect(result).toContain('**1:** "node2"');
+      expect(result).toContain('**2:** "node3"');
+    });
+
+    it('should handle nodes risk report as primitive number', async () => {
+      const mockAuditReport = {
+        'Database Settings': { type: 'test' },
+        'Nodes Risk Report': 42,
+      } as any;
+
+      mockClient.generateAuditReport.mockResolvedValue(mockAuditReport);
+
+      const result = await generateAuditReportTool.execute({});
+
+      expect(result).toContain('## Nodes Risk Assessment');
+      expect(result).toContain('```json\n42\n```');
+    });
+
+    it('should handle instance risk report as non-object (boolean)', async () => {
+      const mockAuditReport = {
+        'Database Settings': { type: 'test' },
+        'Instance Risk Report': false,
+      } as any;
+
+      mockClient.generateAuditReport.mockResolvedValue(mockAuditReport);
+
+      const result = await generateAuditReportTool.execute({});
+
+      // false is falsy, so the instance section should not appear
+      expect(result).not.toContain('## Instance Risk Assessment');
+    });
+
+    it('should handle instance risk report as string', async () => {
+      const mockAuditReport = {
+        'Database Settings': { type: 'test' },
+        'Instance Risk Report': 'Instance is secure',
+      } as any;
+
+      mockClient.generateAuditReport.mockResolvedValue(mockAuditReport);
+
+      const result = await generateAuditReportTool.execute({});
+
+      expect(result).toContain('## Instance Risk Assessment');
+      expect(result).toContain('```json\n"Instance is secure"\n```');
+    });
+
+    it('should handle all risk reports as non-objects simultaneously', async () => {
+      const mockAuditReport = {
+        'Database Settings': { type: 'test' },
+        'Credentials Risk Report': 'All credentials secure',
+        'Nodes Risk Report': ['secure-node-1', 'secure-node-2'],
+        'Instance Risk Report': true,
+      } as any;
+
+      mockClient.generateAuditReport.mockResolvedValue(mockAuditReport);
+
+      const result = await generateAuditReportTool.execute({});
+
+      expect(result).toContain('## Credentials Risk Assessment');  
+      expect(result).toContain('```json\n"All credentials secure"\n```');
+      expect(result).toContain('## Nodes Risk Assessment');
+      // Arrays are objects, so they use Object.entries() processing
+      expect(result).toContain('**0:** "secure-node-1"');
+      expect(result).toContain('**1:** "secure-node-2"');
+      expect(result).toContain('## Instance Risk Assessment');
+      expect(result).toContain('```json\ntrue\n```');
+    });
+
+    it('should handle mixed risk report types (some objects, some non-objects)', async () => {
+      const mockAuditReport = {
+        'Database Settings': { type: 'test' },
+        'Credentials Risk Report': {
+          'encrypted-count': 5,
+          'total-count': 10,
+        },
+        'Nodes Risk Report': 'No nodes to assess',
+        'Instance Risk Report': null,
+      } as any;
+
+      mockClient.generateAuditReport.mockResolvedValue(mockAuditReport);
+
+      const result = await generateAuditReportTool.execute({});
+
+      // Object-type report should show key-value pairs
+      expect(result).toContain('**encrypted-count:** 5');
+      expect(result).toContain('**total-count:** 10');
+      
+      // String-type report should show JSON block
+      expect(result).toContain('```json\n"No nodes to assess"\n```');
+      
+      // Null is falsy, so instance section should not appear
+      expect(result).not.toContain('## Instance Risk Assessment');
+    });
+
+    it('should handle undefined/missing risk report sections gracefully', async () => {
+      const mockAuditReport = {
+        'Database Settings': { type: 'test' },
+        'Credentials Risk Report': undefined,
+      } as any;
+
+      mockClient.generateAuditReport.mockResolvedValue(mockAuditReport);
+
+      const result = await generateAuditReportTool.execute({});
+
+      // Should not include the credentials section if it's undefined
+      expect(result).not.toContain('## Credentials Risk Assessment');
+    });
+
+    // Additional tests to ensure we cover the JSON formatting branches for non-object truthy values
+    it('should handle credentials risk report as truthy non-object (zero)', async () => {
+      const mockAuditReport = {
+        'Database Settings': { type: 'test' },
+        'Credentials Risk Report': 0, // truthy check fails, but exists
+      } as any;
+
+      mockClient.generateAuditReport.mockResolvedValue(mockAuditReport);
+
+      const result = await generateAuditReportTool.execute({});
+
+      // 0 is falsy, so the credentials section should not appear
+      expect(result).not.toContain('## Credentials Risk Assessment');
+    });
+
+    it('should handle nodes risk report as truthy non-object (empty string)', async () => {
+      const mockAuditReport = {
+        'Database Settings': { type: 'test' },
+        'Nodes Risk Report': '', // falsy
+      } as any;
+
+      mockClient.generateAuditReport.mockResolvedValue(mockAuditReport);
+
+      const result = await generateAuditReportTool.execute({});
+
+      // Empty string is falsy, so the nodes section should not appear
+      expect(result).not.toContain('## Nodes Risk Assessment');
+    });
+
+    it('should cover all JSON formatting branches with non-object truthy values', async () => {
+      const mockAuditReport = {
+        'Database Settings': { type: 'test' },
+        'Credentials Risk Report': 'credentials-info', // truthy string - triggers lines 56-58
+        'Nodes Risk Report': 42, // truthy number - triggers lines 78-80  
+        'Instance Risk Report': 'instance-secure', // truthy string - triggers lines 100-102
+      } as any;
+
+      mockClient.generateAuditReport.mockResolvedValue(mockAuditReport);
+
+      const result = await generateAuditReportTool.execute({});
+
+      expect(result).toContain('## Credentials Risk Assessment');
+      expect(result).toContain('```json\n"credentials-info"\n```');
+      expect(result).toContain('## Nodes Risk Assessment');
+      expect(result).toContain('```json\n42\n```');
+      expect(result).toContain('## Instance Risk Assessment');
+      expect(result).toContain('```json\n"instance-secure"\n```');
+    });
   });
 });
