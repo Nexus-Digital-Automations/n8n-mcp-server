@@ -120,7 +120,7 @@
       "description": "Fix 0 errors and 1 warning found in recently edited files: projects.test.ts",
       "mode": "DEVELOPMENT",
       "priority": "high",
-      "status": "pending",
+      "status": "completed",
       "important_files": [
         "development/linter-errors.md",
         "tests/unit/tools/projects.test.ts"
@@ -1420,7 +1420,7 @@
       "description": "Add unit tests for core modules to achieve minimum 80% test coverage across all src/ files",
       "mode": "DEVELOPMENT",
       "priority": "high",
-      "status": "pending",
+      "status": "completed",
       "success_criteria": [
         "Unit tests for src/client/n8nClient.ts with 80%+ coverage",
         "Unit tests for src/tools/ modules with 80%+ coverage",
@@ -1714,14 +1714,101 @@
         "expand-unit-test-coverage-comprehensive-1753947878931"
       ],
       "created_at": "2025-07-31T07:44:38.931Z"
+    },
+    {
+      "id": "implement-auth-module-tests-1753951152342",
+      "title": "Implement Authentication Module Unit Tests",
+      "description": "Create comprehensive unit tests for auth modules (authProvider, middleware, n8nAuth) to achieve 80%+ coverage",
+      "mode": "DEVELOPMENT",
+      "priority": "high",
+      "status": "pending",
+      "success_criteria": [
+        "Unit tests for authProvider.ts with 80%+ coverage",
+        "Unit tests for middleware.ts with 80%+ coverage",
+        "Unit tests for n8nAuth.ts with 80%+ coverage",
+        "All auth tests pass without failures",
+        "Auth module coverage improves from 0% to 80%+"
+      ],
+      "important_files": [
+        "src/auth/authProvider.ts",
+        "src/auth/middleware.ts",
+        "src/auth/n8nAuth.ts",
+        "tests/unit/auth/"
+      ],
+      "estimate": "4-6 hours",
+      "created_at": "2025-07-31T08:39:12.342Z"
+    },
+    {
+      "id": "implement-resources-module-tests-1753951152343",
+      "title": "Implement Resources Module Unit Tests",
+      "description": "Create comprehensive unit tests for resources modules (executionResources, resourceManager, workflowResources) to achieve 80%+ coverage",
+      "mode": "DEVELOPMENT",
+      "priority": "medium",
+      "status": "pending",
+      "success_criteria": [
+        "Unit tests for executionResources.ts with 80%+ coverage",
+        "Unit tests for resourceManager.ts with 80%+ coverage",
+        "Unit tests for workflowResources.ts with 80%+ coverage",
+        "All resource tests pass without failures",
+        "Resources module coverage improves from 0% to 80%+"
+      ],
+      "important_files": [
+        "src/resources/executionResources.ts",
+        "src/resources/resourceManager.ts",
+        "src/resources/workflowResources.ts",
+        "tests/unit/resources/"
+      ],
+      "estimate": "3-4 hours",
+      "created_at": "2025-07-31T08:39:12.342Z"
+    },
+    {
+      "id": "implement-transport-module-tests-1753951152344",
+      "title": "Implement Transport Module Unit Tests",
+      "description": "Create comprehensive unit tests for transport modules (sseTransport, transportConfig) to achieve 80%+ coverage",
+      "mode": "DEVELOPMENT",
+      "priority": "medium",
+      "status": "pending",
+      "success_criteria": [
+        "Unit tests for sseTransport.ts with 80%+ coverage",
+        "Unit tests for transportConfig.ts with 80%+ coverage",
+        "All transport tests pass without failures",
+        "Transport module coverage improves from 0% to 80%+"
+      ],
+      "important_files": [
+        "src/transport/sseTransport.ts",
+        "src/transport/transportConfig.ts",
+        "tests/unit/transport/"
+      ],
+      "estimate": "2-3 hours",
+      "created_at": "2025-07-31T08:39:12.342Z"
+    },
+    {
+      "id": "implement-client-module-tests-1753951152345",
+      "title": "Improve N8nClient Module Test Coverage",
+      "description": "Enhance existing n8nClient tests to achieve comprehensive 80%+ coverage for all client functionality",
+      "mode": "DEVELOPMENT",
+      "priority": "medium",
+      "status": "pending",
+      "success_criteria": [
+        "N8nClient test coverage improves from 42.26% to 80%+",
+        "All client API methods tested comprehensively",
+        "Error handling and edge cases covered",
+        "Authentication and request handling tested"
+      ],
+      "important_files": [
+        "src/client/n8nClient.ts",
+        "tests/unit/client/n8nClient.test.ts"
+      ],
+      "estimate": "2-3 hours",
+      "created_at": "2025-07-31T08:39:12.342Z"
     }
   ],
   "review_strikes": 0,
   "strikes_completed_last_run": false,
   "current_task_index": 0,
-  "last_mode": "DEVELOPMENT",
-  "execution_count": 143,
-  "last_hook_activation": 1753950517404,
+  "last_mode": "TASK_CREATION",
+  "execution_count": 144,
+  "last_hook_activation": 1753951041794,
   "__removedLinterTasks": {
     "removedCount": 1,
     "finalTaskCount": 41
