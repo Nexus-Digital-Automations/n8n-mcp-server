@@ -2,6 +2,87 @@
   "project": "@illuminaresolutions/n8n-mcp-server",
   "tasks": [
     {
+      "id": "quality_fix_failing_tests",
+      "title": "Fix Failing Unit Tests",
+      "description": "Fix 13 failing unit tests across variables.test.ts, tags.test.ts, and users.test.ts files",
+      "mode": "DEVELOPMENT",
+      "priority": "high",
+      "status": "completed",
+      "success_criteria": [
+        "All 13 failing tests pass",
+        "Test suite runs without errors",
+        "No regression in existing passing tests"
+      ],
+      "important_files": [
+        "tests/unit/tools/variables.test.ts",
+        "tests/unit/tools/tags.test.ts",
+        "tests/unit/tools/users.test.ts"
+      ],
+      "estimate": "2-3 hours",
+      "created_at": "2025-07-31T08:50:25.502Z"
+    },
+    {
+      "id": "quality_improve_coverage",
+      "title": "Improve Test Coverage to Meet Quality Standards",
+      "description": "Increase test coverage from 38.65% to 80%+ by creating tests for auth, resources, and transport modules",
+      "mode": "DEVELOPMENT",
+      "priority": "high",
+      "status": "pending",
+      "success_criteria": [
+        "Overall coverage reaches 80% minimum",
+        "All modules have at least 70% coverage",
+        "Branch coverage above 75%",
+        "Function coverage above 80%"
+      ],
+      "important_files": [
+        "src/auth/",
+        "src/resources/",
+        "src/transport/"
+      ],
+      "estimate": "4-6 hours",
+      "created_at": "2025-07-31T08:50:25.502Z"
+    },
+    {
+      "id": "quality_fix_eslint_deprecation",
+      "title": "Fix ESLint Ignore File Deprecation Warning",
+      "description": "Remove .eslintignore file and migrate ignore patterns to eslint.config.js",
+      "mode": "DEVELOPMENT",
+      "priority": "medium",
+      "status": "pending",
+      "success_criteria": [
+        "ESLint runs without deprecation warnings",
+        "All ignore patterns properly configured in eslint.config.js",
+        "Linting behavior remains consistent"
+      ],
+      "important_files": [
+        ".eslintignore",
+        "eslint.config.js"
+      ],
+      "estimate": "30 minutes",
+      "created_at": "2025-07-31T08:50:25.502Z"
+    },
+    {
+      "id": "quality_validate_build",
+      "title": "Validate and Document Build Quality Standards",
+      "description": "Ensure build process meets quality standards and document requirements",
+      "mode": "DEVELOPMENT",
+      "priority": "medium",
+      "status": "pending",
+      "success_criteria": [
+        "TypeScript compilation passes without errors",
+        "Build artifacts are properly generated",
+        "Quality standards are documented",
+        "Build process is reproducible"
+      ],
+      "important_files": [
+        "tsconfig.build.json",
+        "package.json",
+        "build/"
+      ],
+      "estimate": "1 hour",
+      "created_at": "2025-07-31T08:50:25.502Z"
+    },
+    {
       "id": "task-1",
       "mode": "DEVELOPMENT",
       "description": "Complete n8n MCP server development and documentation",
@@ -1807,8 +1888,8 @@
   "strikes_completed_last_run": false,
   "current_task_index": 0,
   "last_mode": "DEVELOPMENT",
-  "execution_count": 145,
-  "last_hook_activation": 1753951230171,
+  "execution_count": 147,
+  "last_hook_activation": 1753952400187,
   "__removedLinterTasks": {
     "removedCount": 1,
     "finalTaskCount": 41

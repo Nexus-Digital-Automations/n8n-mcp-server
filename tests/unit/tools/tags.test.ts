@@ -236,13 +236,15 @@ describe('Tag Tools', () => {
 
     it('should throw UserError when client is not initialized', async () => {
       const getClientNull = jest.fn(() => null);
-      createTagTools(getClientNull, { addTool: jest.fn() });
-      const toolCall = mockServer.addTool.mock.calls.find(
-        (call: any) => call[0].name === 'get-tag'
-      );
-      const toolWithNullClient = toolCall[0];
+      const nullClientServer = { addTool: jest.fn() };
+      createTagTools(getClientNull, nullClientServer);
 
-      await expect(toolWithNullClient.execute({ tagId: 'tag-1' })).rejects.toThrow(
+      const getTagToolWithNullClient = nullClientServer.addTool.mock.calls.find(
+        (call: any) => call[0].name === 'get-tag'
+      )?.[0];
+
+      expect(getTagToolWithNullClient).toBeDefined();
+      await expect((getTagToolWithNullClient as any).execute({ tagId: 'tag-1' })).rejects.toThrow(
         new UserError('n8n client not initialized. Please run init-n8n first.')
       );
     });
@@ -309,15 +311,17 @@ describe('Tag Tools', () => {
 
     it('should throw UserError when client is not initialized', async () => {
       const getClientNull = jest.fn(() => null);
-      createTagTools(getClientNull, { addTool: jest.fn() });
-      const toolCall = mockServer.addTool.mock.calls.find(
-        (call: any) => call[0].name === 'create-tag'
-      );
-      const toolWithNullClient = toolCall[0];
+      const nullClientServer = { addTool: jest.fn() };
+      createTagTools(getClientNull, nullClientServer);
 
-      await expect(toolWithNullClient.execute({ name: 'Test Tag' })).rejects.toThrow(
-        new UserError('n8n client not initialized. Please run init-n8n first.')
-      );
+      const createTagToolWithNullClient = nullClientServer.addTool.mock.calls.find(
+        (call: any) => call[0].name === 'create-tag'
+      )?.[0];
+
+      expect(createTagToolWithNullClient).toBeDefined();
+      await expect(
+        (createTagToolWithNullClient as any).execute({ name: 'Test Tag' })
+      ).rejects.toThrow(new UserError('n8n client not initialized. Please run init-n8n first.'));
     });
 
     it('should handle API errors', async () => {
@@ -383,15 +387,17 @@ describe('Tag Tools', () => {
 
     it('should throw UserError when client is not initialized', async () => {
       const getClientNull = jest.fn(() => null);
-      createTagTools(getClientNull, { addTool: jest.fn() });
-      const toolCall = mockServer.addTool.mock.calls.find(
-        (call: any) => call[0].name === 'update-tag'
-      );
-      const toolWithNullClient = toolCall[0];
+      const nullClientServer = { addTool: jest.fn() };
+      createTagTools(getClientNull, nullClientServer);
 
-      await expect(toolWithNullClient.execute({ tagId: 'tag-1', name: 'Updated' })).rejects.toThrow(
-        new UserError('n8n client not initialized. Please run init-n8n first.')
-      );
+      const updateTagToolWithNullClient = nullClientServer.addTool.mock.calls.find(
+        (call: any) => call[0].name === 'update-tag'
+      )?.[0];
+
+      expect(updateTagToolWithNullClient).toBeDefined();
+      await expect(
+        (updateTagToolWithNullClient as any).execute({ tagId: 'tag-1', name: 'Updated' })
+      ).rejects.toThrow(new UserError('n8n client not initialized. Please run init-n8n first.'));
     });
 
     it('should handle API errors', async () => {
@@ -446,15 +452,17 @@ describe('Tag Tools', () => {
 
     it('should throw UserError when client is not initialized', async () => {
       const getClientNull = jest.fn(() => null);
-      createTagTools(getClientNull, { addTool: jest.fn() });
-      const toolCall = mockServer.addTool.mock.calls.find(
-        (call: any) => call[0].name === 'delete-tag'
-      );
-      const toolWithNullClient = toolCall[0];
+      const nullClientServer = { addTool: jest.fn() };
+      createTagTools(getClientNull, nullClientServer);
 
-      await expect(toolWithNullClient.execute({ tagId: 'tag-1' })).rejects.toThrow(
-        new UserError('n8n client not initialized. Please run init-n8n first.')
-      );
+      const deleteTagToolWithNullClient = nullClientServer.addTool.mock.calls.find(
+        (call: any) => call[0].name === 'delete-tag'
+      )?.[0];
+
+      expect(deleteTagToolWithNullClient).toBeDefined();
+      await expect(
+        (deleteTagToolWithNullClient as any).execute({ tagId: 'tag-1' })
+      ).rejects.toThrow(new UserError('n8n client not initialized. Please run init-n8n first.'));
     });
 
     it('should handle API errors', async () => {
@@ -534,15 +542,17 @@ describe('Tag Tools', () => {
 
     it('should throw UserError when client is not initialized', async () => {
       const getClientNull = jest.fn(() => null);
-      createTagTools(getClientNull, { addTool: jest.fn() });
-      const toolCall = mockServer.addTool.mock.calls.find(
-        (call: any) => call[0].name === 'get-workflow-tags'
-      );
-      const toolWithNullClient = toolCall[0];
+      const nullClientServer = { addTool: jest.fn() };
+      createTagTools(getClientNull, nullClientServer);
 
-      await expect(toolWithNullClient.execute({ workflowId: 'workflow-1' })).rejects.toThrow(
-        new UserError('n8n client not initialized. Please run init-n8n first.')
-      );
+      const getWorkflowTagsToolWithNullClient = nullClientServer.addTool.mock.calls.find(
+        (call: any) => call[0].name === 'get-workflow-tags'
+      )?.[0];
+
+      expect(getWorkflowTagsToolWithNullClient).toBeDefined();
+      await expect(
+        (getWorkflowTagsToolWithNullClient as any).execute({ workflowId: 'workflow-1' })
+      ).rejects.toThrow(new UserError('n8n client not initialized. Please run init-n8n first.'));
     });
 
     it('should handle API errors', async () => {
@@ -616,14 +626,19 @@ describe('Tag Tools', () => {
 
     it('should throw UserError when client is not initialized', async () => {
       const getClientNull = jest.fn(() => null);
-      createTagTools(getClientNull, { addTool: jest.fn() });
-      const toolCall = mockServer.addTool.mock.calls.find(
-        (call: any) => call[0].name === 'update-workflow-tags'
-      );
-      const toolWithNullClient = toolCall[0];
+      const nullClientServer = { addTool: jest.fn() };
+      createTagTools(getClientNull, nullClientServer);
 
+      const updateWorkflowTagsToolWithNullClient = nullClientServer.addTool.mock.calls.find(
+        (call: any) => call[0].name === 'update-workflow-tags'
+      )?.[0];
+
+      expect(updateWorkflowTagsToolWithNullClient).toBeDefined();
       await expect(
-        toolWithNullClient.execute({ workflowId: 'workflow-1', tagIds: ['tag-1'] })
+        (updateWorkflowTagsToolWithNullClient as any).execute({
+          workflowId: 'workflow-1',
+          tagIds: ['tag-1'],
+        })
       ).rejects.toThrow(new UserError('n8n client not initialized. Please run init-n8n first.'));
     });
 
