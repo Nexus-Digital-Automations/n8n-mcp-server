@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">67.12% </span>
+                <span class="strong">80.82% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>49/73</span>
+                <span class='fraction'>59/73</span>
             </div>
         
             
@@ -37,16 +37,16 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">66.66% </span>
+                <span class="strong">85.71% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>14/21</span>
+                <span class='fraction'>18/21</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">66.66% </span>
+                <span class="strong">80.55% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>48/72</span>
+                <span class='fraction'>58/72</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line medium'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -586,37 +586,37 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -883,16 +883,16 @@ export function createAuthMiddleware(config: AuthMiddlewareConfig): FastMCPAuthM
  * async function myTool() { ... }
  */
 export function requireAuth(toolName: string) {
-  return <span class="fstat-no" title="function not covered" >function (t</span>arget: any, propertyKey: string, descriptor: PropertyDescriptor) {
-    const originalMethod = <span class="cstat-no" title="statement not covered" >descriptor.value;</span>
+  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+    const originalMethod = descriptor.value;
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    descriptor.value = <span class="fstat-no" title="function not covered" >async </span>function (...args: any[]) {</span>
+    descriptor.value = async function (...args: any[]) {
       // This would be implemented with actual middleware instance
-<span class="cstat-no" title="statement not covered" >      console.log(`🔒 Authentication check for tool: ${toolName}`);</span>
-<span class="cstat-no" title="statement not covered" >      return originalMethod.apply(this, args);</span>
+      console.log(`🔒 Authentication check for tool: ${toolName}`);
+      return originalMethod.apply(this, args);
     };
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    return descriptor;</span>
+    return descriptor;
   };
 }
 &nbsp;
@@ -904,16 +904,16 @@ export function requireAuth(toolName: string) {
  * async function manageWorkflow() { ... }
  */
 export function requirePermission(permission: string) {
-  return <span class="fstat-no" title="function not covered" >function (t</span>arget: any, propertyKey: string, descriptor: PropertyDescriptor) {
-    const originalMethod = <span class="cstat-no" title="statement not covered" >descriptor.value;</span>
+  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+    const originalMethod = descriptor.value;
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    descriptor.value = <span class="fstat-no" title="function not covered" >async </span>function (...args: any[]) {</span>
+    descriptor.value = async function (...args: any[]) {
       // This would be implemented with actual middleware instance
-<span class="cstat-no" title="statement not covered" >      console.log(`🛡️  Permission check for: ${permission}`);</span>
-<span class="cstat-no" title="statement not covered" >      return originalMethod.apply(this, args);</span>
+      console.log(`🛡️  Permission check for: ${permission}`);
+      return originalMethod.apply(this, args);
     };
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    return descriptor;</span>
+    return descriptor;
   };
 }
 &nbsp;
@@ -961,7 +961,7 @@ export function parseAuthConfigFromEnv(authProvider: AuthProvider): AuthMiddlewa
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-07-31T12:47:27.248Z
+                at 2025-07-31T13:33:26.531Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
