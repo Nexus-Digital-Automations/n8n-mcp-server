@@ -129,7 +129,7 @@ export default {
   clearMocks: true,
   
   // Verbose output - conditional based on CI environment
-  verbose: process.env.CI ? false : true,
+  verbose: !process.env.CI,
   
   // Performance optimizations
   maxWorkers: process.env.CI ? 2 : '50%',
@@ -137,7 +137,7 @@ export default {
   cacheDirectory: '<rootDir>/.jest-cache',
   
   // CI optimizations
-  silent: process.env.CI ? true : false,
+  silent: !!process.env.CI,
   
   // Detect open handles
   detectOpenHandles: !process.env.CI,

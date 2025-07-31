@@ -411,7 +411,7 @@ describe('MCP Protocol E2E Tests', () => {
       expect((response as any).result.content).toBeDefined();
       expect(Array.isArray((response as any).result.content)).toBe(true);
       expect((response as any).result.content[0].type).toBe('text');
-      expect((response as any).result.content[0].text).toContain('initialized');
+      expect((response as any).result.content[0].text).toContain('Successfully connected');
     });
 
     it('should execute list-workflows tool successfully', async () => {
@@ -516,7 +516,7 @@ describe('MCP Protocol E2E Tests', () => {
 
       // Verify response contains workflow data
       const responseText = (response as any).result.content[0].text;
-      expect(responseText).toContain('workflows');
+      expect(responseText).toContain('workflow(s)');
       expect(responseText).toContain('Test Workflow');
     });
   });
@@ -602,7 +602,7 @@ describe('MCP Protocol E2E Tests', () => {
       expect((response as any).id).toBe(2);
       expect((response as any).error).toBeDefined();
       expect((response as any).error.code).toBeDefined();
-      expect((response as any).error.message).toContain('not found');
+      expect((response as any).error.message).toContain('Unknown tool');
     });
   });
 });

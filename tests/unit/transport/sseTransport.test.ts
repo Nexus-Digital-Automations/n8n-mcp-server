@@ -302,6 +302,27 @@ describe('SSE Transport', () => {
         await expect(manager.start()).rejects.toThrow('SSE transport not configured');
       });
 
+      it('should handle SSE config without healthCheck property', async () => {
+        const configWithoutHealthCheck = {
+          type: 'sse' as const,
+          sse: {
+            port: 8080,
+            endpoint: '/sse',
+            host: 'localhost',
+            cors: { enabled: true, origins: ['*'], credentials: false },
+            // healthCheck property is completely omitted
+          },
+        } as TransportConfig;
+
+        const manager = new SSETransportManager(mockFastMCP as any, configWithoutHealthCheck);
+        await manager.start();
+
+        // Should not log health check endpoint when healthCheck is undefined
+        expect(mockConsole.log).not.toHaveBeenCalledWith(
+          expect.stringContaining('Health check endpoint')
+        );
+      });
+
       it('should setup health check with custom endpoint', async () => {
         const customHealthConfig: TransportConfig = {
           type: 'sse',

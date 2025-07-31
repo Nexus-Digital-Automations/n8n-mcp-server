@@ -46,7 +46,7 @@ export class SSETransportManager {
     });
 
     // Add health check endpoint if enabled
-    if (healthCheck.enabled) {
+    if (healthCheck?.enabled) {
       this.setupHealthCheck();
     }
 

@@ -67,7 +67,9 @@ export default [
         beforeAll: 'readonly',
         beforeEach: 'readonly',
         afterAll: 'readonly',
-        afterEach: 'readonly'
+        afterEach: 'readonly',
+        // Node.js globals for test files
+        require: 'readonly'
       }
     },
     plugins: {
@@ -108,6 +110,31 @@ export default [
     rules: {
       ...js.configs.recommended.rules,
       'no-console': 'warn',
+      'no-debugger': 'error',
+      'prefer-const': 'error',
+      'no-var': 'error'
+    }
+  },
+  
+  // Apply to Jest configuration file specifically
+  {
+    files: ['jest.config.js'],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: 'module',
+      globals: {
+        process: 'readonly',
+        Buffer: 'readonly',
+        console: 'readonly',
+        module: 'readonly',
+        require: 'readonly',
+        __dirname: 'readonly',
+        __filename: 'readonly'
+      }
+    },
+    rules: {
+      ...js.configs.recommended.rules,
+      'no-console': 'off', // Allow console in configuration files
       'no-debugger': 'error',
       'prefer-const': 'error',
       'no-var': 'error'

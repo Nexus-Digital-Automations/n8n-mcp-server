@@ -1,17 +1,29 @@
 import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
-import { Server } from '@modelcontextprotocol/sdk/server/index.js';
-import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 
-// Mock dependencies
-jest.mock('@modelcontextprotocol/sdk/server/index.js');
-jest.mock('@modelcontextprotocol/sdk/server/stdio.js');
-jest.mock('node-fetch');
+// Mock all dependencies before imports
+jest.mock('@modelcontextprotocol/sdk/server/index.js', () => ({
+  Server: jest.fn(),
+}));
+
+jest.mock('@modelcontextprotocol/sdk/server/stdio.js', () => ({
+  StdioServerTransport: jest.fn(),
+}));
+
+jest.mock('@modelcontextprotocol/sdk/types.js', () => ({
+  ListToolsRequestSchema: { type: 'list_tools' },
+  CallToolRequestSchema: { type: 'call_tool' },
+}));
+
+jest.mock('node-fetch', () => jest.fn());
+
+// Mock process to prevent actual exit
+const originalProcessExit = process.exit;
 
 describe('src/index.ts - Main MCP Server Entry Point', () => {
-  let mockServer: jest.Mocked<Server>;
-  let mockTransport: jest.Mocked<StdioServerTransport>;
+  let mockServer: any;
+  let mockTransport: any;
+  let mockFetch: any;
   let mockConsoleError: any;
-  let originalProcessExit: typeof process.exit;
 
   beforeEach(() => {
     // Mock console.error to capture log messages
@@ -19,19 +31,22 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
 
     // Mock Server class
     mockServer = {
-      setRequestHandler: jest.fn() as jest.MockedFunction<any>,
-      connect: jest.fn<() => Promise<void>>().mockResolvedValue(undefined),
-    } as any;
-    (Server as jest.MockedClass<typeof Server>).mockImplementation(() => mockServer);
+      setRequestHandler: jest.fn(),
+      connect: jest.fn<() => Promise<void>>().mockResolvedValue(undefined as void),
+    };
+
+    const { Server } = require('@modelcontextprotocol/sdk/server/index.js');
+    Server.mockImplementation(() => mockServer);
 
     // Mock StdioServerTransport
-    mockTransport = {} as any;
-    (StdioServerTransport as jest.MockedClass<typeof StdioServerTransport>).mockImplementation(
-      () => mockTransport
-    );
+    mockTransport = {};
+    const { StdioServerTransport } = require('@modelcontextprotocol/sdk/server/stdio.js');
+    StdioServerTransport.mockImplementation(() => mockTransport);
+
+    // Mock node-fetch
+    mockFetch = require('node-fetch');
 
     // Mock process.exit to prevent actual exit during tests
-    originalProcessExit = process.exit;
     process.exit = jest.fn() as any;
 
     // Clear all mocks
@@ -39,13 +54,18 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
   });
 
   afterEach(() => {
-    // Restore process.exit
+    // Restore original functions
     process.exit = originalProcessExit;
     mockConsoleError.mockRestore();
+
+    // Clear module cache to ensure fresh imports
+    jest.resetModules();
   });
 
   describe('Server Initialization', () => {
     it('should create Server with correct configuration', async () => {
+      const { Server } = require('@modelcontextprotocol/sdk/server/index.js');
+
       // Import the module to trigger initialization
       await import('../../src/index.js');
 
@@ -63,6 +83,8 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
     });
 
     it('should create StdioServerTransport', async () => {
+      const { StdioServerTransport } = require('@modelcontextprotocol/sdk/server/stdio.js');
+
       await import('../../src/index.js');
 
       expect(StdioServerTransport).toHaveBeenCalledWith();
@@ -83,19 +105,23 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
 
   describe('Request Handlers Registration', () => {
     it('should register ListToolsRequestSchema handler', async () => {
+      const { ListToolsRequestSchema } = require('@modelcontextprotocol/sdk/types.js');
+
       await import('../../src/index.js');
 
       expect(mockServer.setRequestHandler).toHaveBeenCalledWith(
-        expect.anything(), // ListToolsRequestSchema
+        ListToolsRequestSchema,
         expect.any(Function)
       );
     });
 
     it('should register CallToolRequestSchema handler', async () => {
+      const { CallToolRequestSchema } = require('@modelcontextprotocol/sdk/types.js');
+
       await import('../../src/index.js');
 
       expect(mockServer.setRequestHandler).toHaveBeenCalledWith(
-        expect.anything(), // CallToolRequestSchema
+        CallToolRequestSchema,
         expect.any(Function)
       );
     });
@@ -114,13 +140,19 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
       await import('../../src/index.js');
 
       // Extract the ListTools handler
-      const listToolsCall = mockServer.setRequestHandler.mock.calls.find(call =>
-        call[0].toString().includes('list_tools')
+      const listToolsCalls = mockServer.setRequestHandler.mock.calls.filter(
+        (call: any) => call[0].type === 'list_tools'
       );
-      listToolsHandler = listToolsCall?.[1] as Function;
+      if (listToolsCalls.length > 0) {
+        listToolsHandler = listToolsCalls[0][1];
+      }
     });
 
     it('should return comprehensive list of tools', async () => {
+      if (!listToolsHandler) {
+        throw new Error('ListTools handler not found');
+      }
+
       const result = await listToolsHandler();
 
       expect(result).toHaveProperty('tools');
@@ -129,6 +161,10 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
     });
 
     it('should include essential workflow tools', async () => {
+      if (!listToolsHandler) {
+        throw new Error('ListTools handler not found');
+      }
+
       const result = await listToolsHandler();
       const toolNames = result.tools.map((tool: any) => tool.name);
 
@@ -143,6 +179,10 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
     });
 
     it('should include user management tools', async () => {
+      if (!listToolsHandler) {
+        throw new Error('ListTools handler not found');
+      }
+
       const result = await listToolsHandler();
       const toolNames = result.tools.map((tool: any) => tool.name);
 
@@ -153,6 +193,10 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
     });
 
     it('should include project management tools', async () => {
+      if (!listToolsHandler) {
+        throw new Error('ListTools handler not found');
+      }
+
       const result = await listToolsHandler();
       const toolNames = result.tools.map((tool: any) => tool.name);
 
@@ -163,6 +207,10 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
     });
 
     it('should include execution management tools', async () => {
+      if (!listToolsHandler) {
+        throw new Error('ListTools handler not found');
+      }
+
       const result = await listToolsHandler();
       const toolNames = result.tools.map((tool: any) => tool.name);
 
@@ -172,6 +220,10 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
     });
 
     it('should include variable management tools', async () => {
+      if (!listToolsHandler) {
+        throw new Error('ListTools handler not found');
+      }
+
       const result = await listToolsHandler();
       const toolNames = result.tools.map((tool: any) => tool.name);
 
@@ -181,6 +233,10 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
     });
 
     it('should include credential management tools', async () => {
+      if (!listToolsHandler) {
+        throw new Error('ListTools handler not found');
+      }
+
       const result = await listToolsHandler();
       const toolNames = result.tools.map((tool: any) => tool.name);
 
@@ -190,6 +246,10 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
     });
 
     it('should include tag management tools', async () => {
+      if (!listToolsHandler) {
+        throw new Error('ListTools handler not found');
+      }
+
       const result = await listToolsHandler();
       const toolNames = result.tools.map((tool: any) => tool.name);
 
@@ -203,6 +263,10 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
     });
 
     it('should include audit tool', async () => {
+      if (!listToolsHandler) {
+        throw new Error('ListTools handler not found');
+      }
+
       const result = await listToolsHandler();
       const toolNames = result.tools.map((tool: any) => tool.name);
 
@@ -210,6 +274,10 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
     });
 
     it('should have proper tool schema structure', async () => {
+      if (!listToolsHandler) {
+        throw new Error('ListTools handler not found');
+      }
+
       const result = await listToolsHandler();
       const initTool = result.tools.find((tool: any) => tool.name === 'init-n8n');
 
@@ -222,28 +290,6 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
     });
   });
 
-  describe('N8nClient Class', () => {
-    let N8nClient: any;
-
-    beforeEach(async () => {
-      // Import the module to get access to the N8nClient class
-      const indexModule = await import('../../src/index.js');
-      // N8nClient is not exported but we can access it through the tools
-      N8nClient = (indexModule as any).N8nClient;
-    });
-
-    it('should construct with baseUrl and apiKey', () => {
-      // We can't directly test the class as it's not exported
-      // Instead, we'll test through the tool handlers
-      expect(true).toBe(true); // Placeholder - actual testing happens through tool execution
-    });
-
-    it('should normalize baseUrl by removing trailing slash', () => {
-      // This will be tested through the init-n8n tool execution
-      expect(true).toBe(true); // Placeholder
-    });
-  });
-
   describe('Global State Management', () => {
     let callToolHandler: Function;
 
@@ -251,13 +297,19 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
       await import('../../src/index.js');
 
       // Extract the CallTool handler
-      const callToolCall = mockServer.setRequestHandler.mock.calls.find(call =>
-        call[0].toString().includes('call_tool')
+      const callToolCalls = mockServer.setRequestHandler.mock.calls.filter(
+        (call: any) => call[0].type === 'call_tool'
       );
-      callToolHandler = callToolCall?.[1] as Function;
+      if (callToolCalls.length > 0) {
+        callToolHandler = callToolCalls[0][1];
+      }
     });
 
     it('should maintain client instances map', async () => {
+      if (!callToolHandler) {
+        throw new Error('CallTool handler not found');
+      }
+
       // Test that the clients map is used by trying to use an uninitialized client
       const result = await callToolHandler({
         params: {
@@ -271,6 +323,10 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
     });
 
     it('should handle invalid tool names', async () => {
+      if (!callToolHandler) {
+        throw new Error('CallTool handler not found');
+      }
+
       const result = await callToolHandler({
         params: {
           name: 'invalid-tool',
@@ -283,24 +339,60 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
     });
   });
 
-  describe('Error Handling', () => {
+  describe('N8nClient Integration', () => {
     let callToolHandler: Function;
 
     beforeEach(async () => {
       await import('../../src/index.js');
 
-      const callToolCall = mockServer.setRequestHandler.mock.calls.find(call =>
-        call[0].toString().includes('call_tool')
+      const callToolCalls = mockServer.setRequestHandler.mock.calls.filter(
+        (call: any) => call[0].type === 'call_tool'
       );
-      callToolHandler = callToolCall?.[1] as Function;
+      if (callToolCalls.length > 0) {
+        callToolHandler = callToolCalls[0][1];
+      }
+    });
+
+    it('should handle successful n8n connection initialization', async () => {
+      if (!callToolHandler) {
+        throw new Error('CallTool handler not found');
+      }
+
+      // Mock successful fetch response
+      const mockResponse = {
+        ok: true,
+        status: 200,
+        json: jest.fn<() => Promise<{ data: any[] }>>().mockResolvedValue({ data: [] }),
+        text: jest.fn<() => Promise<string>>().mockResolvedValue(''),
+      };
+      mockFetch.mockResolvedValueOnce(mockResponse);
+
+      const result = await callToolHandler({
+        params: {
+          name: 'init-n8n',
+          arguments: { url: 'http://localhost:5678', apiKey: 'test-key' },
+        },
+      });
+
+      expect(result.isError).toBeFalsy();
+      expect(result.content[0].text).toContain('Successfully connected to n8n');
+      expect(mockFetch).toHaveBeenCalledWith(
+        'http://localhost:5678/api/v1/workflows',
+        expect.objectContaining({
+          headers: expect.objectContaining({
+            'X-N8N-API-KEY': 'test-key',
+          }),
+        })
+      );
     });
 
     it('should handle connection errors gracefully', async () => {
+      if (!callToolHandler) {
+        throw new Error('CallTool handler not found');
+      }
+
       // Mock fetch to throw an error
-      const nodeFetch = await import('node-fetch');
-      (nodeFetch.default as jest.MockedFunction<typeof nodeFetch.default>).mockRejectedValueOnce(
-        new Error('Connection failed')
-      );
+      mockFetch.mockRejectedValueOnce(new Error('Connection failed'));
 
       const result = await callToolHandler({
         params: {
@@ -314,18 +406,19 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
     });
 
     it('should handle API errors with proper error messages', async () => {
+      if (!callToolHandler) {
+        throw new Error('CallTool handler not found');
+      }
+
       // Mock fetch to return an error response
-      const nodeFetch = await import('node-fetch');
       const mockResponse = {
         ok: false,
         status: 401,
         text: jest
           .fn<() => Promise<string>>()
           .mockResolvedValue(JSON.stringify({ message: 'Unauthorized' })),
-      } as any;
-      (nodeFetch.default as jest.MockedFunction<typeof nodeFetch.default>).mockResolvedValueOnce(
-        mockResponse
-      );
+      };
+      mockFetch.mockResolvedValueOnce(mockResponse);
 
       const result = await callToolHandler({
         params: {
@@ -338,70 +431,28 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
       expect(result.content[0].text).toContain('N8N API error');
     });
 
-    it('should handle non-Error exceptions', async () => {
-      // Mock fetch to throw a non-Error object
-      const nodeFetch = await import('node-fetch');
-      (nodeFetch.default as jest.MockedFunction<typeof nodeFetch.default>).mockRejectedValueOnce(
-        'String error'
-      );
-
-      const result = await callToolHandler({
-        params: {
-          name: 'init-n8n',
-          arguments: { url: 'http://localhost:5678', apiKey: 'test-key' },
-        },
-      });
-
-      expect(result.isError).toBe(true);
-      expect(result.content[0].text).toBeTruthy();
-    });
-
-    it('should handle license-related errors specially', async () => {
-      const nodeFetch = await import('node-fetch');
-      const mockResponse = {
-        ok: false,
-        status: 403,
-        text: jest.fn<() => Promise<string>>().mockResolvedValue(
-          JSON.stringify({
-            message: 'This operation requires an enterprise license',
-          })
-        ),
-      } as any;
-      (nodeFetch.default as jest.MockedFunction<typeof nodeFetch.default>).mockResolvedValueOnce(
-        mockResponse
-      );
-
-      const result = await callToolHandler({
-        params: {
-          name: 'init-n8n',
-          arguments: { url: 'http://localhost:5678', apiKey: 'test-key' },
-        },
-      });
-
-      expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain('enterprise license');
-    });
-
     it('should handle 204 No Content responses', async () => {
-      const nodeFetch = await import('node-fetch');
+      if (!callToolHandler) {
+        throw new Error('CallTool handler not found');
+      }
 
       // First call for init-n8n (mock successful connection test)
       const mockSuccessResponse = {
         ok: true,
         status: 200,
         json: jest.fn<() => Promise<{ data: any[] }>>().mockResolvedValue({ data: [] }),
-      } as any;
+        text: jest.fn<() => Promise<string>>().mockResolvedValue(''),
+      };
 
       // Second call that returns 204
       const mock204Response = {
         ok: true,
         status: 204,
         json: jest.fn(),
-      } as any;
+        text: jest.fn<() => Promise<string>>().mockResolvedValue(''),
+      };
 
-      (nodeFetch.default as jest.MockedFunction<typeof nodeFetch.default>)
-        .mockResolvedValueOnce(mockSuccessResponse)
-        .mockResolvedValueOnce(mock204Response);
+      mockFetch.mockResolvedValueOnce(mockSuccessResponse).mockResolvedValueOnce(mock204Response);
 
       // First initialize a client
       const initResult = await callToolHandler({
@@ -414,10 +465,11 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
       expect(initResult.isError).toBeFalsy();
 
       // Get the clientId from the response
-      const clientId = initResult.content[0].text.match(
+      const clientIdMatch = initResult.content[0].text.match(
         /client ID for future operations: (.+)/
-      )?.[1];
-      expect(clientId).toBeTruthy();
+      );
+      expect(clientIdMatch).toBeTruthy();
+      const clientId = clientIdMatch?.[1];
 
       // Now test a call that returns 204
       const result = await callToolHandler({
@@ -429,6 +481,52 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
 
       expect(result.isError).toBeFalsy();
     });
+
+    it('should handle license-related errors specially', async () => {
+      if (!callToolHandler) {
+        throw new Error('CallTool handler not found');
+      }
+
+      const mockResponse = {
+        ok: false,
+        status: 403,
+        text: jest.fn<() => Promise<string>>().mockResolvedValue(
+          JSON.stringify({
+            message: 'This operation requires an enterprise license',
+          })
+        ),
+      };
+      mockFetch.mockResolvedValueOnce(mockResponse);
+
+      const result = await callToolHandler({
+        params: {
+          name: 'init-n8n',
+          arguments: { url: 'http://localhost:5678', apiKey: 'test-key' },
+        },
+      });
+
+      expect(result.isError).toBe(true);
+      expect(result.content[0].text).toContain('enterprise license');
+    });
+
+    it('should handle non-Error exceptions', async () => {
+      if (!callToolHandler) {
+        throw new Error('CallTool handler not found');
+      }
+
+      // Mock fetch to throw a non-Error object
+      mockFetch.mockRejectedValueOnce('String error');
+
+      const result = await callToolHandler({
+        params: {
+          name: 'init-n8n',
+          arguments: { url: 'http://localhost:5678', apiKey: 'test-key' },
+        },
+      });
+
+      expect(result.isError).toBe(true);
+      expect(result.content[0].text).toBeTruthy();
+    });
   });
 
   describe('Tool Execution Integration', () => {
@@ -438,38 +536,47 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
     beforeEach(async () => {
       await import('../../src/index.js');
 
-      const callToolCall = mockServer.setRequestHandler.mock.calls.find(call =>
-        call[0].toString().includes('call_tool')
+      const callToolCalls = mockServer.setRequestHandler.mock.calls.filter(
+        (call: any) => call[0].type === 'call_tool'
       );
-      callToolHandler = callToolCall?.[1] as Function;
+      if (callToolCalls.length > 0) {
+        callToolHandler = callToolCalls[0][1];
+      }
 
       // Mock successful n8n connection
-      const nodeFetch = await import('node-fetch');
       const mockResponse = {
         ok: true,
         status: 200,
         json: jest.fn<() => Promise<{ data: any[] }>>().mockResolvedValue({ data: [] }),
-      } as any;
-      (nodeFetch.default as jest.MockedFunction<typeof nodeFetch.default>).mockResolvedValue(
-        mockResponse
-      );
+        text: jest.fn<() => Promise<string>>().mockResolvedValue(''),
+      };
+      mockFetch.mockResolvedValue(mockResponse);
 
       // Initialize a client
-      const initResult = await callToolHandler({
-        params: {
-          name: 'init-n8n',
-          arguments: { url: 'http://localhost:5678', apiKey: 'test-key' },
-        },
-      });
+      if (callToolHandler) {
+        const initResult = await callToolHandler({
+          params: {
+            name: 'init-n8n',
+            arguments: { url: 'http://localhost:5678', apiKey: 'test-key' },
+          },
+        });
 
-      clientId = initResult.content[0].text.match(/client ID for future operations: (.+)/)?.[1];
+        const clientIdMatch = initResult.content[0].text.match(
+          /client ID for future operations: (.+)/
+        );
+        clientId = clientIdMatch?.[1] || '';
+      }
     });
 
-    it('should successfully initialize n8n connection', async () => {
+    it('should successfully initialize n8n connection', () => {
       expect(clientId).toBeTruthy();
     });
 
     it('should execute list-workflows tool', async () => {
+      if (!callToolHandler) {
+        throw new Error('CallTool handler not found');
+      }
+
       const result = await callToolHandler({
         params: {
           name: 'list-workflows',
@@ -482,6 +589,10 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
     });
 
     it('should execute workflow creation with proper parameters', async () => {
+      if (!callToolHandler) {
+        throw new Error('CallTool handler not found');
+      }
+
       const result = await callToolHandler({
         params: {
           name: 'create-workflow',
@@ -499,6 +610,10 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
     });
 
     it('should handle workflow activation/deactivation', async () => {
+      if (!callToolHandler) {
+        throw new Error('CallTool handler not found');
+      }
+
       const activateResult = await callToolHandler({
         params: {
           name: 'activate-workflow',
@@ -521,6 +636,10 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
     });
 
     it('should execute user management operations', async () => {
+      if (!callToolHandler) {
+        throw new Error('CallTool handler not found');
+      }
+
       const listResult = await callToolHandler({
         params: {
           name: 'list-users',
@@ -544,6 +663,10 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
     });
 
     it('should execute variable management operations', async () => {
+      if (!callToolHandler) {
+        throw new Error('CallTool handler not found');
+      }
+
       const listResult = await callToolHandler({
         params: {
           name: 'list-variables',
@@ -564,6 +687,10 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
     });
 
     it('should execute execution management operations', async () => {
+      if (!callToolHandler) {
+        throw new Error('CallTool handler not found');
+      }
+
       const listResult = await callToolHandler({
         params: {
           name: 'list-executions',
@@ -584,6 +711,10 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
     });
 
     it('should execute tag management operations', async () => {
+      if (!callToolHandler) {
+        throw new Error('CallTool handler not found');
+      }
+
       const createResult = await callToolHandler({
         params: {
           name: 'create-tag',
@@ -604,6 +735,10 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
     });
 
     it('should execute audit generation', async () => {
+      if (!callToolHandler) {
+        throw new Error('CallTool handler not found');
+      }
+
       const result = await callToolHandler({
         params: {
           name: 'generate-audit',
@@ -619,6 +754,10 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
     });
 
     it('should execute credential management operations', async () => {
+      if (!callToolHandler) {
+        throw new Error('CallTool handler not found');
+      }
+
       const schemaResult = await callToolHandler({
         params: {
           name: 'get-credential-schema',
@@ -650,13 +789,19 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
     beforeEach(async () => {
       await import('../../src/index.js');
 
-      const callToolCall = mockServer.setRequestHandler.mock.calls.find(call =>
-        call[0].toString().includes('call_tool')
+      const callToolCalls = mockServer.setRequestHandler.mock.calls.filter(
+        (call: any) => call[0].type === 'call_tool'
       );
-      callToolHandler = callToolCall?.[1] as Function;
+      if (callToolCalls.length > 0) {
+        callToolHandler = callToolCalls[0][1];
+      }
     });
 
     it('should return proper error response structure', async () => {
+      if (!callToolHandler) {
+        throw new Error('CallTool handler not found');
+      }
+
       const result = await callToolHandler({
         params: {
           name: 'list-workflows',
@@ -672,16 +817,18 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
     });
 
     it('should return proper success response structure', async () => {
+      if (!callToolHandler) {
+        throw new Error('CallTool handler not found');
+      }
+
       // Mock successful response
-      const nodeFetch = await import('node-fetch');
       const mockResponse = {
         ok: true,
         status: 200,
         json: jest.fn<() => Promise<{ data: any[] }>>().mockResolvedValue({ data: [] }),
-      } as any;
-      (nodeFetch.default as jest.MockedFunction<typeof nodeFetch.default>).mockResolvedValue(
-        mockResponse
-      );
+        text: jest.fn<() => Promise<string>>().mockResolvedValue(''),
+      };
+      mockFetch.mockResolvedValue(mockResponse);
 
       const result = await callToolHandler({
         params: {
@@ -698,7 +845,10 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
     });
 
     it('should format JSON responses properly', async () => {
-      const nodeFetch = await import('node-fetch');
+      if (!callToolHandler) {
+        throw new Error('CallTool handler not found');
+      }
+
       const mockWorkflows = [
         {
           id: 1,
@@ -713,10 +863,9 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
         ok: true,
         status: 200,
         json: jest.fn<() => Promise<{ data: any[] }>>().mockResolvedValue({ data: mockWorkflows }),
-      } as any;
-      (nodeFetch.default as jest.MockedFunction<typeof nodeFetch.default>).mockResolvedValue(
-        mockResponse
-      );
+        text: jest.fn<() => Promise<string>>().mockResolvedValue(''),
+      };
+      mockFetch.mockResolvedValue(mockResponse);
 
       // First initialize client
       const initResult = await callToolHandler({
@@ -725,9 +874,10 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
           arguments: { url: 'http://localhost:5678', apiKey: 'test-key' },
         },
       });
-      const clientId = initResult.content[0].text.match(
+      const clientIdMatch = initResult.content[0].text.match(
         /client ID for future operations: (.+)/
-      )?.[1];
+      );
+      const clientId = clientIdMatch?.[1];
 
       // Then list workflows
       const result = await callToolHandler({
@@ -746,6 +896,72 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
       expect(parsedResponse[0]).toHaveProperty('id');
       expect(parsedResponse[0]).toHaveProperty('name');
       expect(parsedResponse[0]).toHaveProperty('active');
+    });
+  });
+
+  describe('N8nClient Class Functionality', () => {
+    let callToolHandler: Function;
+
+    beforeEach(async () => {
+      await import('../../src/index.js');
+
+      const callToolCalls = mockServer.setRequestHandler.mock.calls.filter(
+        (call: any) => call[0].type === 'call_tool'
+      );
+      if (callToolCalls.length > 0) {
+        callToolHandler = callToolCalls[0][1];
+      }
+    });
+
+    it('should normalize baseUrl by removing trailing slash', async () => {
+      if (!callToolHandler) {
+        throw new Error('CallTool handler not found');
+      }
+
+      const mockResponse = {
+        ok: true,
+        status: 200,
+        json: jest.fn<() => Promise<{ data: any[] }>>().mockResolvedValue({ data: [] }),
+        text: jest.fn<() => Promise<string>>().mockResolvedValue(''),
+      };
+      mockFetch.mockResolvedValue(mockResponse);
+
+      const result = await callToolHandler({
+        params: {
+          name: 'init-n8n',
+          arguments: { url: 'http://localhost:5678/', apiKey: 'test-key' },
+        },
+      });
+
+      expect(result.isError).toBeFalsy();
+      // Verify the API call was made without trailing slash
+      expect(mockFetch).toHaveBeenCalledWith(
+        'http://localhost:5678/api/v1/workflows',
+        expect.any(Object)
+      );
+    });
+
+    it('should handle malformed JSON error responses', async () => {
+      if (!callToolHandler) {
+        throw new Error('CallTool handler not found');
+      }
+
+      const mockResponse = {
+        ok: false,
+        status: 500,
+        text: jest.fn<() => Promise<string>>().mockResolvedValue('Internal Server Error'),
+      };
+      mockFetch.mockResolvedValue(mockResponse);
+
+      const result = await callToolHandler({
+        params: {
+          name: 'init-n8n',
+          arguments: { url: 'http://localhost:5678', apiKey: 'test-key' },
+        },
+      });
+
+      expect(result.isError).toBe(true);
+      expect(result.content[0].text).toContain('N8N API error: Internal Server Error');
     });
   });
 });
