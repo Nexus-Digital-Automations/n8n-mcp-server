@@ -46,7 +46,7 @@ export class N8nClient {
         ...options,
         headers: {
           ...headers,
-          ...options.headers,
+          ...(options.headers as Record<string, string> || {}),
         },
       });
 
