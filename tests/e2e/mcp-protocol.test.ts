@@ -75,6 +75,9 @@ describe('MCP Protocol E2E Tests', () => {
               if (initTimeout) {
                 clearTimeout(initTimeout);
               }
+              if (mcpServerProcess && mcpServerProcess.stderr) {
+                mcpServerProcess.stderr.off('data', stderrHandler);
+              }
             };
 
             mcpServerProcess.stdout?.on('data', data => {
@@ -89,15 +92,19 @@ describe('MCP Protocol E2E Tests', () => {
               }
             });
 
-            mcpServerProcess.stderr?.on('data', data => {
+            const stderrHandler = (data: Buffer) => {
               const error = data.toString();
-              console.error('MCP Server stderr:', error);
+              if (!hasResolved) {
+                console.error('MCP Server stderr:', error);
+              }
 
               if (error.includes('Error') || error.includes('EADDRINUSE')) {
                 cleanup();
                 reject(new Error(`MCP server failed to start: ${error}`));
               }
-            });
+            };
+
+            mcpServerProcess.stderr?.on('data', stderrHandler);
 
             mcpServerProcess.on('error', error => {
               cleanup();
@@ -153,6 +160,9 @@ describe('MCP Protocol E2E Tests', () => {
               if (!hasResolved) {
                 hasResolved = true;
               }
+              if (mcpServerProcess && mcpServerProcess.stderr) {
+                mcpServerProcess.stderr.off('data', initStderrHandler);
+              }
             };
 
             mcpServerProcess.stdout?.on('data', data => {
@@ -176,9 +186,13 @@ describe('MCP Protocol E2E Tests', () => {
               }
             });
 
-            mcpServerProcess.stderr?.on('data', data => {
-              console.error('MCP Server stderr:', data.toString());
-            });
+            const initStderrHandler = (data: Buffer) => {
+              if (!hasResolved) {
+                console.error('MCP Server stderr:', data.toString());
+              }
+            };
+
+            mcpServerProcess.stderr?.on('data', initStderrHandler);
 
             mcpServerProcess.on('error', error => {
               cleanup();

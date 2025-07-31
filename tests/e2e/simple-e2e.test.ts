@@ -56,6 +56,9 @@ describe('Simple E2E MCP Tests', () => {
         const timeout = setTimeout(() => {
           if (!hasSucceeded) {
             hasSucceeded = true;
+            if (mcpServerProcess && mcpServerProcess.stderr) {
+              mcpServerProcess.stderr.off('data', stderrHandler);
+            }
             resolve(true); // Consider it successful if no errors occurred
           }
         }, 8000);
@@ -65,24 +68,34 @@ describe('Simple E2E MCP Tests', () => {
           console.log('MCP Server output:', data.toString());
         });
 
-        mcpServerProcess.stderr?.on('data', data => {
+        const stderrHandler = (data: Buffer) => {
           const error = data.toString();
-          console.log('MCP Server stderr:', error);
+          if (!hasSucceeded) {
+            console.log('MCP Server stderr:', error);
+          }
 
           // Check for critical errors
           if (error.includes('EADDRINUSE') || error.includes('Error:')) {
             clearTimeout(timeout);
             if (!hasSucceeded) {
               hasSucceeded = true;
+              if (mcpServerProcess && mcpServerProcess.stderr) {
+                mcpServerProcess.stderr.off('data', stderrHandler);
+              }
               reject(new Error(`MCP server error: ${error}`));
             }
           }
-        });
+        };
+
+        mcpServerProcess.stderr?.on('data', stderrHandler);
 
         mcpServerProcess.on('error', error => {
           clearTimeout(timeout);
           if (!hasSucceeded) {
             hasSucceeded = true;
+            if (mcpServerProcess && mcpServerProcess.stderr) {
+              mcpServerProcess.stderr.off('data', stderrHandler);
+            }
             reject(new Error(`Failed to start MCP server: ${error.message}`));
           }
         });
@@ -91,6 +104,9 @@ describe('Simple E2E MCP Tests', () => {
           clearTimeout(timeout);
           if (code !== 0 && code !== null && !hasSucceeded) {
             hasSucceeded = true;
+            if (mcpServerProcess && mcpServerProcess.stderr) {
+              mcpServerProcess.stderr.off('data', stderrHandler);
+            }
             reject(new Error(`MCP server exited with code ${code}, signal ${signal}`));
           }
         });
