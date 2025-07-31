@@ -117,24 +117,24 @@
     {
       "id": "linter_task_active",
       "title": "Fix Linter Errors - IMMEDIATE",
-      "description": "Fix 14 errors and 0 warnings found in recently edited files: n8nClient.test.ts",
+      "description": "Fix 6 errors and 0 warnings found in recently edited files: fastmcp-server.test.ts",
       "mode": "DEVELOPMENT",
       "priority": "high",
-      "status": "completed",
+      "status": "pending",
       "important_files": [
         "development/linter-errors.md",
-        "tests/unit/client/n8nClient.test.ts"
+        "tests/integration/fastmcp-server.test.ts"
       ],
       "success_criteria": [
         "All linter errors in edited files resolved",
         "development/linter-errors.md shows no issues for edited files",
         "Code passes linting without warnings or errors"
       ],
-      "created_at": "2025-07-31T07:40:46.700Z",
+      "created_at": "2025-07-31T07:48:40.386Z",
       "is_linter_task": true,
       "linter_summary": {
-        "total_violations": 14,
-        "errors": 14,
+        "total_violations": 6,
+        "errors": 6,
         "warnings": 0,
         "files_affected": 1
       }
@@ -1400,7 +1400,7 @@
       "description": "Resolve version string typing and MockedFunction type issues in fastmcp-server.test.ts and other integration tests",
       "mode": "DEVELOPMENT",
       "priority": "high",
-      "status": "pending",
+      "status": "completed",
       "success_criteria": [
         "fastmcp-server.test.ts compiles without TypeScript errors",
         "Version string follows semantic versioning format",
@@ -1541,16 +1541,116 @@
       "subtasks": [],
       "is_review_task": true,
       "strike_number": 3
+    },
+    {
+      "id": "fix-typescript-imports-meta-1753947878931",
+      "title": "Fix TypeScript import.meta and ES Module Configuration",
+      "description": "Resolve import.meta compilation errors in E2E tests and fix ES module configuration issues",
+      "mode": "DEVELOPMENT",
+      "priority": "high",
+      "status": "pending",
+      "success_criteria": [
+        "All TypeScript import.meta errors resolved",
+        "E2E tests compile without module configuration errors",
+        "Jest configuration properly supports ES modules",
+        "All test files can import dependencies without errors"
+      ],
+      "important_files": [
+        "tests/e2e/mcp-inspector.test.ts",
+        "tests/e2e/mcp-protocol.test.ts",
+        "jest.config.js",
+        "tsconfig.json"
+      ],
+      "estimate": "1-2 hours",
+      "created_at": "2025-07-31T07:44:38.931Z"
+    },
+    {
+      "id": "fix-fastmcp-integration-types-1753947878931",
+      "title": "Fix FastMCP Integration Test Type Issues",
+      "description": "Resolve TypeScript type errors in FastMCP integration tests including version constraints and mock configurations",
+      "mode": "DEVELOPMENT",
+      "priority": "high",
+      "status": "pending",
+      "success_criteria": [
+        "fastmcp-server.test.ts compiles without TypeScript errors",
+        "Version string follows semantic versioning format",
+        "MockedFunction types properly configured",
+        "All integration tests pass compilation and execution"
+      ],
+      "important_files": [
+        "tests/integration/fastmcp-server.test.ts",
+        "jest.config.js",
+        "tests/setup.ts"
+      ],
+      "estimate": "1.5-2.5 hours",
+      "created_at": "2025-07-31T07:44:38.931Z"
+    },
+    {
+      "id": "expand-unit-test-coverage-comprehensive-1753947878931",
+      "title": "Expand Unit Test Coverage to 80% Minimum",
+      "description": "Create comprehensive unit tests for all core modules to achieve minimum 80% test coverage project-wide",
+      "mode": "DEVELOPMENT",
+      "priority": "high",
+      "status": "pending",
+      "success_criteria": [
+        "Unit tests for all src/tools/ modules with 80%+ coverage",
+        "Unit tests for src/auth/ modules with 80%+ coverage",
+        "Unit tests for src/resources/ modules with 80%+ coverage",
+        "Unit tests for src/transport/ modules with 80%+ coverage",
+        "Overall project coverage reaches minimum 80%",
+        "All new tests pass without failures"
+      ],
+      "important_files": [
+        "tests/unit/tools/",
+        "tests/unit/auth/",
+        "tests/unit/resources/",
+        "tests/unit/transport/",
+        "src/tools/",
+        "src/auth/",
+        "src/resources/",
+        "src/transport/"
+      ],
+      "estimate": "6-8 hours",
+      "dependencies": [
+        "fix-typescript-imports-meta-1753947878931",
+        "fix-fastmcp-integration-types-1753947878931"
+      ],
+      "created_at": "2025-07-31T07:44:38.931Z"
+    },
+    {
+      "id": "optimize-test-infrastructure-final-1753947878931",
+      "title": "Optimize Test Infrastructure and Coverage Reporting",
+      "description": "Final optimization of Jest configuration, coverage thresholds, and CI integration for production readiness",
+      "mode": "DEVELOPMENT",
+      "priority": "medium",
+      "status": "pending",
+      "success_criteria": [
+        "Jest coverage thresholds set to project standards (80%+ minimum)",
+        "Coverage reporting optimized for CI/CD integration",
+        "All test infrastructure properly configured and documented",
+        "Test performance optimized for fast feedback loops"
+      ],
+      "important_files": [
+        "jest.config.js",
+        "package.json",
+        ".github/workflows/",
+        "tests/"
+      ],
+      "estimate": "1-2 hours",
+      "dependencies": [
+        "expand-unit-test-coverage-comprehensive-1753947878931"
+      ],
+      "created_at": "2025-07-31T07:44:38.931Z"
     }
   ],
   "review_strikes": 0,
   "strikes_completed_last_run": false,
   "current_task_index": 0,
-  "last_mode": "TASK_CREATION",
-  "execution_count": 128,
-  "last_hook_activation": 1753947766880,
+  "last_mode": "DEVELOPMENT",
+  "execution_count": 130,
+  "last_hook_activation": 1753948120387,
   "__removedLinterTasks": {
     "removedCount": 1,
-    "finalTaskCount": 37
+    "finalTaskCount": 41
   }
 }
