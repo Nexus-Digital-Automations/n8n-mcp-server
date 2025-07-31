@@ -136,9 +136,11 @@ export default [
   // Ignore patterns
   {
     ignores: [
+      'coverage/',
       'node_modules/',
-      'build/',
       'dist/',
+      'build/',
+      '*.min.js',
       '*.json',
       '*.md',
       '*.txt',
