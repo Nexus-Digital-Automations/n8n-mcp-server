@@ -1,15 +1,25 @@
 # Linter Errors Report
 
-**Generated:** 2025-07-31T11:02:51.515Z
-**Total Issues:** 1 (0 errors, 1 warnings)
+**Generated:** 2025-07-31T12:45:33.772Z
+**Total Issues:** 6 (6 errors, 0 warnings)
 **Files:** 1
 
-## transportConfig.ts (eslint)
+## jest.config.js (eslint)
 
-**File Path:** `/Users/jeremyparker/Desktop/Claude Coding Projects/n8n-mcp-server/src/transport/transportConfig.ts`
-**Issues:** 1
+**File Path:** `/Users/jeremyparker/Desktop/Claude Coding Projects/n8n-mcp-server/jest.config.js`
+**Issues:** 6
 
-⚠️ **Line 178:57** - Forbidden non-null assertion. `[@typescript-eslint/no-non-null-assertion]`
+❌ **Line 133:12** - 'process' is not defined. `[no-undef]`
+
+❌ **Line 136:15** - 'process' is not defined. `[no-undef]`
+
+❌ **Line 141:11** - 'process' is not defined. `[no-undef]`
+
+❌ **Line 144:23** - 'process' is not defined. `[no-undef]`
+
+❌ **Line 150:9** - 'process' is not defined. `[no-undef]`
+
+❌ **Line 164:14** - 'process' is not defined. `[no-undef]`
 
 ---
 

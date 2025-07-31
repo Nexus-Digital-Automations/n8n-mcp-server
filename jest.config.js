@@ -1,4 +1,5 @@
 /** @type {import('jest').Config} */
+/* global process */
 export default {
   // Test environment
   testEnvironment: 'node',
@@ -49,13 +50,44 @@ export default {
     'json-summary'
   ],
   
-  // Coverage thresholds - relaxed for initial setup
+  // Coverage thresholds - production-ready standards
   coverageThreshold: {
     global: {
-      branches: 10,
-      functions: 10,
-      lines: 10,
-      statements: 10
+      branches: 80,
+      functions: 80,
+      lines: 80,
+      statements: 80
+    },
+    // More lenient thresholds for specific directories/files
+    './src/auth/': {
+      branches: 75,
+      functions: 75,
+      lines: 75,
+      statements: 75
+    },
+    './src/resources/': {
+      branches: 75,
+      functions: 75,
+      lines: 75,
+      statements: 75
+    },
+    './src/transport/': {
+      branches: 90,
+      functions: 90,
+      lines: 90,
+      statements: 90
+    },
+    './src/tools/': {
+      branches: 95,
+      functions: 95,
+      lines: 95,
+      statements: 95
+    },
+    './src/client/': {
+      branches: 95,
+      functions: 95,
+      lines: 95,
+      statements: 95
     }
   },
   
@@ -97,12 +129,55 @@ export default {
   // Clear mocks between tests
   clearMocks: true,
   
-  // Verbose output
-  verbose: true,
+  // Verbose output - conditional based on CI environment
+  verbose: process.env.CI ? false : true,
+  
+  // Performance optimizations
+  maxWorkers: process.env.CI ? 2 : '50%',
+  cache: true,
+  cacheDirectory: '<rootDir>/.jest-cache',
+  
+  // CI optimizations
+  silent: process.env.CI ? true : false,
   
   // Detect open handles
-  detectOpenHandles: true,
+  detectOpenHandles: !process.env.CI,
   
   // Force exit after tests complete
-  forceExit: true
+  forceExit: true,
+  
+  // Fail fast in CI environments
+  bail: process.env.CI ? 1 : 0,
+  
+  // Coverage reporting optimizations
+  coveragePathIgnorePatterns: [
+    '/node_modules/',
+    '/build/',
+    '/coverage/',
+    '/tests/',
+    '.d.ts$',
+    'jest.config.js',
+    '.*\\.config\\.(js|ts)$'
+  ],
+  
+  // Reporter configuration for CI
+  reporters: process.env.CI ? [
+    'default',
+    ['jest-junit', {
+      outputDirectory: 'test-results',
+      outputName: 'junit.xml',
+      classNameTemplate: '{classname}',
+      titleTemplate: '{title}',
+      ancestorSeparator: ' › ',
+      usePathForSuiteName: true
+    }]
+  ] : ['default'],
+  
+  // Watch mode optimizations
+  watchPathIgnorePatterns: [
+    '/node_modules/',
+    '/build/',
+    '/coverage/',
+    '/.git/'
+  ]
 };
