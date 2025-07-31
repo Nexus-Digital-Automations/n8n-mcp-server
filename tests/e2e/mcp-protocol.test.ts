@@ -321,7 +321,9 @@ describe('MCP Protocol E2E Tests', () => {
               if (line.startsWith('{')) {
                 const response = JSON.parse(line);
                 if (response.id === 2) {
-                  mcpServerProcess.stdout?.off('data', dataHandler);
+                  if (mcpServerProcess && mcpServerProcess.stdout) {
+                    mcpServerProcess.stdout.off('data', dataHandler);
+                  }
                   resolve(response);
                   return;
                 }
@@ -336,7 +338,9 @@ describe('MCP Protocol E2E Tests', () => {
         mcpServerProcess.stdin?.write(JSON.stringify(listToolsRequest) + '\n');
 
         setTimeout(() => {
-          mcpServerProcess.stdout?.off('data', dataHandler);
+          if (mcpServerProcess && mcpServerProcess.stdout) {
+            mcpServerProcess.stdout.off('data', dataHandler);
+          }
           reject(new Error('Tools list timeout'));
         }, 5000);
       });
@@ -384,7 +388,9 @@ describe('MCP Protocol E2E Tests', () => {
               if (line.startsWith('{')) {
                 const response = JSON.parse(line);
                 if (response.id === 3) {
-                  mcpServerProcess.stdout?.off('data', dataHandler);
+                  if (mcpServerProcess && mcpServerProcess.stdout) {
+                    mcpServerProcess.stdout.off('data', dataHandler);
+                  }
                   resolve(response);
                   return;
                 }
@@ -399,7 +405,9 @@ describe('MCP Protocol E2E Tests', () => {
         mcpServerProcess.stdin?.write(JSON.stringify(toolCallRequest) + '\n');
 
         setTimeout(() => {
-          mcpServerProcess.stdout?.off('data', dataHandler);
+          if (mcpServerProcess && mcpServerProcess.stdout) {
+            mcpServerProcess.stdout.off('data', dataHandler);
+          }
           reject(new Error('Tool call timeout'));
         }, 8000);
       });
@@ -441,7 +449,9 @@ describe('MCP Protocol E2E Tests', () => {
               if (line.startsWith('{')) {
                 const response = JSON.parse(line);
                 if (response.id === 4) {
-                  mcpServerProcess.stdout?.off('data', dataHandler);
+                  if (mcpServerProcess && mcpServerProcess.stdout) {
+                    mcpServerProcess.stdout.off('data', dataHandler);
+                  }
                   resolve(response);
                   return;
                 }
@@ -456,7 +466,9 @@ describe('MCP Protocol E2E Tests', () => {
         mcpServerProcess.stdin?.write(JSON.stringify(initRequest) + '\n');
 
         setTimeout(() => {
-          mcpServerProcess.stdout?.off('data', dataHandler);
+          if (mcpServerProcess && mcpServerProcess.stdout) {
+            mcpServerProcess.stdout.off('data', dataHandler);
+          }
           resolve(null);
         }, 5000);
       });
@@ -486,7 +498,9 @@ describe('MCP Protocol E2E Tests', () => {
               if (line.startsWith('{')) {
                 const response = JSON.parse(line);
                 if (response.id === 5) {
-                  mcpServerProcess.stdout?.off('data', dataHandler);
+                  if (mcpServerProcess && mcpServerProcess.stdout) {
+                    mcpServerProcess.stdout.off('data', dataHandler);
+                  }
                   resolve(response);
                   return;
                 }
@@ -501,7 +515,9 @@ describe('MCP Protocol E2E Tests', () => {
         mcpServerProcess.stdin?.write(JSON.stringify(listWorkflowsRequest) + '\n');
 
         setTimeout(() => {
-          mcpServerProcess.stdout?.off('data', dataHandler);
+          if (mcpServerProcess && mcpServerProcess.stdout) {
+            mcpServerProcess.stdout.off('data', dataHandler);
+          }
           reject(new Error('List workflows timeout'));
         }, 8000);
       });
@@ -577,7 +593,9 @@ describe('MCP Protocol E2E Tests', () => {
               if (line.startsWith('{')) {
                 const response = JSON.parse(line);
                 if (response.id === 2) {
-                  mcpServerProcess.stdout?.off('data', dataHandler);
+                  if (mcpServerProcess && mcpServerProcess.stdout) {
+                    mcpServerProcess.stdout.off('data', dataHandler);
+                  }
                   resolve(response);
                   return;
                 }
@@ -592,7 +610,9 @@ describe('MCP Protocol E2E Tests', () => {
         mcpServerProcess.stdin?.write(JSON.stringify(invalidToolRequest) + '\n');
 
         setTimeout(() => {
-          mcpServerProcess.stdout?.off('data', dataHandler);
+          if (mcpServerProcess && mcpServerProcess.stdout) {
+            mcpServerProcess.stdout.off('data', dataHandler);
+          }
           reject(new Error('Invalid tool call timeout'));
         }, 5000);
       });
