@@ -1,0 +1,162 @@
+{
+  "workflows": [
+    {
+      "id": "1",
+      "name": "Test Workflow 1",
+      "active": true,
+      "nodes": [
+        {
+          "name": "Start",
+          "type": "n8n-nodes-base.manualTrigger",
+          "position": [240, 300],
+          "parameters": {}
+        },
+        {
+          "name": "HTTP Request",
+          "type": "n8n-nodes-base.httpRequest", 
+          "position": [460, 300],
+          "parameters": {
+            "url": "https://api.example.com/test",
+            "method": "GET"
+          }
+        }
+      ],
+      "connections": {
+        "Start": {
+          "main": [
+            [
+              {
+                "node": "HTTP Request",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        }
+      },
+      "tags": ["test", "example"],
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "2", 
+      "name": "Test Workflow 2",
+      "active": false,
+      "nodes": [
+        {
+          "name": "Webhook",
+          "type": "n8n-nodes-base.webhook",
+          "position": [240, 300],
+          "parameters": {
+            "path": "test-webhook"
+          }
+        }
+      ],
+      "connections": {},
+      "tags": ["webhook", "test"],
+      "createdAt": "2024-01-02T00:00:00.000Z",
+      "updatedAt": "2024-01-02T00:00:00.000Z"
+    }
+  ],
+  "executions": [
+    {
+      "id": "exec-1",
+      "workflowId": "1",
+      "mode": "manual",
+      "startedAt": "2024-01-01T10:00:00.000Z",
+      "stoppedAt": "2024-01-01T10:00:05.000Z",
+      "status": "success",
+      "data": {
+        "resultData": {
+          "runData": {
+            "Start": [
+              {
+                "hints": [],
+                "startTime": 1704096000000,
+                "executionTime": 1000,
+                "data": {
+                  "main": [
+                    [
+                      {
+                        "json": {},
+                        "pairedItem": {
+                          "item": 0
+                        }
+                      }
+                    ]
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "exec-2",
+      "workflowId": "1", 
+      "mode": "trigger",
+      "startedAt": "2024-01-01T11:00:00.000Z",
+      "stoppedAt": "2024-01-01T11:00:10.000Z",
+      "status": "error",
+      "data": {
+        "resultData": {
+          "error": {
+            "message": "Connection failed",
+            "stack": "Error: Connection failed\n    at HttpRequest.execute"
+          }
+        }
+      }
+    }
+  ],
+  "users": [
+    {
+      "id": "user-1",
+      "email": "admin@test.com",
+      "firstName": "Test",
+      "lastName": "Admin",
+      "role": "admin",
+      "isOwner": true,
+      "createdAt": "2024-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "user-2", 
+      "email": "editor@test.com",
+      "firstName": "Test",
+      "lastName": "Editor",
+      "role": "editor",
+      "isOwner": false,
+      "createdAt": "2024-01-01T00:00:00.000Z"
+    }
+  ],
+  "credentials": [
+    {
+      "id": "cred-1",
+      "name": "Test HTTP Auth",
+      "type": "httpBasicAuth",
+      "nodesAccess": [
+        {
+          "nodeType": "n8n-nodes-base.httpRequest"
+        }
+      ],
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z"
+    }
+  ],
+  "tags": [
+    {
+      "id": "tag-1",
+      "name": "test",
+      "color": "#ff6d5a",
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "tag-2",
+      "name": "example", 
+      "color": "#7ce38b",
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z"
+    }
+  ]
+}

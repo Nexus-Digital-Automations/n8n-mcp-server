@@ -1,15 +1,31 @@
 # Linter Errors Report
 
-**Generated:** 2025-07-31T01:27:54.662Z
-**Total Issues:** 1 (1 errors, 0 warnings)
+**Generated:** 2025-07-31T02:03:42.132Z
+**Total Issues:** 9 (5 errors, 4 warnings)
 **Files:** 1
 
-## setup.ts (eslint)
+## create-tasks.js (eslint)
 
-**File Path:** `/Users/jeremyparker/Desktop/Claude Coding Projects/n8n-mcp-server/tests/setup.ts`
-**Issues:** 1
+**File Path:** `/Users/jeremyparker/Desktop/Claude Coding Projects/n8n-mcp-server/create-tasks.js`
+**Issues:** 9
 
-❌ **Line 146:23** - 'Global' is not defined. `[no-undef]`
+❌ **Line 1:21** - 'require' is not defined. `[no-undef]`
+
+❌ **Line 117:5** - 'console' is not defined. `[no-undef]`
+
+❌ **Line 118:5** - 'console' is not defined. `[no-undef]`
+
+❌ **Line 120:7** - 'console' is not defined. `[no-undef]`
+
+❌ **Line 123:5** - 'console' is not defined. `[no-undef]`
+
+⚠️ **Line 117:5** - Unexpected console statement. `[no-console]`
+
+⚠️ **Line 118:5** - Unexpected console statement. `[no-console]`
+
+⚠️ **Line 120:7** - Unexpected console statement. `[no-console]`
+
+⚠️ **Line 123:5** - Unexpected console statement. `[no-console]`
 
 ---
 

@@ -39,7 +39,7 @@
     "modelcontextprotocol"
   ],
   "scripts": {
-    "build": "tsc && chmod +x build/index.js && chmod +x build/index-fastmcp.js",
+    "build": "tsc --project tsconfig.build.json && chmod +x build/index.js && chmod +x build/index-fastmcp.js",
     "start": "node build/index.js",
     "start:fastmcp": "node build/index-fastmcp.js",
     "dev:fastmcp": "npx fastmcp dev src/index-fastmcp.ts",
@@ -48,7 +48,7 @@
     "test:coverage": "jest --coverage",
     "test:unit": "jest --testPathPattern=tests/unit",
     "test:integration": "jest --testPathPattern=tests/integration",
-    "lint": "tsc --noEmit",
+    "lint": "tsc --noEmit --project tsconfig.build.json",
     "lint:eslint": "eslint src/ tests/ --ext .ts",
     "lint:fix": "eslint src/ tests/ --ext .ts --fix",
     "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\"",
