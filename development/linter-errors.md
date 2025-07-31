@@ -1,29 +1,26 @@
 # Linter Errors Report
 
-**Generated:** 2025-07-31T00:50:31.719Z
-**Total Issues:** 8 (8 errors, 0 warnings)
+**Generated:** 2025-07-31T01:27:54.662Z
+**Total Issues:** 1 (1 errors, 0 warnings)
 **Files:** 1
 
-## index-fastmcp.ts (eslint)
+## setup.ts (eslint)
 
-**File Path:** `/Users/jeremyparker/Desktop/Claude Coding Projects/n8n-mcp-server/src/index-fastmcp.ts`
-**Issues:** 8
+**File Path:** `/Users/jeremyparker/Desktop/Claude Coding Projects/n8n-mcp-server/tests/setup.ts`
+**Issues:** 1
 
-❌ **Line 10:10** - 'createExecutionTools' is defined but never used. `[no-unused-vars]`
+❌ **Line 146:23** - 'Global' is not defined. `[no-undef]`
 
-❌ **Line 10:10** - 'createExecutionTools' is defined but never used. `[@typescript-eslint/no-unused-vars]`
+---
 
-❌ **Line 11:10** - 'createTagTools' is defined but never used. `[no-unused-vars]`
+## 💡 Ignore File Configuration
 
-❌ **Line 11:10** - 'createTagTools' is defined but never used. `[@typescript-eslint/no-unused-vars]`
+Some linting issues may be in files that shouldn't be linted. **Important:** Only modify ignore files (.ruffignore, .eslintignore, etc.) if there are genuine files that are inappropriate for linting (generated files, vendor dependencies, etc.). Do not use ignore files as a quick fix for linter errors that should be resolved in the code itself. Consider updating your ignore files:
 
-❌ **Line 12:10** - 'createCredentialTools' is defined but never used. `[no-unused-vars]`
-
-❌ **Line 12:10** - 'createCredentialTools' is defined but never used. `[@typescript-eslint/no-unused-vars]`
-
-❌ **Line 13:10** - 'createAuditTools' is defined but never used. `[no-unused-vars]`
-
-❌ **Line 13:10** - 'createAuditTools' is defined but never used. `[@typescript-eslint/no-unused-vars]`
+**General patterns (both `.ruffignore` and `.eslintignore`):**
+```
+coverage/
+```
 
 ---
 

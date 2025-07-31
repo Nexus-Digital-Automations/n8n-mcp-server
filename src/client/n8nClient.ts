@@ -19,7 +19,7 @@ import {
   UpdateProjectRequest,
   CreateVariableRequest,
   CreateTagRequest,
-  UpdateTagRequest
+  UpdateTagRequest,
 } from '../types/n8n.js';
 
 export class N8nClient {
@@ -33,11 +33,14 @@ export class N8nClient {
     this.apiKey = apiKey;
   }
 
-  private async makeRequest<T>(endpoint: string, options: Record<string, unknown> = {}): Promise<T> {
+  private async makeRequest<T>(
+    endpoint: string,
+    options: Record<string, unknown> = {}
+  ): Promise<T> {
     const url = `${this.baseUrl}/api/v1${endpoint}`;
     const headers = {
       'X-N8N-API-KEY': this.apiKey,
-      'Accept': 'application/json',
+      Accept: 'application/json',
       'Content-Type': 'application/json',
     };
 
@@ -46,7 +49,7 @@ export class N8nClient {
         ...options,
         headers: {
           ...headers,
-          ...(options.headers as Record<string, string> || {}),
+          ...((options.headers as Record<string, string>) || {}),
         },
       });
 
@@ -57,10 +60,10 @@ export class N8nClient {
 
       const contentType = response.headers.get('content-type');
       if (contentType && contentType.includes('application/json')) {
-        return await response.json() as T;
+        return (await response.json()) as T;
       }
-      
-      return await response.text() as unknown as T;
+
+      return (await response.text()) as unknown as T;
     } catch (error) {
       if (error instanceof Error) {
         throw new Error(`n8n API request failed: ${error.message}`);
@@ -74,7 +77,7 @@ export class N8nClient {
     const params = new URLSearchParams();
     if (options.limit) params.append('limit', options.limit.toString());
     if (options.cursor) params.append('cursor', options.cursor);
-    
+
     const query = params.toString() ? `?${params.toString()}` : '';
     return this.makeRequest<ApiResponse<N8nUser[]>>(`/users${query}`);
   }
@@ -108,7 +111,7 @@ export class N8nClient {
     const params = new URLSearchParams();
     if (options.limit) params.append('limit', options.limit.toString());
     if (options.cursor) params.append('cursor', options.cursor);
-    
+
     const query = params.toString() ? `?${params.toString()}` : '';
     return this.makeRequest<ApiResponse<N8nWorkflow[]>>(`/workflows${query}`);
   }
@@ -154,7 +157,7 @@ export class N8nClient {
     const params = new URLSearchParams();
     if (options.limit) params.append('limit', options.limit.toString());
     if (options.cursor) params.append('cursor', options.cursor);
-    
+
     const query = params.toString() ? `?${params.toString()}` : '';
     return this.makeRequest<ApiResponse<N8nExecution[]>>(`/executions${query}`);
   }
@@ -174,7 +177,7 @@ export class N8nClient {
     const params = new URLSearchParams();
     if (options.limit) params.append('limit', options.limit.toString());
     if (options.cursor) params.append('cursor', options.cursor);
-    
+
     const query = params.toString() ? `?${params.toString()}` : '';
     return this.makeRequest<ApiResponse<N8nCredential[]>>(`/credentials${query}`);
   }
@@ -205,7 +208,7 @@ export class N8nClient {
     const params = new URLSearchParams();
     if (options.limit) params.append('limit', options.limit.toString());
     if (options.cursor) params.append('cursor', options.cursor);
-    
+
     const query = params.toString() ? `?${params.toString()}` : '';
     return this.makeRequest<ApiResponse<N8nProject[]>>(`/projects${query}`);
   }
@@ -235,7 +238,7 @@ export class N8nClient {
     const params = new URLSearchParams();
     if (options.limit) params.append('limit', options.limit.toString());
     if (options.cursor) params.append('cursor', options.cursor);
-    
+
     const query = params.toString() ? `?${params.toString()}` : '';
     return this.makeRequest<ApiResponse<N8nVariable[]>>(`/variables${query}`);
   }
@@ -258,7 +261,7 @@ export class N8nClient {
     const params = new URLSearchParams();
     if (options.limit) params.append('limit', options.limit.toString());
     if (options.cursor) params.append('cursor', options.cursor);
-    
+
     const query = params.toString() ? `?${params.toString()}` : '';
     return this.makeRequest<ApiResponse<N8nTag[]>>(`/tags${query}`);
   }

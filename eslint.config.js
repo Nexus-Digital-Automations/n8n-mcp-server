@@ -27,12 +27,64 @@ export default [
       ...js.configs.recommended.rules,
       
       // TypeScript specific rules
-      '@typescript-eslint/no-unused-vars': 'error',
+      '@typescript-eslint/no-unused-vars': ['error', { 
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_'
+      }],
       '@typescript-eslint/no-explicit-any': 'off', // Disabled during FastMCP refactoring
       '@typescript-eslint/no-non-null-assertion': 'warn',
       
       // Code quality rules
       'no-console': 'off', // Allow console in application code
+      'no-debugger': 'error',
+      'no-duplicate-imports': 'error',
+      'prefer-const': 'error',
+      'no-var': 'error'
+    }
+  },
+  
+  // Apply to test files (Jest environment)
+  {
+    files: ['**/*.test.ts', '**/*.spec.ts', '**/tests/**/*.ts', '**/__tests__/**/*.ts'],
+    languageOptions: {
+      parser: tsParser,
+      parserOptions: {
+        ecmaVersion: 2022,
+        sourceType: 'module'
+      },
+      globals: {
+        Buffer: 'readonly',
+        console: 'readonly',
+        URLSearchParams: 'readonly',
+        process: 'readonly',
+        global: 'readonly',
+        // Jest globals
+        jest: 'readonly',
+        expect: 'readonly',
+        test: 'readonly',
+        it: 'readonly',
+        describe: 'readonly',
+        beforeAll: 'readonly',
+        beforeEach: 'readonly',
+        afterAll: 'readonly',
+        afterEach: 'readonly'
+      }
+    },
+    plugins: {
+      '@typescript-eslint': tseslint
+    },
+    rules: {
+      // Recommended JavaScript rules
+      ...js.configs.recommended.rules,
+      
+      // TypeScript specific rules - more permissive for test files
+      '@typescript-eslint/no-unused-vars': 'off', // Disable for test files
+      'no-unused-vars': 'off', // Turn off base rule
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-non-null-assertion': 'warn',
+      
+      // Code quality rules
+      'no-console': 'off',
       'no-debugger': 'error',
       'no-duplicate-imports': 'error',
       'prefer-const': 'error',
