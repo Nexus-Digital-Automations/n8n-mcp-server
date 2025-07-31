@@ -101,6 +101,9 @@ describe('Variable Tools', () => {
           id: 'var-1',
           key: 'SIMPLE_VAR',
           value: 'simple-value',
+          type: 'string',
+          createdAt: '2024-01-01T00:00:00Z',
+          updatedAt: '2024-01-01T00:00:00Z',
         },
       ];
 
@@ -214,6 +217,8 @@ describe('Variable Tools', () => {
         key: 'NEW_API_KEY',
         value: 'new-secret-value',
         type: 'string',
+        createdAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-01T00:00:00Z',
       };
 
       mockClient.createVariable.mockResolvedValue(mockVariable);
@@ -242,6 +247,8 @@ describe('Variable Tools', () => {
         key: 'SIMPLE_VAR',
         value: 'simple-value',
         type: 'string',
+        createdAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-01T00:00:00Z',
       };
 
       mockClient.createVariable.mockResolvedValue(mockVariable);
@@ -267,6 +274,8 @@ describe('Variable Tools', () => {
         key: 'DEBUG_FLAG',
         value: 'true',
         type: 'boolean',
+        createdAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-01T00:00:00Z',
       };
 
       mockClient.createVariable.mockResolvedValue(mockVariable);
@@ -443,12 +452,16 @@ describe('Variable Tools', () => {
           key: 'SECRET_KEY',
           value: 'super-secret-password-123',
           type: 'string',
+          createdAt: '2024-01-01T00:00:00Z',
+          updatedAt: '2024-01-01T00:00:00Z',
         },
         {
           id: 'var-2',
           key: 'API_TOKEN',
           value: 'sk-1234567890abcdef',
           type: 'string',
+          createdAt: '2024-01-01T00:00:00Z',
+          updatedAt: '2024-01-01T00:00:00Z',
         },
       ];
 
@@ -472,6 +485,8 @@ describe('Variable Tools', () => {
         key: 'NEW_SECRET',
         value: 'extremely-secret-value',
         type: 'string',
+        createdAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-01T00:00:00Z',
       };
 
       mockClient.createVariable.mockResolvedValue(mockVariable);
@@ -496,24 +511,32 @@ describe('Variable Tools', () => {
           key: 'STRING_VAR',
           value: 'secret-string',
           type: 'string',
+          createdAt: '2024-01-01T00:00:00Z',
+          updatedAt: '2024-01-01T00:00:00Z',
         },
         {
           id: 'var-2',
           key: 'NUMBER_VAR',
           value: '12345',
           type: 'number',
+          createdAt: '2024-01-01T00:00:00Z',
+          updatedAt: '2024-01-01T00:00:00Z',
         },
         {
           id: 'var-3',
           key: 'BOOLEAN_VAR',
           value: 'true',
           type: 'boolean',
+          createdAt: '2024-01-01T00:00:00Z',
+          updatedAt: '2024-01-01T00:00:00Z',
         },
         {
           id: 'var-4',
           key: 'JSON_VAR',
           value: '{"secret": "value"}',
           type: 'json',
+          createdAt: '2024-01-01T00:00:00Z',
+          updatedAt: '2024-01-01T00:00:00Z',
         },
       ];
 
