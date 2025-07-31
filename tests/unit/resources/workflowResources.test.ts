@@ -173,6 +173,7 @@ describe('WorkflowResourceManager', () => {
       expect(templateCall).toBeDefined();
       if (!templateCall) throw new Error('Template call not found');
 
+      if (!templateCall) throw new Error('Template call not found');
       const template = templateCall[0];
       expect(template.arguments).toHaveLength(1);
       expect(template.arguments[0]).toEqual({
@@ -191,6 +192,7 @@ describe('WorkflowResourceManager', () => {
       expect(templateCall).toBeDefined();
       if (!templateCall) throw new Error('Template call not found');
 
+      if (!templateCall) throw new Error('Template call not found');
       const template = templateCall[0];
       expect(template.arguments).toHaveLength(1);
       expect(template.arguments[0]).toEqual({
@@ -216,11 +218,12 @@ describe('WorkflowResourceManager', () => {
       expect(templateCall).toBeDefined();
       if (!templateCall) throw new Error('Template call not found');
 
+      if (!templateCall) throw new Error('Template call not found');
       const template = templateCall[0];
       const result = await template.load({ id: 'workflow-123' });
 
-      expect(result.text).toBeDefined();
-      const data = JSON.parse(result.text);
+      expect((result as any).text).toBeDefined();
+      const data = JSON.parse((result as any).text);
       expect(data.id).toBe('workflow-123');
       expect(data.name).toBe('Test Workflow');
       expect(data.active).toBe(true);
@@ -243,10 +246,11 @@ describe('WorkflowResourceManager', () => {
       const templateCall = mockServer.addResourceTemplate.mock.calls.find(
         call => call[0].uriTemplate === 'n8n://workflows/{id}'
       );
+      if (!templateCall) throw new Error('Template call not found');
       const template = templateCall[0];
       const result = await template.load({ id: 'workflow-123' });
 
-      const data = JSON.parse(result.text);
+      const data = JSON.parse((result as any).text);
       expect(data.metadata.nodeCount).toBe(0);
       expect(data.metadata.connectionCount).toBe(0);
     });
@@ -260,11 +264,12 @@ describe('WorkflowResourceManager', () => {
       expect(templateCall).toBeDefined();
       if (!templateCall) throw new Error('Template call not found');
 
+      if (!templateCall) throw new Error('Template call not found');
       const template = templateCall[0];
       const result = await template.load({ workflowId: 'workflow-123' });
 
-      expect(result.text).toBeDefined();
-      const data = JSON.parse(result.text);
+      expect((result as any).text).toBeDefined();
+      const data = JSON.parse((result as any).text);
       expect(data.id).toBe('workflow-123');
     });
 
@@ -274,6 +279,7 @@ describe('WorkflowResourceManager', () => {
       const templateCall = mockServer.addResourceTemplate.mock.calls.find(
         call => call[0].uriTemplate === 'n8n://workflows/{id}'
       );
+      if (!templateCall) throw new Error('Template call not found');
       const template = templateCall[0];
 
       await expect(template.load({ id: 'workflow-123' })).rejects.toThrow(
@@ -287,6 +293,7 @@ describe('WorkflowResourceManager', () => {
       const templateCall = mockServer.addResourceTemplate.mock.calls.find(
         call => call[0].uriTemplate === 'n8n://workflows/{id}'
       );
+      if (!templateCall) throw new Error('Template call not found');
       const template = templateCall[0];
 
       await expect(template.load({ id: 'workflow-123' })).rejects.toThrow(
@@ -304,10 +311,11 @@ describe('WorkflowResourceManager', () => {
       const templateCall = mockServer.addResourceTemplate.mock.calls.find(
         call => call[0].uriTemplate === 'n8n://workflows/{id}'
       );
+      if (!templateCall) throw new Error('Template call not found');
       const template = templateCall[0];
       const result = await template.load({ id: 'workflow-123' });
 
-      const data = JSON.parse(result.text);
+      const data = JSON.parse((result as any).text);
       expect(data.metadata.tags).toEqual([]);
     });
   });
@@ -329,11 +337,12 @@ describe('WorkflowResourceManager', () => {
       expect(resourceCall).toBeDefined();
       if (!resourceCall) throw new Error('Resource call not found');
 
+      if (!resourceCall) throw new Error('Resource call not found');
       const resource = resourceCall[0];
       const result = await resource.load();
 
-      expect(result.text).toBeDefined();
-      const data = JSON.parse(result.text);
+      expect((result as any).text).toBeDefined();
+      const data = JSON.parse((result as any).text);
       expect(data.workflows).toHaveLength(2);
       expect(data.workflows[0].id).toBe('workflow-123');
       expect(data.workflows[0].name).toBe('Test Workflow');
@@ -351,10 +360,11 @@ describe('WorkflowResourceManager', () => {
       const resourceCall = mockServer.addResource.mock.calls.find(
         call => call[0].uri === 'n8n://workflows/list'
       );
+      if (!resourceCall) throw new Error('Resource call not found');
       const resource = resourceCall[0];
       const result = await resource.load();
 
-      const data = JSON.parse(result.text);
+      const data = JSON.parse((result as any).text);
       expect(data.workflows).toHaveLength(0);
       expect(data.metadata.total).toBe(0);
     });
@@ -365,6 +375,7 @@ describe('WorkflowResourceManager', () => {
       const resourceCall = mockServer.addResource.mock.calls.find(
         call => call[0].uri === 'n8n://workflows/list'
       );
+      if (!resourceCall) throw new Error('Resource call not found');
       const resource = resourceCall[0];
 
       await expect(resource.load()).rejects.toThrow('Failed to load workflow list: List API Error');
@@ -380,10 +391,11 @@ describe('WorkflowResourceManager', () => {
       const resourceCall = mockServer.addResource.mock.calls.find(
         call => call[0].uri === 'n8n://workflows/list'
       );
+      if (!resourceCall) throw new Error('Resource call not found');
       const resource = resourceCall[0];
       const result = await resource.load();
 
-      const data = JSON.parse(result.text);
+      const data = JSON.parse((result as any).text);
       expect(data.workflows[0].tags).toEqual([]);
       expect(data.workflows[1].tags).toEqual([]);
     });
@@ -406,11 +418,12 @@ describe('WorkflowResourceManager', () => {
       expect(resourceCall).toBeDefined();
       if (!resourceCall) throw new Error('Resource call not found');
 
+      if (!resourceCall) throw new Error('Resource call not found');
       const resource = resourceCall[0];
       const result = await resource.load();
 
-      expect(result.text).toBeDefined();
-      const data = JSON.parse(result.text);
+      expect((result as any).text).toBeDefined();
+      const data = JSON.parse((result as any).text);
       expect(data.activeWorkflows).toHaveLength(1); // Only active workflow
       expect(data.activeWorkflows[0].id).toBe('workflow-123');
       expect(data.activeWorkflows[0].name).toBe('Test Workflow');
@@ -428,10 +441,11 @@ describe('WorkflowResourceManager', () => {
       const resourceCall = mockServer.addResource.mock.calls.find(
         call => call[0].uri === 'n8n://workflows/active'
       );
+      if (!resourceCall) throw new Error('Resource call not found');
       const resource = resourceCall[0];
       const result = await resource.load();
 
-      const data = JSON.parse(result.text);
+      const data = JSON.parse((result as any).text);
       expect(data.activeWorkflows).toHaveLength(0);
       expect(data.metadata.total).toBe(0);
     });
@@ -442,6 +456,7 @@ describe('WorkflowResourceManager', () => {
       const resourceCall = mockServer.addResource.mock.calls.find(
         call => call[0].uri === 'n8n://workflows/active'
       );
+      if (!resourceCall) throw new Error('Resource call not found');
       const resource = resourceCall[0];
 
       await expect(resource.load()).rejects.toThrow(
@@ -475,11 +490,12 @@ describe('WorkflowResourceManager', () => {
       expect(resourceCall).toBeDefined();
       if (!resourceCall) throw new Error('Resource call not found');
 
+      if (!resourceCall) throw new Error('Resource call not found');
       const resource = resourceCall[0];
       const result = await resource.load();
 
-      expect(result.text).toBeDefined();
-      const data = JSON.parse(result.text);
+      expect((result as any).text).toBeDefined();
+      const data = JSON.parse((result as any).text);
       expect(data.totalWorkflows).toBe(3);
       expect(data.activeWorkflows).toBe(2); // mockWorkflow and recentWorkflow are active
       expect(data.inactiveWorkflows).toBe(1);
@@ -500,10 +516,11 @@ describe('WorkflowResourceManager', () => {
       const resourceCall = mockServer.addResource.mock.calls.find(
         call => call[0].uri === 'n8n://workflows/stats'
       );
+      if (!resourceCall) throw new Error('Resource call not found');
       const resource = resourceCall[0];
       const result = await resource.load();
 
-      const data = JSON.parse(result.text);
+      const data = JSON.parse((result as any).text);
       expect(data.totalWorkflows).toBe(0);
       expect(data.activeWorkflows).toBe(0);
       expect(data.inactiveWorkflows).toBe(0);
@@ -516,6 +533,7 @@ describe('WorkflowResourceManager', () => {
       const resourceCall = mockServer.addResource.mock.calls.find(
         call => call[0].uri === 'n8n://workflows/stats'
       );
+      if (!resourceCall) throw new Error('Resource call not found');
       const resource = resourceCall[0];
 
       await expect(resource.load()).rejects.toThrow(
@@ -536,10 +554,11 @@ describe('WorkflowResourceManager', () => {
       const resourceCall = mockServer.addResource.mock.calls.find(
         call => call[0].uri === 'n8n://workflows/stats'
       );
+      if (!resourceCall) throw new Error('Resource call not found');
       const resource = resourceCall[0];
       const result = await resource.load();
 
-      const data = JSON.parse(result.text);
+      const data = JSON.parse((result as any).text);
       expect(data.tagUsage['string-tag-1']).toBe(1);
       expect(data.tagUsage['string-tag-2']).toBe(1);
     });
@@ -557,10 +576,11 @@ describe('WorkflowResourceManager', () => {
       const resourceCall = mockServer.addResource.mock.calls.find(
         call => call[0].uri === 'n8n://workflows/stats'
       );
+      if (!resourceCall) throw new Error('Resource call not found');
       const resource = resourceCall[0];
       const result = await resource.load();
 
-      const data = JSON.parse(result.text);
+      const data = JSON.parse((result as any).text);
       expect(data.tagUsage['object-tag']).toBe(1);
       expect(data.tagUsage['string-tag']).toBe(1);
     });
@@ -578,6 +598,7 @@ describe('WorkflowResourceManager', () => {
       const templateCall = mockServer.addResourceTemplate.mock.calls.find(
         call => call[0].uriTemplate === 'n8n://workflows/{id}'
       );
+      if (!templateCall) throw new Error('Template call not found');
       const template = templateCall[0];
 
       // First call
@@ -598,6 +619,7 @@ describe('WorkflowResourceManager', () => {
       const resourceCall = mockServer.addResource.mock.calls.find(
         call => call[0].uri === 'n8n://workflows/list'
       );
+      if (!resourceCall) throw new Error('Resource call not found');
       const resource = resourceCall[0];
 
       // First call
@@ -629,6 +651,7 @@ describe('WorkflowResourceManager', () => {
       const templateCall = mockServer.addResourceTemplate.mock.calls.find(
         call => call[0].uriTemplate === 'n8n://workflows/{id}'
       );
+      if (!templateCall) throw new Error('Template call not found');
       const template = templateCall[0];
 
       return template
@@ -651,6 +674,7 @@ describe('WorkflowResourceManager', () => {
       const templateCall = mockServer.addResourceTemplate.mock.calls.find(
         call => call[0].uriTemplate === 'n8n://workflows/{id}'
       );
+      if (!templateCall) throw new Error('Template call not found');
       const template = templateCall[0];
 
       // First call
@@ -706,10 +730,11 @@ describe('WorkflowResourceManager', () => {
       const resourceCall = mockServer.addResource.mock.calls.find(
         call => call[0].uri === 'n8n://workflows/stats'
       );
+      if (!resourceCall) throw new Error('Resource call not found');
       const resource = resourceCall[0];
       const result = await resource.load();
 
-      const data = JSON.parse(result.text);
+      const data = JSON.parse((result as any).text);
       expect(data.tagUsage.production).toBe(2);
       expect(data.tagUsage.api).toBe(1);
       expect(data.tagUsage.webhook).toBe(1);
@@ -729,10 +754,11 @@ describe('WorkflowResourceManager', () => {
       const resourceCall = mockServer.addResource.mock.calls.find(
         call => call[0].uri === 'n8n://workflows/stats'
       );
+      if (!resourceCall) throw new Error('Resource call not found');
       const resource = resourceCall[0];
       const result = await resource.load();
 
-      const data = JSON.parse(result.text);
+      const data = JSON.parse((result as any).text);
       expect(data.tagUsage).toEqual({});
     });
 
@@ -749,10 +775,11 @@ describe('WorkflowResourceManager', () => {
       const resourceCall = mockServer.addResource.mock.calls.find(
         call => call[0].uri === 'n8n://workflows/stats'
       );
+      if (!resourceCall) throw new Error('Resource call not found');
       const resource = resourceCall[0];
       const result = await resource.load();
 
-      const data = JSON.parse(result.text);
+      const data = JSON.parse((result as any).text);
       expect(data.tagUsage).toEqual({});
     });
   });
@@ -795,10 +822,11 @@ describe('WorkflowResourceManager', () => {
       const resourceCall = mockServer.addResource.mock.calls.find(
         call => call[0].uri === 'n8n://workflows/stats'
       );
+      if (!resourceCall) throw new Error('Resource call not found');
       const resource = resourceCall[0];
       const result = await resource.load();
 
-      const data = JSON.parse(result.text);
+      const data = JSON.parse((result as any).text);
       expect(data.creationStats.createdLastWeek).toBeGreaterThanOrEqual(1);
       expect(data.creationStats.createdLastMonth).toBeGreaterThanOrEqual(1);
       expect(data.creationStats.updatedLastWeek).toBeGreaterThanOrEqual(2);
@@ -810,7 +838,7 @@ describe('WorkflowResourceManager', () => {
         {
           ...mockWorkflow,
           createdAt: 'invalid-date',
-          updatedAt: null,
+          updatedAt: undefined,
         },
       ];
 
@@ -821,10 +849,11 @@ describe('WorkflowResourceManager', () => {
       const resourceCall = mockServer.addResource.mock.calls.find(
         call => call[0].uri === 'n8n://workflows/stats'
       );
+      if (!resourceCall) throw new Error('Resource call not found');
       const resource = resourceCall[0];
       const result = await resource.load();
 
-      const data = JSON.parse(result.text);
+      const data = JSON.parse((result as any).text);
       expect(data.creationStats.createdLastWeek).toBe(0);
       expect(data.creationStats.updatedLastWeek).toBe(0);
     });
@@ -842,6 +871,7 @@ describe('WorkflowResourceManager', () => {
       const templateCall = mockServer.addResourceTemplate.mock.calls.find(
         call => call[0].uriTemplate === 'n8n://workflows/{id}'
       );
+      if (!templateCall) throw new Error('Template call not found');
       const template = templateCall[0];
 
       await expect(template.load({ id: 'workflow-123' })).rejects.toThrow(
@@ -855,16 +885,19 @@ describe('WorkflowResourceManager', () => {
         // Missing required fields
         name: undefined,
         active: undefined,
+        nodes: [] as Array<Record<string, unknown>>,
+        connections: {},
       };
-      mockClient.getWorkflow.mockResolvedValue(malformedWorkflow);
+      mockClient.getWorkflow.mockResolvedValue(malformedWorkflow as any);
 
       const templateCall = mockServer.addResourceTemplate.mock.calls.find(
         call => call[0].uriTemplate === 'n8n://workflows/{id}'
       );
+      if (!templateCall) throw new Error('Template call not found');
       const template = templateCall[0];
       const result = await template.load({ id: 'workflow-123' });
 
-      const data = JSON.parse(result.text);
+      const data = JSON.parse((result as any).text);
       expect(data.id).toBe('workflow-123');
       expect(data.metadata.tags).toEqual([]);
     });
@@ -892,10 +925,11 @@ describe('WorkflowResourceManager', () => {
       const templateCall = mockServer.addResourceTemplate.mock.calls.find(
         call => call[0].uriTemplate === 'n8n://workflows/{id}'
       );
+      if (!templateCall) throw new Error('Template call not found');
       const template = templateCall[0];
       const result = await template.load({ id: 'workflow-123' });
 
-      const data = JSON.parse(result.text);
+      const data = JSON.parse((result as any).text);
       expect(data.metadata.connectionCount).toBe(2); // HTTP Request and Code have connections
     });
 
@@ -903,27 +937,33 @@ describe('WorkflowResourceManager', () => {
       mockClient.getWorkflows.mockResolvedValue({ data: [] });
 
       // Test list resource
-      const listResource = mockServer.addResource.mock.calls.find(
+      const listResourceCall = mockServer.addResource.mock.calls.find(
         call => call[0].uri === 'n8n://workflows/list'
-      )[0];
+      );
+      if (!listResourceCall) throw new Error('List resource call not found');
+      const listResource = listResourceCall[0];
       const listResult = await listResource.load();
-      const listData = JSON.parse(listResult.text);
+      const listData = JSON.parse((listResult as any).text);
       expect(listData.workflows).toHaveLength(0);
 
       // Test active resource
-      const activeResource = mockServer.addResource.mock.calls.find(
+      const activeResourceCall = mockServer.addResource.mock.calls.find(
         call => call[0].uri === 'n8n://workflows/active'
-      )[0];
+      );
+      if (!activeResourceCall) throw new Error('Active resource call not found');
+      const activeResource = activeResourceCall[0];
       const activeResult = await activeResource.load();
-      const activeData = JSON.parse(activeResult.text);
+      const activeData = JSON.parse((activeResult as any).text);
       expect(activeData.activeWorkflows).toHaveLength(0);
 
       // Test stats resource
-      const statsResource = mockServer.addResource.mock.calls.find(
+      const statsResourceCall = mockServer.addResource.mock.calls.find(
         call => call[0].uri === 'n8n://workflows/stats'
-      )[0];
+      );
+      if (!statsResourceCall) throw new Error('Stats resource call not found');
+      const statsResource = statsResourceCall[0];
       const statsResult = await statsResource.load();
-      const statsData = JSON.parse(statsResult.text);
+      const statsData = JSON.parse((statsResult as any).text);
       expect(statsData.totalWorkflows).toBe(0);
     });
   });

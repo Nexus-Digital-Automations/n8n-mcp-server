@@ -217,8 +217,8 @@ describe('ResourceManager', () => {
       const resource = addResourceCall[0];
       const result = await resource.load();
 
-      expect(result.text).toBeDefined();
-      const data = JSON.parse(result.text);
+      expect((result as any).text).toBeDefined();
+      const data = JSON.parse((result as any).text);
       expect(data.nodes).toBeDefined();
       expect(data.metadata).toBeDefined();
       expect(data.resourceInfo).toBeDefined();
@@ -236,8 +236,8 @@ describe('ResourceManager', () => {
       const template = addTemplateCall[0];
       const result = await template.load({ nodeType: 'n8n-nodes-base.httpRequest' });
 
-      expect(result.text).toBeDefined();
-      const data = JSON.parse(result.text);
+      expect((result as any).text).toBeDefined();
+      const data = JSON.parse((result as any).text);
       expect(data.nodeType).toBe('n8n-nodes-base.httpRequest');
       expect(data.name).toBe('httpRequest');
       expect(data.resourceInfo).toBeDefined();
@@ -277,8 +277,8 @@ describe('ResourceManager', () => {
       const resource = addResourceCall[0];
       const result = await resource.load();
 
-      expect(result.text).toBeDefined();
-      const data = JSON.parse(result.text);
+      expect((result as any).text).toBeDefined();
+      const data = JSON.parse((result as any).text);
       expect(data.credentialTypes).toBeDefined();
       expect(data.metadata).toBeDefined();
       expect(data.resourceInfo).toBeDefined();
@@ -295,8 +295,8 @@ describe('ResourceManager', () => {
       const template = addTemplateCall[0];
       const result = await template.load({ credType: 'httpBasicAuth' });
 
-      expect(result.text).toBeDefined();
-      const data = JSON.parse(result.text);
+      expect((result as any).text).toBeDefined();
+      const data = JSON.parse((result as any).text);
       expect(data.credentialType).toBe('httpBasicAuth');
       expect(data.template).toBeDefined();
       expect(data.resourceInfo).toBeDefined();
@@ -352,8 +352,8 @@ describe('ResourceManager', () => {
       const resource = addResourceCall[0];
       const result = await resource.load();
 
-      expect(result.text).toBeDefined();
-      const data = JSON.parse(result.text);
+      expect((result as any).text).toBeDefined();
+      const data = JSON.parse((result as any).text);
       expect(data.status).toBe('connected');
       expect(data.features).toBeDefined();
       expect(data.statistics).toBeDefined();
@@ -373,15 +373,15 @@ describe('ResourceManager', () => {
       const resource = addResourceCall[0];
       const result = await resource.load();
 
-      expect(result.text).toBeDefined();
-      const data = JSON.parse(result.text);
+      expect((result as any).text).toBeDefined();
+      const data = JSON.parse((result as any).text);
       expect(data.status).toBe('error');
       expect(data.error).toBe('API Error');
       expect(data.resourceInfo).toBeDefined();
     });
 
     it('should throw error when client not initialized', async () => {
-      getClientFn.mockReturnValue(null);
+      (getClientFn as jest.Mock).mockReturnValue(null);
 
       const addResourceCall = mockServer.addResource.mock.calls.find(
         call => call[0].uri === 'n8n://info'
@@ -405,8 +405,8 @@ describe('ResourceManager', () => {
       const resource = addResourceCall[0];
       const result = await resource.load();
 
-      expect(result.text).toBeDefined();
-      const data = JSON.parse(result.text);
+      expect((result as any).text).toBeDefined();
+      const data = JSON.parse((result as any).text);
       expect(data.resources).toBeDefined();
       expect(data.metadata).toBeDefined();
       expect(data.resourceInfo).toBeDefined();
@@ -432,7 +432,7 @@ describe('ResourceManager', () => {
 
       const resource = addResourceCall[0];
       return resource.load().then((result: any) => {
-        const data = JSON.parse(result.text);
+        const data = JSON.parse((result as any).text);
         const resourceNames = data.resources.map((r: any) => r.name);
         expect(resourceNames).toContain('Workflows');
         expect(resourceNames).toContain('Executions');
@@ -474,9 +474,10 @@ describe('ResourceManager', () => {
       const addResourceCall = mockServer.addResource.mock.calls.find(
         call => call[0].uri === 'n8n://info'
       );
+      if (!addResourceCall) throw new Error('Resource call not found');
       const resource = addResourceCall[0];
       const result = await resource.load();
-      const data = JSON.parse(result.text);
+      const data = JSON.parse((result as any).text);
 
       expect(data.features.projects).toBe(true);
     });
@@ -488,9 +489,10 @@ describe('ResourceManager', () => {
       const addResourceCall = mockServer.addResource.mock.calls.find(
         call => call[0].uri === 'n8n://info'
       );
+      if (!addResourceCall) throw new Error('Resource call not found');
       const resource = addResourceCall[0];
       const result = await resource.load();
-      const data = JSON.parse(result.text);
+      const data = JSON.parse((result as any).text);
 
       expect(data.features.projects).toBe(false);
     });
@@ -578,6 +580,7 @@ describe('ResourceManager', () => {
       const addResourceCall = mockServer.addResource.mock.calls.find(
         call => call[0].uri === 'n8n://info'
       );
+      if (!addResourceCall) throw new Error('Resource call not found');
       const resource = addResourceCall[0];
 
       await expect(resource.load()).rejects.toThrow(
@@ -603,11 +606,12 @@ describe('ResourceManager', () => {
       const addTemplateCall = mockServer.addResourceTemplate.mock.calls.find(
         call => call[0].uriTemplate === 'n8n://nodes/{nodeType}'
       );
+      if (!addTemplateCall) throw new Error('Template call not found');
       const template = addTemplateCall[0];
       const result = await template.load({ nodeType: '' });
 
-      expect(result.text).toBeDefined();
-      const data = JSON.parse(result.text);
+      expect((result as any).text).toBeDefined();
+      const data = JSON.parse((result as any).text);
       expect(data.nodeType).toBe('');
       expect(data.name).toBe('');
     });
@@ -619,11 +623,12 @@ describe('ResourceManager', () => {
       const addTemplateCall = mockServer.addResourceTemplate.mock.calls.find(
         call => call[0].uriTemplate === 'n8n://credentials/template/{credType}'
       );
+      if (!addTemplateCall) throw new Error('Template call not found');
       const template = addTemplateCall[0];
       const result = await template.load({ credType: 'special@chars!type' });
 
-      expect(result.text).toBeDefined();
-      const data = JSON.parse(result.text);
+      expect((result as any).text).toBeDefined();
+      const data = JSON.parse((result as any).text);
       expect(data.credentialType).toBe('special@chars!type');
     });
   });

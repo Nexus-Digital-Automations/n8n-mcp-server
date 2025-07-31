@@ -14,10 +14,11 @@ export default {
       tsconfig: {
         module: 'esnext',
         target: 'es2022',
-        moduleResolution: 'node',
+        moduleResolution: 'bundler',
         allowSyntheticDefaultImports: true,
         esModuleInterop: true,
-        lib: ['es2022', 'dom']
+        lib: ['es2022', 'dom'],
+        allowImportingTsExtensions: false
       }
     }]
   },
@@ -63,10 +64,12 @@ export default {
     'node_modules/(?!(node-fetch|fastmcp|@modelcontextprotocol)/)'
   ],
   
-  // Module name mapping - mock ES modules
+  // Module name mapping - mock ES modules and handle TypeScript .js imports
   moduleNameMapper: {
     '^node-fetch$': '<rootDir>/tests/__mocks__/node-fetch.js',
-    '^fastmcp$': '<rootDir>/tests/__mocks__/fastmcp.js'
+    '^fastmcp$': '<rootDir>/tests/__mocks__/fastmcp.js',
+    // Handle TypeScript .js imports by mapping them to .ts files
+    '^(\\.{1,2}/.*)\\.js$': '$1'
   },
   
   // Additional TypeScript configuration

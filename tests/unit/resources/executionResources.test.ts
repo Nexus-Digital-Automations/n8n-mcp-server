@@ -29,8 +29,8 @@ describe('ExecutionResourceManager', () => {
     stoppedAt: '2023-01-01T10:05:00Z',
     mode: 'manual',
     status: 'success' as const,
-    retryOf: null,
-    retrySuccessId: null,
+    retryOf: undefined,
+    retrySuccessId: undefined,
     data: {
       resultData: {
         runData: {
@@ -49,7 +49,11 @@ describe('ExecutionResourceManager', () => {
       },
     },
     workflowData: {
+      id: 'workflow-456',
       name: 'Test Workflow',
+      active: true,
+      nodes: [],
+      connections: {},
     },
   };
 
@@ -61,6 +65,8 @@ describe('ExecutionResourceManager', () => {
     stoppedAt: '2023-01-01T11:02:00Z',
     mode: 'trigger',
     status: 'error' as const,
+    retryOf: undefined,
+    retrySuccessId: undefined,
     data: {
       resultData: {
         error: {
@@ -70,7 +76,11 @@ describe('ExecutionResourceManager', () => {
       },
     },
     workflowData: {
+      id: 'workflow-789',
       name: 'Failed Workflow',
+      active: false,
+      nodes: [],
+      connections: {},
     },
   };
 
@@ -262,6 +272,7 @@ describe('ExecutionResourceManager', () => {
       const templateCall = mockServer.addResourceTemplate.mock.calls.find(
         call => call[0].uriTemplate === 'n8n://executions/{id}'
       );
+      if (!templateCall) throw new Error('Template call not found');
       const template = templateCall[0];
       const result = await template.load({ id: 'exec-456' });
 
@@ -277,7 +288,7 @@ describe('ExecutionResourceManager', () => {
       const runningExecution = {
         ...mockExecution,
         finished: false,
-        stoppedAt: null,
+        stoppedAt: undefined,
         status: 'running' as const,
       };
       mockClient.getExecution.mockResolvedValue(runningExecution);
@@ -285,6 +296,7 @@ describe('ExecutionResourceManager', () => {
       const templateCall = mockServer.addResourceTemplate.mock.calls.find(
         call => call[0].uriTemplate === 'n8n://executions/{id}'
       );
+      if (!templateCall) throw new Error('Template call not found');
       const template = templateCall[0];
       const result = await template.load({ id: 'exec-123' });
 
@@ -294,11 +306,12 @@ describe('ExecutionResourceManager', () => {
     });
 
     it('should throw error when client not initialized', async () => {
-      getClientFn.mockReturnValue(null);
+      (getClientFn as jest.Mock).mockReturnValue(null);
 
       const templateCall = mockServer.addResourceTemplate.mock.calls.find(
         call => call[0].uriTemplate === 'n8n://executions/{id}'
       );
+      if (!templateCall) throw new Error('Template call not found');
       const template = templateCall[0];
 
       await expect(template.load({ id: 'exec-123' })).rejects.toThrow(
@@ -312,6 +325,7 @@ describe('ExecutionResourceManager', () => {
       const templateCall = mockServer.addResourceTemplate.mock.calls.find(
         call => call[0].uriTemplate === 'n8n://executions/{id}'
       );
+      if (!templateCall) throw new Error('Template call not found');
       const template = templateCall[0];
 
       await expect(template.load({ id: 'exec-123' })).rejects.toThrow(
@@ -327,6 +341,7 @@ describe('ExecutionResourceManager', () => {
       const templateCall = mockServer.addResourceTemplate.mock.calls.find(
         call => call[0].uriTemplate === 'n8n://executions/{id}'
       );
+      if (!templateCall) throw new Error('Template call not found');
       const template = templateCall[0];
       const result = await template.load({ id: 'exec-123' });
 
@@ -340,6 +355,7 @@ describe('ExecutionResourceManager', () => {
       const templateCall = mockServer.addResourceTemplate.mock.calls.find(
         call => call[0].uriTemplate === 'n8n://executions/{id}'
       );
+      if (!templateCall) throw new Error('Template call not found');
       const template = templateCall[0];
       const result = await template.load({ id: 'exec-123' });
 
@@ -380,6 +396,7 @@ describe('ExecutionResourceManager', () => {
       const templateCall = mockServer.addResourceTemplate.mock.calls.find(
         call => call[0].uriTemplate === 'n8n://executions/{id}/logs'
       );
+      if (!templateCall) throw new Error('Template call not found');
       const template = templateCall[0];
       const result = await template.load({ id: 'exec-456' });
 
@@ -393,6 +410,7 @@ describe('ExecutionResourceManager', () => {
       const templateCall = mockServer.addResourceTemplate.mock.calls.find(
         call => call[0].uriTemplate === 'n8n://executions/{id}/logs'
       );
+      if (!templateCall) throw new Error('Template call not found');
       const template = templateCall[0];
 
       await expect(template.load({ id: 'exec-123' })).rejects.toThrow(
@@ -438,6 +456,7 @@ describe('ExecutionResourceManager', () => {
       const resourceCall = mockServer.addResource.mock.calls.find(
         call => call[0].uri === 'n8n://executions/recent'
       );
+      if (!resourceCall) throw new Error('Resource call not found');
       const resource = resourceCall[0];
       const result = await resource.load();
 
@@ -452,6 +471,7 @@ describe('ExecutionResourceManager', () => {
       const resourceCall = mockServer.addResource.mock.calls.find(
         call => call[0].uri === 'n8n://executions/recent'
       );
+      if (!resourceCall) throw new Error('Resource call not found');
       const resource = resourceCall[0];
 
       await expect(resource.load()).rejects.toThrow(
@@ -500,6 +520,7 @@ describe('ExecutionResourceManager', () => {
       const resourceCall = mockServer.addResource.mock.calls.find(
         call => call[0].uri === 'n8n://executions/failures'
       );
+      if (!resourceCall) throw new Error('Resource call not found');
       const resource = resourceCall[0];
       const result = await resource.load();
 
@@ -514,6 +535,7 @@ describe('ExecutionResourceManager', () => {
       const resourceCall = mockServer.addResource.mock.calls.find(
         call => call[0].uri === 'n8n://executions/failures'
       );
+      if (!resourceCall) throw new Error('Resource call not found');
       const resource = resourceCall[0];
 
       await expect(resource.load()).rejects.toThrow(
@@ -533,7 +555,7 @@ describe('ExecutionResourceManager', () => {
         ...mockExecution,
         id: 'exec-789',
         finished: false,
-        stoppedAt: null,
+        stoppedAt: undefined,
         status: 'running' as const,
       };
 
@@ -567,8 +589,8 @@ describe('ExecutionResourceManager', () => {
     it('should handle zero average duration', async () => {
       const executionWithoutTiming = {
         ...mockExecution,
-        startedAt: null,
-        stoppedAt: null,
+        startedAt: '2023-01-01T10:00:00Z',
+        stoppedAt: undefined,
       };
 
       mockClient.getExecutions.mockResolvedValue({
@@ -578,6 +600,7 @@ describe('ExecutionResourceManager', () => {
       const resourceCall = mockServer.addResource.mock.calls.find(
         call => call[0].uri === 'n8n://executions/stats'
       );
+      if (!resourceCall) throw new Error('Resource call not found');
       const resource = resourceCall[0];
       const result = await resource.load();
 
@@ -591,6 +614,7 @@ describe('ExecutionResourceManager', () => {
       const resourceCall = mockServer.addResource.mock.calls.find(
         call => call[0].uri === 'n8n://executions/stats'
       );
+      if (!resourceCall) throw new Error('Resource call not found');
       const resource = resourceCall[0];
 
       await expect(resource.load()).rejects.toThrow(
@@ -636,6 +660,7 @@ describe('ExecutionResourceManager', () => {
       const templateCall = mockServer.addResourceTemplate.mock.calls.find(
         call => call[0].uriTemplate === 'n8n://executions/workflow/{workflowId}'
       );
+      if (!templateCall) throw new Error('Template call not found');
       const template = templateCall[0];
       const result = await template.load({ workflowId: 'workflow-999' });
 
@@ -648,6 +673,7 @@ describe('ExecutionResourceManager', () => {
       const templateCall = mockServer.addResourceTemplate.mock.calls.find(
         call => call[0].uriTemplate === 'n8n://executions/workflow/{workflowId}'
       );
+      if (!templateCall) throw new Error('Template call not found');
       const template = templateCall[0];
 
       expect(template.arguments).toHaveLength(1);
@@ -698,6 +724,7 @@ describe('ExecutionResourceManager', () => {
       const templateCall = mockServer.addResourceTemplate.mock.calls.find(
         call => call[0].uriTemplate === 'n8n://executions/{id}'
       );
+      if (!templateCall) throw new Error('Template call not found');
       const template = templateCall[0];
       const result = await template.load({ id: 'exec-123' });
 
@@ -741,6 +768,7 @@ describe('ExecutionResourceManager', () => {
       const templateCall = mockServer.addResourceTemplate.mock.calls.find(
         call => call[0].uriTemplate === 'n8n://executions/{id}'
       );
+      if (!templateCall) throw new Error('Template call not found');
       const template = templateCall[0];
       const result = await template.load({ id: 'exec-123' });
 
@@ -762,6 +790,7 @@ describe('ExecutionResourceManager', () => {
       const templateCall = mockServer.addResourceTemplate.mock.calls.find(
         call => call[0].uriTemplate === 'n8n://executions/{id}'
       );
+      if (!templateCall) throw new Error('Template call not found');
       const template = templateCall[0];
 
       // First call
@@ -793,6 +822,7 @@ describe('ExecutionResourceManager', () => {
       const templateCall = mockServer.addResourceTemplate.mock.calls.find(
         call => call[0].uriTemplate === 'n8n://executions/{id}'
       );
+      if (!templateCall) throw new Error('Template call not found');
       const template = templateCall[0];
 
       return template
@@ -828,13 +858,14 @@ describe('ExecutionResourceManager', () => {
     it('should handle null execution data', async () => {
       const executionWithNullData = {
         ...mockExecution,
-        data: null,
+        data: undefined,
       };
       mockClient.getExecution.mockResolvedValue(executionWithNullData);
 
       const templateCall = mockServer.addResourceTemplate.mock.calls.find(
         call => call[0].uriTemplate === 'n8n://executions/{id}'
       );
+      if (!templateCall) throw new Error('Template call not found');
       const template = templateCall[0];
       const result = await template.load({ id: 'exec-123' });
 
@@ -845,13 +876,18 @@ describe('ExecutionResourceManager', () => {
     it('should handle malformed execution data', async () => {
       const malformedExecution = {
         id: 'exec-123',
-        // Missing required fields
+        finished: false,
+        mode: 'manual',
+        startedAt: '2023-01-01T10:00:00Z',
+        workflowId: 'workflow-456',
+        status: 'running' as const,
       };
       mockClient.getExecution.mockResolvedValue(malformedExecution);
 
       const templateCall = mockServer.addResourceTemplate.mock.calls.find(
         call => call[0].uriTemplate === 'n8n://executions/{id}'
       );
+      if (!templateCall) throw new Error('Template call not found');
       const template = templateCall[0];
       const result = await template.load({ id: 'exec-123' });
 
@@ -866,6 +902,7 @@ describe('ExecutionResourceManager', () => {
       const templateCall = mockServer.addResourceTemplate.mock.calls.find(
         call => call[0].uriTemplate === 'n8n://executions/{id}'
       );
+      if (!templateCall) throw new Error('Template call not found');
       const template = templateCall[0];
 
       await expect(template.load({ id: 'exec-123' })).rejects.toThrow(
@@ -879,6 +916,7 @@ describe('ExecutionResourceManager', () => {
       const resourceCall = mockServer.addResource.mock.calls.find(
         call => call[0].uri === 'n8n://executions/stats'
       );
+      if (!resourceCall) throw new Error('Resource call not found');
       const resource = resourceCall[0];
       const result = await resource.load();
 
@@ -899,6 +937,7 @@ describe('ExecutionResourceManager', () => {
       const resourceCall = mockServer.addResource.mock.calls.find(
         call => call[0].uri === 'n8n://executions/recent'
       );
+      if (!resourceCall) throw new Error('Resource call not found');
       const resource = resourceCall[0];
       const result = await resource.load();
 

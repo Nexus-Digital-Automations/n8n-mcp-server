@@ -102,6 +102,68 @@ global.testUtils = {
     ...overrides,
   }),
 
+  // Create mock credential data
+  createMockCredential: (overrides = {}) => ({
+    id: 'credential-123',
+    name: 'Test Credential',
+    type: 'httpBasicAuth',
+    data: { username: 'test', password: 'pass' },
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2024-01-01T00:00:00Z',
+    ...overrides,
+  }),
+
+  // Create mock project data
+  createMockProject: (overrides = {}) => ({
+    id: 'project-123',
+    name: 'Test Project',
+    type: 'team',
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2024-01-01T00:00:00Z',
+    ...overrides,
+  }),
+
+  // Create mock variable data
+  createMockVariable: (overrides = {}) => ({
+    id: 'variable-123',
+    key: 'TEST_VAR',
+    value: 'test-value',
+    type: 'string',
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2024-01-01T00:00:00Z',
+    ...overrides,
+  }),
+
+  // Create mock tag data
+  createMockTag: (overrides = {}) => ({
+    id: 'tag-123',
+    name: 'Test Tag',
+    color: '#ff0000',
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2024-01-01T00:00:00Z',
+    ...overrides,
+  }),
+
+  // Create mock audit report data
+  createMockAuditReport: (overrides = {}) => ({
+    riskLevel: 'medium',
+    categories: [
+      {
+        name: 'security',
+        score: 75,
+        issues: [
+          {
+            level: 'warning',
+            message: 'Some credentials are not encrypted',
+            location: 'credentials',
+          },
+        ],
+      },
+    ],
+    generatedAt: '2024-01-01T00:00:00Z',
+    ...overrides,
+  }),
+
   // Suppress console output in tests
   suppressConsole: () => {
     console.error = jest.fn();
@@ -123,6 +185,11 @@ interface TestUtils {
   createMockWorkflow: (overrides?: any) => any;
   createMockUser: (overrides?: any) => any;
   createMockExecution: (overrides?: any) => any;
+  createMockCredential: (overrides?: any) => any;
+  createMockProject: (overrides?: any) => any;
+  createMockVariable: (overrides?: any) => any;
+  createMockTag: (overrides?: any) => any;
+  createMockAuditReport: (overrides?: any) => any;
   suppressConsole: () => void;
   restoreConsole: () => void;
 }
