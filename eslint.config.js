@@ -94,9 +94,10 @@ export default [
     }
   },
   
-  // Apply to JavaScript files
+  // Apply to JavaScript files (excluding Jest config which has its own config)
   {
     files: ['**/*.js', '**/*.mjs'],
+    ignores: ['jest.config.js', '**/jest.config.js'],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',
@@ -116,20 +117,24 @@ export default [
     }
   },
   
-  // Apply to Jest configuration file specifically
+  // Apply to Jest configuration file specifically (must come after JS config to override)
   {
-    files: ['jest.config.js'],
+    files: ['jest.config.js', '**/jest.config.js'],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',
       globals: {
+        // Node.js globals required for Jest configuration
         process: 'readonly',
         Buffer: 'readonly',
         console: 'readonly',
         module: 'readonly',
         require: 'readonly',
         __dirname: 'readonly',
-        __filename: 'readonly'
+        __filename: 'readonly',
+        // Additional Node.js globals that might be used in Jest config
+        global: 'readonly',
+        exports: 'readonly'
       }
     },
     rules: {
@@ -137,7 +142,8 @@ export default [
       'no-console': 'off', // Allow console in configuration files
       'no-debugger': 'error',
       'prefer-const': 'error',
-      'no-var': 'error'
+      'no-var': 'error',
+      'no-undef': 'error' // Explicitly enable no-undef rule
     }
   },
   
