@@ -158,8 +158,17 @@ export function parseConfigFromEnv(): Partial<TransportConfig> {
     config.type = process.env[ENV_CONFIG.TRANSPORT_TYPE] as 'stdio' | 'sse';
   }
 
-  // SSE configuration
-  if (config.type === 'sse' || process.env[ENV_CONFIG.SSE_PORT]) {
+  // SSE configuration - create if any SSE-related environment variables are set
+  const hasAnySSEConfig =
+    ENV_CONFIG.SSE_PORT in process.env ||
+    ENV_CONFIG.SSE_HOST in process.env ||
+    ENV_CONFIG.SSE_ENDPOINT in process.env ||
+    ENV_CONFIG.CORS_ORIGINS in process.env ||
+    ENV_CONFIG.CORS_CREDENTIALS in process.env ||
+    ENV_CONFIG.HEALTH_CHECK_ENABLED in process.env ||
+    ENV_CONFIG.HEALTH_CHECK_ENDPOINT in process.env;
+
+  if (config.type === 'sse' || hasAnySSEConfig) {
     const ssePortEnv = process.env[ENV_CONFIG.SSE_PORT];
     config.sse = {
       port: ssePortEnv ? parseInt(ssePortEnv) : 8080,
@@ -167,7 +176,7 @@ export function parseConfigFromEnv(): Partial<TransportConfig> {
       endpoint: process.env[ENV_CONFIG.SSE_ENDPOINT] || '/sse',
       cors: {
         enabled: process.env[ENV_CONFIG.CORS_ORIGINS] !== undefined,
-        origins: process.env[ENV_CONFIG.CORS_ORIGINS]?.split(',') || ['*'],
+        origins: process.env[ENV_CONFIG.CORS_ORIGINS]?.split(',') ?? ['*'],
         credentials: process.env[ENV_CONFIG.CORS_CREDENTIALS] === 'true',
       },
       healthCheck: {

@@ -1,45 +1,15 @@
 # Linter Errors Report
 
-**Generated:** 2025-07-31T10:35:24.766Z
-**Total Issues:** 16 (0 errors, 16 warnings)
+**Generated:** 2025-07-31T11:02:51.515Z
+**Total Issues:** 1 (0 errors, 1 warnings)
 **Files:** 1
 
-## sseTransport.test.ts (eslint)
+## transportConfig.ts (eslint)
 
-**File Path:** `/Users/jeremyparker/Desktop/Claude Coding Projects/n8n-mcp-server/tests/unit/transport/sseTransport.test.ts`
-**Issues:** 16
+**File Path:** `/Users/jeremyparker/Desktop/Claude Coding Projects/n8n-mcp-server/src/transport/transportConfig.ts`
+**Issues:** 1
 
-⚠️ **Line 302:23** - Forbidden non-null assertion. `[@typescript-eslint/no-non-null-assertion]`
-
-⚠️ **Line 327:19** - Forbidden non-null assertion. `[@typescript-eslint/no-non-null-assertion]`
-
-⚠️ **Line 359:21** - Forbidden non-null assertion. `[@typescript-eslint/no-non-null-assertion]`
-
-⚠️ **Line 365:21** - Forbidden non-null assertion. `[@typescript-eslint/no-non-null-assertion]`
-
-⚠️ **Line 372:21** - Forbidden non-null assertion. `[@typescript-eslint/no-non-null-assertion]`
-
-⚠️ **Line 379:21** - Forbidden non-null assertion. `[@typescript-eslint/no-non-null-assertion]`
-
-⚠️ **Line 389:21** - Forbidden non-null assertion. `[@typescript-eslint/no-non-null-assertion]`
-
-⚠️ **Line 395:21** - Forbidden non-null assertion. `[@typescript-eslint/no-non-null-assertion]`
-
-⚠️ **Line 402:21** - Forbidden non-null assertion. `[@typescript-eslint/no-non-null-assertion]`
-
-⚠️ **Line 421:23** - Forbidden non-null assertion. `[@typescript-eslint/no-non-null-assertion]`
-
-⚠️ **Line 438:21** - Forbidden non-null assertion. `[@typescript-eslint/no-non-null-assertion]`
-
-⚠️ **Line 455:23** - Forbidden non-null assertion. `[@typescript-eslint/no-non-null-assertion]`
-
-⚠️ **Line 466:21** - Forbidden non-null assertion. `[@typescript-eslint/no-non-null-assertion]`
-
-⚠️ **Line 544:21** - Forbidden non-null assertion. `[@typescript-eslint/no-non-null-assertion]`
-
-⚠️ **Line 645:21** - Forbidden non-null assertion. `[@typescript-eslint/no-non-null-assertion]`
-
-⚠️ **Line 666:21** - Forbidden non-null assertion. `[@typescript-eslint/no-non-null-assertion]`
+⚠️ **Line 178:57** - Forbidden non-null assertion. `[@typescript-eslint/no-non-null-assertion]`
 
 ---
 

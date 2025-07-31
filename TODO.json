@@ -24,25 +24,25 @@
     {
       "id": "linter_task_active",
       "title": "Fix Linter Errors - IMMEDIATE",
-      "description": "Fix 0 errors and 16 warnings found in recently edited files: sseTransport.test.ts",
+      "description": "Fix 0 errors and 1 warning found in recently edited files: transportConfig.ts",
       "mode": "DEVELOPMENT",
       "priority": "high",
-      "status": "pending",
+      "status": "completed",
       "important_files": [
         "development/linter-errors.md",
-        "tests/unit/transport/sseTransport.test.ts"
+        "src/transport/transportConfig.ts"
       ],
       "success_criteria": [
         "All linter errors in edited files resolved",
         "development/linter-errors.md shows no issues for edited files",
         "Code passes linting without warnings or errors"
       ],
-      "created_at": "2025-07-31T10:35:24.765Z",
+      "created_at": "2025-07-31T11:02:51.514Z",
       "is_linter_task": true,
       "linter_summary": {
-        "total_violations": 16,
+        "total_violations": 1,
         "errors": 0,
-        "warnings": 16,
+        "warnings": 1,
         "files_affected": 1
       }
     },
@@ -2117,16 +2117,46 @@
       ],
       "estimate": "2-3 hours",
       "created_at": "2025-07-31T09:40:07.583Z"
+    },
+    {
+      "id": "fix-test-typescript-compilation-1753959234168",
+      "title": "Fix TypeScript Compilation Issues in Unit Tests",
+      "description": "Resolve TypeScript compilation errors preventing resources and transport tests from running, and fix failing test assertions to achieve 80% coverage target",
+      "mode": "DEVELOPMENT",
+      "priority": "high",
+      "status": "pending",
+      "success_criteria": [
+        "All TypeScript compilation errors in test files resolved",
+        "Resources module tests execute successfully with 80%+ coverage",
+        "Transport module tests (sseTransport) execute successfully",
+        "All unit tests pass without failures",
+        "Overall project coverage reaches 80% minimum",
+        "Jest test execution completes without compilation errors"
+      ],
+      "important_files": [
+        "tests/unit/resources/resourceManager.test.ts",
+        "tests/unit/resources/executionResources.test.ts",
+        "tests/unit/resources/workflowResources.test.ts",
+        "tests/unit/transport/sseTransport.test.ts",
+        "tests/unit/transport/transportConfig.test.ts",
+        "jest.config.js",
+        "tsconfig.json"
+      ],
+      "estimate": "2-3 hours",
+      "dependencies": [
+        "expand-unit-test-coverage-comprehensive-1753947878931"
+      ],
+      "created_at": "2025-07-31T10:53:54.168Z"
     }
   ],
   "review_strikes": 0,
   "strikes_completed_last_run": false,
   "current_task_index": 0,
   "last_mode": "DEVELOPMENT",
-  "execution_count": 175,
-  "last_hook_activation": 1753958124765,
+  "execution_count": 178,
+  "last_hook_activation": 1753960102871,
   "__removedLinterTasks": {
     "removedCount": 1,
-    "finalTaskCount": 54
+    "finalTaskCount": 55
   }
 }
