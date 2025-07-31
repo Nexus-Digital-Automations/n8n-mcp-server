@@ -334,6 +334,10 @@ describe('ExecutionResourceManager', () => {
     });
 
     it('should include data when configured', async () => {
+      // Clear previous mocks first
+      jest.clearAllMocks();
+      mockConsoleLog.mockClear();
+
       executionManager = new ExecutionResourceManager({ includeData: true });
       executionManager.register(mockServer, getClientFn);
       mockClient.getExecution.mockResolvedValue(mockExecution);
@@ -740,6 +744,10 @@ describe('ExecutionResourceManager', () => {
     });
 
     it('should truncate large data', async () => {
+      // Clear all previous mock calls first
+      jest.clearAllMocks();
+      mockConsoleLog.mockClear();
+
       executionManager = new ExecutionResourceManager({
         includeData: true,
         maxDataSize: 100, // Very small limit

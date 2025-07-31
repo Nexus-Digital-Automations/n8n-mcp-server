@@ -274,7 +274,13 @@ describe('WorkflowResourceManager', () => {
     });
 
     it('should throw error when client not initialized', async () => {
-      getClientFn = jest.fn().mockReturnValue(null) as () => N8nClient | null;
+      // Clear all previous mock calls first
+      jest.clearAllMocks();
+      mockConsoleLog.mockClear();
+
+      const nullClientFn = jest.fn().mockReturnValue(null) as () => N8nClient | null;
+      workflowManager = new WorkflowResourceManager();
+      workflowManager.register(mockServer, nullClientFn);
 
       const templateCall = mockServer.addResourceTemplate.mock.calls.find(
         call => call[0].uriTemplate === 'n8n://workflows/{id}'

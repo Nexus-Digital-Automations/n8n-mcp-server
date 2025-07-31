@@ -97,7 +97,13 @@ export default [
     files: ['**/*.js', '**/*.mjs'],
     languageOptions: {
       ecmaVersion: 2022,
-      sourceType: 'module'
+      sourceType: 'module',
+      globals: {
+        Buffer: 'readonly',
+        console: 'readonly',
+        URLSearchParams: 'readonly',
+        process: 'readonly'
+      }
     },
     rules: {
       ...js.configs.recommended.rules,

@@ -19,14 +19,16 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
 
     // Mock Server class
     mockServer = {
-      setRequestHandler: jest.fn(),
-      connect: jest.fn().mockResolvedValue(undefined),
+      setRequestHandler: jest.fn() as jest.MockedFunction<any>,
+      connect: jest.fn<() => Promise<void>>().mockResolvedValue(undefined),
     } as any;
     (Server as jest.MockedClass<typeof Server>).mockImplementation(() => mockServer);
 
     // Mock StdioServerTransport
     mockTransport = {} as any;
-    (StdioServerTransport as jest.MockedClass<typeof StdioServerTransport>).mockImplementation(() => mockTransport);
+    (StdioServerTransport as jest.MockedClass<typeof StdioServerTransport>).mockImplementation(
+      () => mockTransport
+    );
 
     // Mock process.exit to prevent actual exit during tests
     originalProcessExit = process.exit;
@@ -110,10 +112,10 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
 
     beforeEach(async () => {
       await import('../../src/index.js');
-      
+
       // Extract the ListTools handler
-      const listToolsCall = mockServer.setRequestHandler.mock.calls.find(
-        call => call[0].toString().includes('list_tools')
+      const listToolsCall = mockServer.setRequestHandler.mock.calls.find(call =>
+        call[0].toString().includes('list_tools')
       );
       listToolsHandler = listToolsCall?.[1] as Function;
     });
@@ -247,10 +249,10 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
 
     beforeEach(async () => {
       await import('../../src/index.js');
-      
+
       // Extract the CallTool handler
-      const callToolCall = mockServer.setRequestHandler.mock.calls.find(
-        call => call[0].toString().includes('call_tool')
+      const callToolCall = mockServer.setRequestHandler.mock.calls.find(call =>
+        call[0].toString().includes('call_tool')
       );
       callToolHandler = callToolCall?.[1] as Function;
     });
@@ -260,8 +262,8 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
       const result = await callToolHandler({
         params: {
           name: 'list-workflows',
-          arguments: { clientId: 'non-existent' }
-        }
+          arguments: { clientId: 'non-existent' },
+        },
       });
 
       expect(result.isError).toBe(true);
@@ -272,8 +274,8 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
       const result = await callToolHandler({
         params: {
           name: 'invalid-tool',
-          arguments: {}
-        }
+          arguments: {},
+        },
       });
 
       expect(result.isError).toBe(true);
@@ -286,9 +288,9 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
 
     beforeEach(async () => {
       await import('../../src/index.js');
-      
-      const callToolCall = mockServer.setRequestHandler.mock.calls.find(
-        call => call[0].toString().includes('call_tool')
+
+      const callToolCall = mockServer.setRequestHandler.mock.calls.find(call =>
+        call[0].toString().includes('call_tool')
       );
       callToolHandler = callToolCall?.[1] as Function;
     });
@@ -296,13 +298,15 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
     it('should handle connection errors gracefully', async () => {
       // Mock fetch to throw an error
       const nodeFetch = await import('node-fetch');
-      (nodeFetch.default as jest.MockedFunction<typeof nodeFetch.default>).mockRejectedValueOnce(new Error('Connection failed'));
+      (nodeFetch.default as jest.MockedFunction<typeof nodeFetch.default>).mockRejectedValueOnce(
+        new Error('Connection failed')
+      );
 
       const result = await callToolHandler({
         params: {
           name: 'init-n8n',
-          arguments: { url: 'http://localhost:5678', apiKey: 'test-key' }
-        }
+          arguments: { url: 'http://localhost:5678', apiKey: 'test-key' },
+        },
       });
 
       expect(result.isError).toBe(true);
@@ -315,15 +319,19 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
       const mockResponse = {
         ok: false,
         status: 401,
-        text: jest.fn().mockResolvedValue(JSON.stringify({ message: 'Unauthorized' }))
+        text: jest
+          .fn<() => Promise<string>>()
+          .mockResolvedValue(JSON.stringify({ message: 'Unauthorized' })),
       } as any;
-      (nodeFetch.default as jest.MockedFunction<typeof nodeFetch.default>).mockResolvedValueOnce(mockResponse);
+      (nodeFetch.default as jest.MockedFunction<typeof nodeFetch.default>).mockResolvedValueOnce(
+        mockResponse
+      );
 
       const result = await callToolHandler({
         params: {
           name: 'init-n8n',
-          arguments: { url: 'http://localhost:5678', apiKey: 'invalid-key' }
-        }
+          arguments: { url: 'http://localhost:5678', apiKey: 'invalid-key' },
+        },
       });
 
       expect(result.isError).toBe(true);
@@ -333,13 +341,15 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
     it('should handle non-Error exceptions', async () => {
       // Mock fetch to throw a non-Error object
       const nodeFetch = await import('node-fetch');
-      (nodeFetch.default as jest.MockedFunction<typeof nodeFetch.default>).mockRejectedValueOnce('String error');
+      (nodeFetch.default as jest.MockedFunction<typeof nodeFetch.default>).mockRejectedValueOnce(
+        'String error'
+      );
 
       const result = await callToolHandler({
         params: {
           name: 'init-n8n',
-          arguments: { url: 'http://localhost:5678', apiKey: 'test-key' }
-        }
+          arguments: { url: 'http://localhost:5678', apiKey: 'test-key' },
+        },
       });
 
       expect(result.isError).toBe(true);
@@ -351,17 +361,21 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
       const mockResponse = {
         ok: false,
         status: 403,
-        text: jest.fn().mockResolvedValue(JSON.stringify({ 
-          message: 'This operation requires an enterprise license' 
-        }))
+        text: jest.fn<() => Promise<string>>().mockResolvedValue(
+          JSON.stringify({
+            message: 'This operation requires an enterprise license',
+          })
+        ),
       } as any;
-      (nodeFetch.default as jest.MockedFunction<typeof nodeFetch.default>).mockResolvedValueOnce(mockResponse);
+      (nodeFetch.default as jest.MockedFunction<typeof nodeFetch.default>).mockResolvedValueOnce(
+        mockResponse
+      );
 
       const result = await callToolHandler({
         params: {
           name: 'init-n8n',
-          arguments: { url: 'http://localhost:5678', apiKey: 'test-key' }
-        }
+          arguments: { url: 'http://localhost:5678', apiKey: 'test-key' },
+        },
       });
 
       expect(result.isError).toBe(true);
@@ -370,21 +384,21 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
 
     it('should handle 204 No Content responses', async () => {
       const nodeFetch = await import('node-fetch');
-      
+
       // First call for init-n8n (mock successful connection test)
       const mockSuccessResponse = {
         ok: true,
         status: 200,
-        json: jest.fn().mockResolvedValue({ data: [] })
+        json: jest.fn<() => Promise<{ data: any[] }>>().mockResolvedValue({ data: [] }),
       } as any;
-      
+
       // Second call that returns 204
       const mock204Response = {
         ok: true,
         status: 204,
-        json: jest.fn()
+        json: jest.fn(),
       } as any;
-      
+
       (nodeFetch.default as jest.MockedFunction<typeof nodeFetch.default>)
         .mockResolvedValueOnce(mockSuccessResponse)
         .mockResolvedValueOnce(mock204Response);
@@ -393,22 +407,24 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
       const initResult = await callToolHandler({
         params: {
           name: 'init-n8n',
-          arguments: { url: 'http://localhost:5678', apiKey: 'test-key' }
-        }
+          arguments: { url: 'http://localhost:5678', apiKey: 'test-key' },
+        },
       });
 
       expect(initResult.isError).toBeFalsy();
-      
+
       // Get the clientId from the response
-      const clientId = initResult.content[0].text.match(/client ID for future operations: (.+)/)?.[1];
+      const clientId = initResult.content[0].text.match(
+        /client ID for future operations: (.+)/
+      )?.[1];
       expect(clientId).toBeTruthy();
 
       // Now test a call that returns 204
       const result = await callToolHandler({
         params: {
           name: 'create-project',
-          arguments: { clientId, name: 'Test Project' }
-        }
+          arguments: { clientId, name: 'Test Project' },
+        },
       });
 
       expect(result.isError).toBeFalsy();
@@ -421,9 +437,9 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
 
     beforeEach(async () => {
       await import('../../src/index.js');
-      
-      const callToolCall = mockServer.setRequestHandler.mock.calls.find(
-        call => call[0].toString().includes('call_tool')
+
+      const callToolCall = mockServer.setRequestHandler.mock.calls.find(call =>
+        call[0].toString().includes('call_tool')
       );
       callToolHandler = callToolCall?.[1] as Function;
 
@@ -432,16 +448,18 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
       const mockResponse = {
         ok: true,
         status: 200,
-        json: jest.fn().mockResolvedValue({ data: [] })
+        json: jest.fn<() => Promise<{ data: any[] }>>().mockResolvedValue({ data: [] }),
       } as any;
-      (nodeFetch.default as jest.MockedFunction<typeof nodeFetch.default>).mockResolvedValue(mockResponse);
+      (nodeFetch.default as jest.MockedFunction<typeof nodeFetch.default>).mockResolvedValue(
+        mockResponse
+      );
 
       // Initialize a client
       const initResult = await callToolHandler({
         params: {
           name: 'init-n8n',
-          arguments: { url: 'http://localhost:5678', apiKey: 'test-key' }
-        }
+          arguments: { url: 'http://localhost:5678', apiKey: 'test-key' },
+        },
       });
 
       clientId = initResult.content[0].text.match(/client ID for future operations: (.+)/)?.[1];
@@ -455,8 +473,8 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
       const result = await callToolHandler({
         params: {
           name: 'list-workflows',
-          arguments: { clientId }
-        }
+          arguments: { clientId },
+        },
       });
 
       expect(result.isError).toBeFalsy();
@@ -467,13 +485,13 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
       const result = await callToolHandler({
         params: {
           name: 'create-workflow',
-          arguments: { 
-            clientId, 
+          arguments: {
+            clientId,
             name: 'Test Workflow',
             nodes: [],
-            connections: {}
-          }
-        }
+            connections: {},
+          },
+        },
       });
 
       expect(result.isError).toBeFalsy();
@@ -484,8 +502,8 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
       const activateResult = await callToolHandler({
         params: {
           name: 'activate-workflow',
-          arguments: { clientId, id: 'test-workflow-id' }
-        }
+          arguments: { clientId, id: 'test-workflow-id' },
+        },
       });
 
       expect(activateResult.isError).toBeFalsy();
@@ -494,8 +512,8 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
       const deactivateResult = await callToolHandler({
         params: {
           name: 'deactivate-workflow',
-          arguments: { clientId, id: 'test-workflow-id' }
-        }
+          arguments: { clientId, id: 'test-workflow-id' },
+        },
       });
 
       expect(deactivateResult.isError).toBeFalsy();
@@ -506,8 +524,8 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
       const listResult = await callToolHandler({
         params: {
           name: 'list-users',
-          arguments: { clientId }
-        }
+          arguments: { clientId },
+        },
       });
 
       expect(listResult.isError).toBeFalsy();
@@ -515,11 +533,11 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
       const createResult = await callToolHandler({
         params: {
           name: 'create-users',
-          arguments: { 
-            clientId, 
-            users: [{ email: 'test@example.com', role: 'global:member' }] 
-          }
-        }
+          arguments: {
+            clientId,
+            users: [{ email: 'test@example.com', role: 'global:member' }],
+          },
+        },
       });
 
       expect(createResult.isError).toBeFalsy();
@@ -529,8 +547,8 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
       const listResult = await callToolHandler({
         params: {
           name: 'list-variables',
-          arguments: { clientId }
-        }
+          arguments: { clientId },
+        },
       });
 
       expect(listResult.isError).toBeFalsy();
@@ -538,8 +556,8 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
       const createResult = await callToolHandler({
         params: {
           name: 'create-variable',
-          arguments: { clientId, key: 'TEST_VAR', value: 'test-value' }
-        }
+          arguments: { clientId, key: 'TEST_VAR', value: 'test-value' },
+        },
       });
 
       expect(createResult.isError).toBeFalsy();
@@ -549,8 +567,8 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
       const listResult = await callToolHandler({
         params: {
           name: 'list-executions',
-          arguments: { clientId, limit: 10 }
-        }
+          arguments: { clientId, limit: 10 },
+        },
       });
 
       expect(listResult.isError).toBeFalsy();
@@ -558,8 +576,8 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
       const getResult = await callToolHandler({
         params: {
           name: 'get-execution',
-          arguments: { clientId, id: 123, includeData: true }
-        }
+          arguments: { clientId, id: 123, includeData: true },
+        },
       });
 
       expect(getResult.isError).toBeFalsy();
@@ -569,8 +587,8 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
       const createResult = await callToolHandler({
         params: {
           name: 'create-tag',
-          arguments: { clientId, name: 'Test Tag' }
-        }
+          arguments: { clientId, name: 'Test Tag' },
+        },
       });
 
       expect(createResult.isError).toBeFalsy();
@@ -578,8 +596,8 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
       const listResult = await callToolHandler({
         params: {
           name: 'list-tags',
-          arguments: { clientId }
-        }
+          arguments: { clientId },
+        },
       });
 
       expect(listResult.isError).toBeFalsy();
@@ -589,12 +607,12 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
       const result = await callToolHandler({
         params: {
           name: 'generate-audit',
-          arguments: { 
+          arguments: {
             clientId,
             categories: ['credentials', 'database'],
-            daysAbandonedWorkflow: 30
-          }
-        }
+            daysAbandonedWorkflow: 30,
+          },
+        },
       });
 
       expect(result.isError).toBeFalsy();
@@ -604,8 +622,8 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
       const schemaResult = await callToolHandler({
         params: {
           name: 'get-credential-schema',
-          arguments: { clientId, credentialTypeName: 'httpBasicAuth' }
-        }
+          arguments: { clientId, credentialTypeName: 'httpBasicAuth' },
+        },
       });
 
       expect(schemaResult.isError).toBeFalsy();
@@ -613,13 +631,13 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
       const createResult = await callToolHandler({
         params: {
           name: 'create-credential',
-          arguments: { 
-            clientId, 
+          arguments: {
+            clientId,
             name: 'Test Credential',
             type: 'httpBasicAuth',
-            data: { username: 'test', password: 'pass' }
-          }
-        }
+            data: { username: 'test', password: 'pass' },
+          },
+        },
       });
 
       expect(createResult.isError).toBeFalsy();
@@ -631,9 +649,9 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
 
     beforeEach(async () => {
       await import('../../src/index.js');
-      
-      const callToolCall = mockServer.setRequestHandler.mock.calls.find(
-        call => call[0].toString().includes('call_tool')
+
+      const callToolCall = mockServer.setRequestHandler.mock.calls.find(call =>
+        call[0].toString().includes('call_tool')
       );
       callToolHandler = callToolCall?.[1] as Function;
     });
@@ -642,8 +660,8 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
       const result = await callToolHandler({
         params: {
           name: 'list-workflows',
-          arguments: { clientId: 'invalid' }
-        }
+          arguments: { clientId: 'invalid' },
+        },
       });
 
       expect(result).toHaveProperty('content');
@@ -659,15 +677,17 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
       const mockResponse = {
         ok: true,
         status: 200,
-        json: jest.fn().mockResolvedValue({ data: [] })
+        json: jest.fn<() => Promise<{ data: any[] }>>().mockResolvedValue({ data: [] }),
       } as any;
-      (nodeFetch.default as jest.MockedFunction<typeof nodeFetch.default>).mockResolvedValue(mockResponse);
+      (nodeFetch.default as jest.MockedFunction<typeof nodeFetch.default>).mockResolvedValue(
+        mockResponse
+      );
 
       const result = await callToolHandler({
         params: {
           name: 'init-n8n',
-          arguments: { url: 'http://localhost:5678', apiKey: 'test-key' }
-        }
+          arguments: { url: 'http://localhost:5678', apiKey: 'test-key' },
+        },
       });
 
       expect(result).toHaveProperty('content');
@@ -680,36 +700,47 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
     it('should format JSON responses properly', async () => {
       const nodeFetch = await import('node-fetch');
       const mockWorkflows = [
-        { id: 1, name: 'Test Workflow', active: true, createdAt: '2024-01-01', updatedAt: '2024-01-01', tags: [] }
+        {
+          id: 1,
+          name: 'Test Workflow',
+          active: true,
+          createdAt: '2024-01-01',
+          updatedAt: '2024-01-01',
+          tags: [],
+        },
       ];
       const mockResponse = {
         ok: true,
         status: 200,
-        json: jest.fn().mockResolvedValue({ data: mockWorkflows })
+        json: jest.fn<() => Promise<{ data: any[] }>>().mockResolvedValue({ data: mockWorkflows }),
       } as any;
-      (nodeFetch.default as jest.MockedFunction<typeof nodeFetch.default>).mockResolvedValue(mockResponse);
+      (nodeFetch.default as jest.MockedFunction<typeof nodeFetch.default>).mockResolvedValue(
+        mockResponse
+      );
 
       // First initialize client
       const initResult = await callToolHandler({
         params: {
           name: 'init-n8n',
-          arguments: { url: 'http://localhost:5678', apiKey: 'test-key' }
-        }
+          arguments: { url: 'http://localhost:5678', apiKey: 'test-key' },
+        },
       });
-      const clientId = initResult.content[0].text.match(/client ID for future operations: (.+)/)?.[1];
+      const clientId = initResult.content[0].text.match(
+        /client ID for future operations: (.+)/
+      )?.[1];
 
       // Then list workflows
       const result = await callToolHandler({
         params: {
           name: 'list-workflows',
-          arguments: { clientId }
-        }
+          arguments: { clientId },
+        },
       });
 
       expect(result.isError).toBeFalsy();
       const responseText = result.content[0].text;
       expect(() => JSON.parse(responseText)).not.toThrow();
-      
+
       const parsedResponse = JSON.parse(responseText);
       expect(parsedResponse).toBeInstanceOf(Array);
       expect(parsedResponse[0]).toHaveProperty('id');

@@ -1,5 +1,4 @@
 /** @type {import('jest').Config} */
-/* global process */
 export default {
   // Test environment
   testEnvironment: 'node',

@@ -11,8 +11,32 @@ import { N8nClient } from '../../../src/client/n8nClient';
 // Mock dependencies
 jest.mock('fastmcp');
 jest.mock('../../../src/client/n8nClient');
-jest.mock('../../../src/resources/workflowResources');
-jest.mock('../../../src/resources/executionResources');
+
+// Mock the resource factories to return objects with register methods
+let mockWorkflowResourceManager: any;
+let mockExecutionResourceManager: any;
+
+jest.mock('../../../src/resources/workflowResources', () => ({
+  createWorkflowResources: jest.fn().mockImplementation(() => {
+    mockWorkflowResourceManager = {
+      register: jest.fn(),
+      clearCache: jest.fn(),
+      getCacheStats: jest.fn().mockReturnValue({ size: 0, keys: [] }),
+    };
+    return mockWorkflowResourceManager;
+  }),
+}));
+
+jest.mock('../../../src/resources/executionResources', () => ({
+  createExecutionResources: jest.fn().mockImplementation(() => {
+    mockExecutionResourceManager = {
+      register: jest.fn(),
+      clearCache: jest.fn(),
+      getCacheStats: jest.fn().mockReturnValue({ size: 0, keys: [] }),
+    };
+    return mockExecutionResourceManager;
+  }),
+}));
 
 // Mock console methods to avoid test output pollution
 const mockConsoleLog = jest.fn();
@@ -44,6 +68,16 @@ describe('ResourceManager', () => {
     // Clear all mocks
     jest.clearAllMocks();
     mockConsoleLog.mockClear();
+
+    // Reset resource manager mocks if they exist
+    if (mockWorkflowResourceManager) {
+      mockWorkflowResourceManager.register.mockClear();
+      mockWorkflowResourceManager.clearCache.mockClear();
+    }
+    if (mockExecutionResourceManager) {
+      mockExecutionResourceManager.register.mockClear();
+      mockExecutionResourceManager.clearCache.mockClear();
+    }
   });
 
   afterEach(() => {
@@ -101,6 +135,7 @@ describe('ResourceManager', () => {
       resourceManager.register(mockServer, getClientFn);
 
       expect(mockConsoleLog).toHaveBeenCalledWith('📚 Registering n8n MCP resources...');
+      expect(mockWorkflowResourceManager.register).toHaveBeenCalledWith(mockServer, getClientFn);
     });
 
     it('should register execution resources when enabled', () => {
@@ -110,6 +145,7 @@ describe('ResourceManager', () => {
       resourceManager.register(mockServer, getClientFn);
 
       expect(mockConsoleLog).toHaveBeenCalledWith('📚 Registering n8n MCP resources...');
+      expect(mockExecutionResourceManager.register).toHaveBeenCalledWith(mockServer, getClientFn);
     });
 
     it('should register node resources when enabled', () => {
@@ -445,11 +481,19 @@ describe('ResourceManager', () => {
   describe('Cache Management', () => {
     beforeEach(() => {
       resourceManager = new ResourceManager();
+      // Register resources to initialize the managers
+      resourceManager.register(mockServer, getClientFn);
     });
 
     it('should clear all caches', () => {
       resourceManager.clearAllCaches();
       expect(mockConsoleLog).toHaveBeenCalledWith('🧹 All resource caches cleared');
+      if (mockWorkflowResourceManager) {
+        expect(mockWorkflowResourceManager.clearCache).toHaveBeenCalled();
+      }
+      if (mockExecutionResourceManager) {
+        expect(mockExecutionResourceManager.clearCache).toHaveBeenCalled();
+      }
     });
 
     it('should get cache statistics', () => {
@@ -468,7 +512,11 @@ describe('ResourceManager', () => {
     });
 
     it('should test features that succeed', async () => {
+      mockClient.getWorkflows.mockResolvedValue({ data: [] });
+      mockClient.getExecutions.mockResolvedValue({ data: [] });
       mockClient.getProjects.mockResolvedValue({ data: [] });
+      mockClient.getUsers.mockResolvedValue({ data: [] });
+      mockClient.getVariables.mockResolvedValue({ data: [] });
       resourceManager.register(mockServer, getClientFn);
 
       const addResourceCall = mockServer.addResource.mock.calls.find(
@@ -483,7 +531,11 @@ describe('ResourceManager', () => {
     });
 
     it('should test features that fail', async () => {
+      mockClient.getWorkflows.mockResolvedValue({ data: [] });
+      mockClient.getExecutions.mockResolvedValue({ data: [] });
       mockClient.getProjects.mockRejectedValue(new Error('Feature not available'));
+      mockClient.getUsers.mockRejectedValue(new Error('Feature not available'));
+      mockClient.getVariables.mockRejectedValue(new Error('Feature not available'));
       resourceManager.register(mockServer, getClientFn);
 
       const addResourceCall = mockServer.addResource.mock.calls.find(

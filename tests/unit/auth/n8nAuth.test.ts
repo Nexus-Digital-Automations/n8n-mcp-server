@@ -154,6 +154,44 @@ describe('N8nAuthProvider Simple Tests', () => {
       expect(typeof stats.size).toBe('number');
       expect(typeof stats.entries).toBe('number');
     });
+
+    it('should clean up expired cache entries', () => {
+      const provider = new N8nAuthProvider({ cacheDuration: -1 }); // Expired immediately
+
+      // Manually add expired cache entry to test cleanup
+      const cache = (provider as any).authCache;
+      cache.set('test-key', {
+        result: { success: true, user: { id: 'test' } },
+        expires: Date.now() - 1000, // Expired 1 second ago
+      });
+
+      // This should trigger cleanup of expired entries
+      const stats = provider.getCacheStats();
+      expect(stats.entries).toBe(0); // Expired entry should be cleaned up
+    });
+
+    it('should handle cache with zero duration', async () => {
+      const provider = new N8nAuthProvider({
+        required: true,
+        validateConnection: false,
+        cacheDuration: 0, // No caching
+        defaultBaseUrl: 'https://test.n8n.io',
+        defaultRoles: ['member'],
+      });
+
+      const context: RequestContext = {
+        headers: {
+          'x-n8n-api-key': 'valid-api-key',
+        },
+      };
+
+      const result = await provider.authenticate(context);
+      expect(result.success).toBe(true);
+
+      // With zero cache duration, nothing should be cached
+      const stats = provider.getCacheStats();
+      expect(stats.entries).toBe(0);
+    });
   });
 
   describe('refresh authentication', () => {
@@ -176,6 +214,85 @@ describe('N8nAuthProvider Simple Tests', () => {
       const result2 = await provider.refresh(context);
       expect(result2.success).toBe(true);
       expect(result2.user?.id).toBe('anonymous');
+    });
+
+    it('should refresh authentication with user context and clear specific cache', async () => {
+      const provider = new N8nAuthProvider({
+        required: true,
+        validateConnection: false,
+        cacheDuration: 60000,
+        defaultBaseUrl: '', // Empty default
+        defaultApiKey: '', // Empty default
+      });
+
+      const user = {
+        id: 'test-user',
+        name: 'Test User',
+        roles: ['member'],
+        permissions: {
+          community: true,
+          enterprise: false,
+          workflows: true,
+          executions: true,
+          credentials: false,
+          users: false,
+          audit: false,
+        },
+        n8nBaseUrl: 'https://test.n8n.io',
+        n8nApiKey: 'test-key',
+      };
+
+      const context: RequestContext = {
+        user,
+        headers: {}, // No authentication headers provided
+      };
+
+      // Refresh with user context should clear cache for that user and then fail because no credentials
+      const result = await provider.refresh(context);
+      expect(result.success).toBe(false); // No credentials in headers, should fail
+      expect(result.error).toContain('Authentication required but no credentials provided');
+    });
+  });
+
+  describe('error handling', () => {
+    it('should handle authentication errors gracefully', async () => {
+      const provider = new N8nAuthProvider({ required: true });
+
+      // Mock the extractCredentials method to throw an error
+      jest.spyOn(provider as any, 'extractCredentials').mockImplementation(() => {
+        throw new Error('Credential extraction failed');
+      });
+
+      const context: RequestContext = {
+        headers: {
+          'x-n8n-api-key': 'test-key',
+        },
+      };
+
+      const result = await provider.authenticate(context);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain('Authentication failed: Credential extraction failed');
+    });
+
+    it('should handle non-Error objects in catch blocks', async () => {
+      const provider = new N8nAuthProvider({ required: true });
+
+      // Mock to throw a non-Error object
+      jest.spyOn(provider as any, 'extractCredentials').mockImplementation(() => {
+        throw 'String error'; // Non-Error object
+      });
+
+      const context: RequestContext = {
+        headers: {
+          'x-n8n-api-key': 'test-key',
+        },
+      };
+
+      const result = await provider.authenticate(context);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain('Authentication failed: String error');
     });
   });
 });

@@ -58,14 +58,14 @@ describe('src/index-fastmcp.ts - FastMCP Server Entry Point', () => {
     // Mock FastMCP instance
     mockFastMCP = {
       addTool: jest.fn().mockReturnThis(),
-      start: jest.fn().mockResolvedValue(undefined),
+      start: jest.fn<() => Promise<void>>().mockResolvedValue(undefined),
       on: jest.fn().mockReturnThis(),
     } as any;
     (FastMCP as jest.MockedClass<typeof FastMCP>).mockImplementation(() => mockFastMCP);
 
     // Mock N8nClient
     mockN8nClient = {
-      getWorkflows: jest.fn().mockResolvedValue({ data: [] }),
+      getWorkflows: jest.fn<() => Promise<{ data: any[] }>>().mockResolvedValue({ data: [] }),
     };
 
     // Setup mocks for imported functions
@@ -88,8 +88,12 @@ describe('src/index-fastmcp.ts - FastMCP Server Entry Point', () => {
     createAuditTools.mockImplementation(mockCreateAuditTools);
 
     // Setup transport mocks
-    const { detectTransportConfig, validateTransportConfig, getServerUrl } = jest.requireMock('../../src/transport/transportConfig.js') as any;
-    const { createSSETransport, SSEUtils } = jest.requireMock('../../src/transport/sseTransport.js') as any;
+    const { detectTransportConfig, validateTransportConfig, getServerUrl } = jest.requireMock(
+      '../../src/transport/transportConfig.js'
+    ) as any;
+    const { createSSETransport, SSEUtils } = jest.requireMock(
+      '../../src/transport/sseTransport.js'
+    ) as any;
 
     detectTransportConfig.mockImplementation(mockDetectTransportConfig);
     validateTransportConfig.mockImplementation(mockValidateTransportConfig);
@@ -116,7 +120,9 @@ describe('src/index-fastmcp.ts - FastMCP Server Entry Point', () => {
       expect(FastMCP).toHaveBeenCalledWith({
         name: 'n8n-mcp-server',
         version: '2.0.0',
-        instructions: expect.stringContaining('This server provides comprehensive access to n8n workflows'),
+        instructions: expect.stringContaining(
+          'This server provides comprehensive access to n8n workflows'
+        ),
       });
     });
 
@@ -197,12 +203,12 @@ describe('src/index-fastmcp.ts - FastMCP Server Entry Point', () => {
     });
 
     it('should register init-n8n tool', () => {
-      const initToolCalls = mockFastMCP.addTool.mock.calls.filter(call => 
-        call[0].name === 'init-n8n'
+      const initToolCalls = mockFastMCP.addTool.mock.calls.filter(
+        call => call[0].name === 'init-n8n'
       );
-      
+
       expect(initToolCalls).toHaveLength(1);
-      
+
       const initTool = initToolCalls[0][0];
       expect(initTool).toHaveProperty('name', 'init-n8n');
       expect(initTool).toHaveProperty('description');
@@ -212,12 +218,12 @@ describe('src/index-fastmcp.ts - FastMCP Server Entry Point', () => {
     });
 
     it('should register status tool', () => {
-      const statusToolCalls = mockFastMCP.addTool.mock.calls.filter(call => 
-        call[0].name === 'status'
+      const statusToolCalls = mockFastMCP.addTool.mock.calls.filter(
+        call => call[0].name === 'status'
       );
-      
+
       expect(statusToolCalls).toHaveLength(1);
-      
+
       const statusTool = statusToolCalls[0][0];
       expect(statusTool).toHaveProperty('name', 'status');
       expect(statusTool).toHaveProperty('description');
@@ -227,8 +233,8 @@ describe('src/index-fastmcp.ts - FastMCP Server Entry Point', () => {
     });
 
     it('should configure init-n8n tool with proper schema validation', () => {
-      const initTool = mockFastMCP.addTool.mock.calls.find(call => 
-        call[0].name === 'init-n8n'
+      const initTool = mockFastMCP.addTool.mock.calls.find(
+        call => call[0].name === 'init-n8n'
       )?.[0];
 
       expect(initTool).toBeDefined();
@@ -244,8 +250,8 @@ describe('src/index-fastmcp.ts - FastMCP Server Entry Point', () => {
     });
 
     it('should configure status tool with proper annotations', () => {
-      const statusTool = mockFastMCP.addTool.mock.calls.find(call => 
-        call[0].name === 'status'
+      const statusTool = mockFastMCP.addTool.mock.calls.find(
+        call => call[0].name === 'status'
       )?.[0];
 
       expect(statusTool).toBeDefined();
@@ -271,8 +277,8 @@ describe('src/index-fastmcp.ts - FastMCP Server Entry Point', () => {
 
       await import('../../src/index-fastmcp.js');
 
-      const initTool = mockFastMCP.addTool.mock.calls.find(call => 
-        call[0].name === 'init-n8n'
+      const initTool = mockFastMCP.addTool.mock.calls.find(
+        call => call[0].name === 'init-n8n'
       )?.[0];
       if (initTool) {
         initToolExecute = initTool.execute;
@@ -299,7 +305,9 @@ describe('src/index-fastmcp.ts - FastMCP Server Entry Point', () => {
         apiKey: 'test-api-key',
       };
 
-      await expect(initToolExecute(args)).rejects.toThrow('Failed to connect to n8n: Connection failed');
+      await expect(initToolExecute(args)).rejects.toThrow(
+        'Failed to connect to n8n: Connection failed'
+      );
     });
 
     it('should handle unknown connection errors', async () => {
@@ -310,7 +318,9 @@ describe('src/index-fastmcp.ts - FastMCP Server Entry Point', () => {
         apiKey: 'test-api-key',
       };
 
-      await expect(initToolExecute(args)).rejects.toThrow('Failed to connect to n8n with unknown error');
+      await expect(initToolExecute(args)).rejects.toThrow(
+        'Failed to connect to n8n with unknown error'
+      );
     });
 
     it('should set global client instance on successful connection', async () => {
@@ -333,8 +343,8 @@ describe('src/index-fastmcp.ts - FastMCP Server Entry Point', () => {
     beforeEach(async () => {
       await import('../../src/index-fastmcp.js');
 
-      const statusTool = mockFastMCP.addTool.mock.calls.find(call => 
-        call[0].name === 'status'
+      const statusTool = mockFastMCP.addTool.mock.calls.find(
+        call => call[0].name === 'status'
       )?.[0];
       if (statusTool) {
         statusToolExecute = statusTool.execute;
@@ -352,10 +362,10 @@ describe('src/index-fastmcp.ts - FastMCP Server Entry Point', () => {
       const { N8nClient } = jest.requireMock('../../src/client/n8nClient.js') as any;
       N8nClient.mockImplementation(() => mockN8nClient);
 
-      const initTool = mockFastMCP.addTool.mock.calls.find(call => 
-        call[0].name === 'init-n8n'
+      const initTool = mockFastMCP.addTool.mock.calls.find(
+        call => call[0].name === 'init-n8n'
       )?.[0];
-      
+
       if (initTool) {
         await initTool.execute({
           baseUrl: 'http://localhost:5678',
@@ -375,10 +385,10 @@ describe('src/index-fastmcp.ts - FastMCP Server Entry Point', () => {
       const { N8nClient } = jest.requireMock('../../src/client/n8nClient.js') as any;
       N8nClient.mockImplementation(() => mockN8nClient);
 
-      const initTool = mockFastMCP.addTool.mock.calls.find(call => 
-        call[0].name === 'init-n8n'
+      const initTool = mockFastMCP.addTool.mock.calls.find(
+        call => call[0].name === 'init-n8n'
       )?.[0];
-      
+
       if (initTool) {
         await initTool.execute({
           baseUrl: 'http://localhost:5678',
@@ -399,10 +409,10 @@ describe('src/index-fastmcp.ts - FastMCP Server Entry Point', () => {
       const { N8nClient } = jest.requireMock('../../src/client/n8nClient.js') as any;
       N8nClient.mockImplementation(() => mockN8nClient);
 
-      const initTool = mockFastMCP.addTool.mock.calls.find(call => 
-        call[0].name === 'init-n8n'
+      const initTool = mockFastMCP.addTool.mock.calls.find(
+        call => call[0].name === 'init-n8n'
       )?.[0];
-      
+
       if (initTool) {
         await initTool.execute({
           baseUrl: 'http://localhost:5678',
@@ -450,16 +460,16 @@ describe('src/index-fastmcp.ts - FastMCP Server Entry Point', () => {
 
   describe('Server Startup with SSE Transport', () => {
     const mockSSETransport = {
-      start: jest.fn().mockResolvedValue(undefined),
+      start: jest.fn<() => Promise<void>>().mockResolvedValue(undefined),
     };
 
     beforeEach(() => {
-      mockDetectTransportConfig.mockReturnValue({ 
+      mockDetectTransportConfig.mockReturnValue({
         type: 'sse',
         port: 3000,
         host: 'localhost',
       });
-      mockValidateTransportConfig.mockReturnValue({ 
+      mockValidateTransportConfig.mockReturnValue({
         type: 'sse',
         port: 3000,
         host: 'localhost',
@@ -477,7 +487,7 @@ describe('src/index-fastmcp.ts - FastMCP Server Entry Point', () => {
       expect(mockConsoleLog).toHaveBeenCalledWith('🚀 Starting n8n MCP Server...');
       expect(mockConsoleLog).toHaveBeenCalledWith('📡 Transport type: sse');
       expect(mockSSEUtils.validateConfig).toHaveBeenCalled();
-      expect(mockCreateSSETransport).toHaveBeenCalledWith(mockFastMCP, { 
+      expect(mockCreateSSETransport).toHaveBeenCalledWith(mockFastMCP, {
         type: 'sse',
         port: 3000,
         host: 'localhost',
@@ -524,7 +534,10 @@ describe('src/index-fastmcp.ts - FastMCP Server Entry Point', () => {
 
       await Promise.resolve();
 
-      expect(mockConsoleError).toHaveBeenCalledWith('❌ Failed to start server:', expect.any(Error));
+      expect(mockConsoleError).toHaveBeenCalledWith(
+        '❌ Failed to start server:',
+        expect.any(Error)
+      );
       expect(process.exit).toHaveBeenCalledWith(1);
     });
 
@@ -532,9 +545,11 @@ describe('src/index-fastmcp.ts - FastMCP Server Entry Point', () => {
       mockDetectTransportConfig.mockReturnValue({ type: 'sse', port: 3000 });
       mockValidateTransportConfig.mockReturnValue({ type: 'sse', port: 3000 });
       mockSSEUtils.validateConfig.mockReturnValue(true);
-      
+
       const mockSSETransport = {
-        start: jest.fn().mockRejectedValueOnce(new Error('SSE startup failed')),
+        start: jest
+          .fn<() => Promise<void>>()
+          .mockRejectedValueOnce(new Error('SSE startup failed')),
       };
       mockCreateSSETransport.mockReturnValue(mockSSETransport);
 
@@ -542,7 +557,10 @@ describe('src/index-fastmcp.ts - FastMCP Server Entry Point', () => {
 
       await Promise.resolve();
 
-      expect(mockConsoleError).toHaveBeenCalledWith('❌ Failed to start server:', expect.any(Error));
+      expect(mockConsoleError).toHaveBeenCalledWith(
+        '❌ Failed to start server:',
+        expect.any(Error)
+      );
       expect(process.exit).toHaveBeenCalledWith(1);
     });
   });
@@ -561,29 +579,29 @@ describe('src/index-fastmcp.ts - FastMCP Server Entry Point', () => {
     });
 
     it('should handle SIGINT gracefully', () => {
-      const sigintCall = (process.on as jest.Mock).mock.calls.find(call => 
-        call[0] === 'SIGINT'
-      );
-      
+      const sigintCall = (process.on as jest.Mock).mock.calls.find(call => call[0] === 'SIGINT');
+
       if (sigintCall) {
         const sigintHandler = sigintCall[1] as () => void;
         sigintHandler();
 
-        expect(mockConsoleError).toHaveBeenCalledWith('Received SIGINT, shutting down gracefully...');
+        expect(mockConsoleError).toHaveBeenCalledWith(
+          'Received SIGINT, shutting down gracefully...'
+        );
         expect(process.exit).toHaveBeenCalledWith(0);
       }
     });
 
     it('should handle SIGTERM gracefully', () => {
-      const sigtermCall = (process.on as jest.Mock).mock.calls.find(call => 
-        call[0] === 'SIGTERM'
-      );
-      
+      const sigtermCall = (process.on as jest.Mock).mock.calls.find(call => call[0] === 'SIGTERM');
+
       if (sigtermCall) {
         const sigtermHandler = sigtermCall[1] as () => void;
         sigtermHandler();
 
-        expect(mockConsoleError).toHaveBeenCalledWith('Received SIGTERM, shutting down gracefully...');
+        expect(mockConsoleError).toHaveBeenCalledWith(
+          'Received SIGTERM, shutting down gracefully...'
+        );
         expect(process.exit).toHaveBeenCalledWith(0);
       }
     });
@@ -605,8 +623,8 @@ describe('src/index-fastmcp.ts - FastMCP Server Entry Point', () => {
       const { N8nClient } = jest.requireMock('../../src/client/n8nClient.js') as any;
       N8nClient.mockImplementation(() => mockN8nClient);
 
-      const initTool = mockFastMCP.addTool.mock.calls.find(call => 
-        call[0].name === 'init-n8n'
+      const initTool = mockFastMCP.addTool.mock.calls.find(
+        call => call[0].name === 'init-n8n'
       )?.[0];
 
       if (initTool) {
@@ -623,8 +641,8 @@ describe('src/index-fastmcp.ts - FastMCP Server Entry Point', () => {
       const { N8nClient } = jest.requireMock('../../src/client/n8nClient.js') as any;
       N8nClient.mockImplementation(() => mockN8nClient);
 
-      const initTool = mockFastMCP.addTool.mock.calls.find(call => 
-        call[0].name === 'init-n8n'
+      const initTool = mockFastMCP.addTool.mock.calls.find(
+        call => call[0].name === 'init-n8n'
       )?.[0];
 
       if (initTool) {
@@ -656,8 +674,8 @@ describe('src/index-fastmcp.ts - FastMCP Server Entry Point', () => {
     it('should use Zod for init-n8n parameter validation', async () => {
       await import('../../src/index-fastmcp.js');
 
-      const initTool = mockFastMCP.addTool.mock.calls.find(call => 
-        call[0].name === 'init-n8n'
+      const initTool = mockFastMCP.addTool.mock.calls.find(
+        call => call[0].name === 'init-n8n'
       )?.[0];
 
       expect(initTool).toBeDefined();
@@ -672,8 +690,8 @@ describe('src/index-fastmcp.ts - FastMCP Server Entry Point', () => {
     it('should use empty Zod object for status parameters', async () => {
       await import('../../src/index-fastmcp.js');
 
-      const statusTool = mockFastMCP.addTool.mock.calls.find(call => 
-        call[0].name === 'status'
+      const statusTool = mockFastMCP.addTool.mock.calls.find(
+        call => call[0].name === 'status'
       )?.[0];
 
       expect(statusTool).toBeDefined();
@@ -716,14 +734,12 @@ describe('src/index-fastmcp.ts - FastMCP Server Entry Point', () => {
       expect(mockCreateTagTools).toHaveBeenCalled();
       expect(mockCreateCredentialTools).toHaveBeenCalled();
       expect(mockCreateAuditTools).toHaveBeenCalled();
-      
+
       // The custom tools should also be registered
       expect(mockFastMCP.addTool).toHaveBeenCalledWith(
         expect.objectContaining({ name: 'init-n8n' })
       );
-      expect(mockFastMCP.addTool).toHaveBeenCalledWith(
-        expect.objectContaining({ name: 'status' })
-      );
+      expect(mockFastMCP.addTool).toHaveBeenCalledWith(expect.objectContaining({ name: 'status' }));
     });
   });
 });

@@ -43,7 +43,11 @@ describe('Workflow Tools', () => {
     it('should list workflows successfully', async () => {
       const mockWorkflows = [
         (global as any).testUtils.createMockWorkflow({ id: '1', name: 'Workflow 1', active: true }),
-        (global as any).testUtils.createMockWorkflow({ id: '2', name: 'Workflow 2', active: false }),
+        (global as any).testUtils.createMockWorkflow({
+          id: '2',
+          name: 'Workflow 2',
+          active: false,
+        }),
       ];
 
       mockClient.getWorkflows.mockResolvedValue(
@@ -62,17 +66,17 @@ describe('Workflow Tools', () => {
 
     it('should list workflows with tags and pagination', async () => {
       const mockWorkflows = [
-        (global as any).testUtils.createMockWorkflow({ 
-          id: '1', 
+        (global as any).testUtils.createMockWorkflow({
+          id: '1',
           name: 'Tagged Workflow',
           tags: ['production', 'automation'],
-          createdAt: '2023-01-01T00:00:00.000Z'
+          createdAt: '2023-01-01T00:00:00.000Z',
         }),
       ];
 
       mockClient.getWorkflows.mockResolvedValue({
         ...(global as any).testUtils.createMockApiResponse(mockWorkflows),
-        nextCursor: 'next-page-cursor'
+        nextCursor: 'next-page-cursor',
       });
 
       const result = await listWorkflowsTool.execute({ cursor: 'current-cursor' });
@@ -162,8 +166,8 @@ describe('Workflow Tools', () => {
         updatedAt: '2023-01-02T15:30:00.000Z',
         nodes: [
           { name: 'Start Node', type: 'manual' },
-          { name: undefined, type: undefined } // Test fallback values
-        ]
+          { name: undefined, type: undefined }, // Test fallback values
+        ],
       });
 
       mockClient.getWorkflow.mockResolvedValue(mockWorkflow);
@@ -557,9 +561,9 @@ describe('Workflow Tools', () => {
     it('should handle deactivation errors with Error instance', async () => {
       mockClient.deactivateWorkflow.mockRejectedValue(new Error('Workflow deactivation failed'));
 
-      await expect(deactivateWorkflowTool.execute({ workflowId: 'broken-workflow' })).rejects.toThrow(
-        'Failed to deactivate workflow: Workflow deactivation failed'
-      );
+      await expect(
+        deactivateWorkflowTool.execute({ workflowId: 'broken-workflow' })
+      ).rejects.toThrow('Failed to deactivate workflow: Workflow deactivation failed');
     });
 
     it('should handle unknown deactivation errors', async () => {

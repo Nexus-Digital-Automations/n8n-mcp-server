@@ -432,7 +432,7 @@ describe('FastMCPAuthMiddleware', () => {
   });
 
   describe('context extraction', () => {
-    it('should extract context from arguments with session', () => {
+    it('should extract context from arguments with session', async () => {
       const mockToolFunction = jest
         .fn<(...args: any[]) => Promise<string>>()
         .mockResolvedValue('result');
@@ -448,12 +448,12 @@ describe('FastMCPAuthMiddleware', () => {
       ];
 
       // This will internally call extractContextFromArgs
-      void wrappedTool(...args).catch(() => {}); // Ignore errors for this test
+      await wrappedTool(...args).catch(() => {}); // Ignore errors for this test
 
       expect(mockToolFunction).toHaveBeenCalled();
     });
 
-    it('should handle arguments without session', () => {
+    it('should handle arguments without session', async () => {
       const mockToolFunction = jest
         .fn<(...args: any[]) => Promise<string>>()
         .mockResolvedValue('result');
@@ -462,19 +462,19 @@ describe('FastMCPAuthMiddleware', () => {
       const args: any[] = [{ data: 'test' }, { notASession: true }];
 
       // This will internally call extractContextFromArgs
-      void wrappedTool(...args).catch(() => {}); // Ignore errors for this test
+      await wrappedTool(...args).catch(() => {}); // Ignore errors for this test
 
       expect(mockToolFunction).toHaveBeenCalled();
     });
 
-    it('should handle empty arguments', () => {
+    it('should handle empty arguments', async () => {
       const mockToolFunction = jest
         .fn<(...args: any[]) => Promise<string>>()
         .mockResolvedValue('result');
       const wrappedTool = middleware.wrapTool('test-tool', mockToolFunction);
 
       // This will internally call extractContextFromArgs
-      void wrappedTool().catch(() => {}); // Ignore errors for this test
+      await wrappedTool().catch(() => {}); // Ignore errors for this test
 
       expect(mockToolFunction).toHaveBeenCalled();
     });
@@ -574,12 +574,52 @@ describe('decorators', () => {
       const decorator = requireAuth('test-tool');
       expect(typeof decorator).toBe('function');
     });
+
+    it('should apply decorator to methods', async () => {
+      const originalMethod = jest
+        .fn<(...args: any[]) => Promise<string>>()
+        .mockResolvedValue('result');
+      const mockDescriptor = {
+        value: originalMethod,
+      };
+
+      const decorator = requireAuth('test-tool');
+      const decoratedDescriptor = decorator({}, 'testMethod', mockDescriptor);
+
+      expect(decoratedDescriptor).toBe(mockDescriptor);
+      expect(typeof mockDescriptor.value).toBe('function');
+
+      // Test the decorated method
+      const result = await mockDescriptor.value('arg1', 'arg2');
+      expect(result).toBe('result');
+      expect(originalMethod).toHaveBeenCalledWith('arg1', 'arg2');
+    });
   });
 
   describe('requirePermission', () => {
     it('should create permission decorator', () => {
       const decorator = requirePermission('workflows');
       expect(typeof decorator).toBe('function');
+    });
+
+    it('should apply decorator to methods', async () => {
+      const originalMethod = jest
+        .fn<(...args: any[]) => Promise<string>>()
+        .mockResolvedValue('permission-result');
+      const mockDescriptor = {
+        value: originalMethod,
+      };
+
+      const decorator = requirePermission('workflows');
+      const decoratedDescriptor = decorator({}, 'testMethod', mockDescriptor);
+
+      expect(decoratedDescriptor).toBe(mockDescriptor);
+      expect(typeof mockDescriptor.value).toBe('function');
+
+      // Test the decorated method
+      const result = await mockDescriptor.value('arg1', 'arg2');
+      expect(result).toBe('permission-result');
+      expect(originalMethod).toHaveBeenCalledWith('arg1', 'arg2');
     });
   });
 });
