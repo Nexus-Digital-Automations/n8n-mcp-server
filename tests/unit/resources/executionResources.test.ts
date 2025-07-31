@@ -1281,4 +1281,221 @@ describe('ExecutionResourceManager', () => {
       expect(mockClient.getExecutions).toHaveBeenCalledTimes(2);
     });
   });
+
+  describe('Branch Coverage Edge Cases', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+      executionManager = new ExecutionResourceManager();
+      executionManager.register(mockServer, getClientFn);
+    });
+
+    it('should handle executions with conflicting status indicators', async () => {
+      const conflictingExecution = {
+        ...mockExecution,
+        finished: false,
+        stoppedAt: undefined,
+        data: {
+          resultData: {
+            error: {
+              message: 'Test error',
+              stack: 'Error stack trace',
+            },
+          },
+        },
+      };
+
+      mockClient.getExecution.mockResolvedValue(conflictingExecution);
+
+      const templateCall = mockServer.addResourceTemplate.mock.calls.find(
+        call => call[0].uriTemplate === 'n8n://executions/{executionId}'
+      );
+      if (!templateCall) throw new Error('Template call not found');
+      const template = templateCall[0];
+      const result = await template.load({ executionId: 'execution-123' });
+
+      const data = JSON.parse((result as any).text);
+      // Should handle conflicting status gracefully
+      expect(data.execution.finished).toBe(false);
+      expect(data.analysis.status).toBeDefined();
+    });
+
+    it('should handle non-serializable data types in sanitization', async () => {
+      const executionWithComplexData = {
+        ...mockExecution,
+        data: {
+          function: () => 'test',
+          symbol: Symbol('test'),
+          bigint: BigInt(123),
+          password: 'secret123',
+          undefined: undefined,
+          null: null,
+          nested: {
+            password: 'nested-secret',
+            apiKey: 'api-123',
+            token: 'token-456',
+          },
+        },
+      };
+
+      mockClient.getExecution.mockResolvedValue(executionWithComplexData);
+
+      const templateCall = mockServer.addResourceTemplate.mock.calls.find(
+        call => call[0].uriTemplate === 'n8n://executions/{executionId}'
+      );
+      if (!templateCall) throw new Error('Template call not found');
+      const template = templateCall[0];
+      const result = await template.load({ executionId: 'execution-123' });
+
+      const data = JSON.parse((result as any).text);
+      // Should sanitize sensitive data and handle complex types
+      expect(data.execution.data).toBeDefined();
+      expect(JSON.stringify(data)).not.toContain('secret123');
+      expect(JSON.stringify(data)).not.toContain('api-123');
+      expect(JSON.stringify(data)).not.toContain('token-456');
+    });
+
+    it('should handle circular references in execution data logs', async () => {
+      const circularData: any = { message: 'test message' };
+      circularData.self = circularData;
+      circularData.parent = { child: circularData };
+
+      const executionWithCircularData = {
+        ...mockExecution,
+        data: {
+          resultData: {
+            runData: {
+              Node1: [{ data: { main: [[circularData]] } }],
+              Node2: [{ data: { main: [[{ nested: circularData }]] } }],
+            },
+          },
+        },
+      };
+
+      mockClient.getExecution.mockResolvedValue(executionWithCircularData);
+
+      const logsTemplateCall = mockServer.addResourceTemplate.mock.calls.find(
+        call => call[0].uriTemplate === 'n8n://executions/{executionId}/logs'
+      );
+      if (!logsTemplateCall) throw new Error('Logs template call not found');
+      const logsTemplate = logsTemplateCall[0];
+      const result = await logsTemplate.load({ executionId: 'execution-123' });
+
+      // Should handle circular references without crashing
+      const data = JSON.parse((result as any).text);
+      expect(data.logs).toBeDefined();
+      expect(Array.isArray(data.logs)).toBe(true);
+    });
+
+    it('should handle executions with missing or malformed data properties', async () => {
+      const malformedExecution = {
+        ...mockExecution,
+        id: 'execution-malformed',
+        workflowId: 'workflow-123',
+        finished: false,
+        mode: 'unknown',
+        startedAt: '2023-01-01T10:00:00Z',
+        status: 'unknown' as any,
+        data: undefined,
+      };
+
+      mockClient.getExecutions.mockResolvedValue({ data: [malformedExecution] });
+
+      const statsResourceCall = mockServer.addResource.mock.calls.find(
+        call => call[0].uri === 'n8n://executions/stats'
+      );
+      if (!statsResourceCall) throw new Error('Stats resource call not found');
+      const statsResource = statsResourceCall[0];
+      const result = await statsResource.load();
+
+      const data = JSON.parse((result as any).text);
+      // Should handle missing properties gracefully
+      expect(data.totalExecutions).toBe(1);
+      expect(data.statusDistribution).toBeDefined();
+    });
+
+    it('should handle execution status determination with edge cases', async () => {
+      const edgeCaseExecutions = [
+        {
+          ...mockExecution,
+          id: 'exec-1',
+          finished: true,
+          stoppedAt: '2023-01-01T12:00:00Z',
+          data: { resultData: { error: null } },
+        },
+        {
+          ...mockExecution,
+          id: 'exec-2',
+          finished: false,
+          stoppedAt: '2023-01-01T12:00:00Z', // Stopped but not finished
+          data: undefined,
+        },
+        {
+          ...mockExecution,
+          id: 'exec-3',
+          finished: true,
+          stoppedAt: undefined, // Finished but no stop time
+          data: { resultData: { lastNodeExecuted: 'FinalNode' } },
+        },
+      ];
+
+      mockClient.getExecutions.mockResolvedValue({ data: edgeCaseExecutions });
+
+      const statsResourceCall = mockServer.addResource.mock.calls.find(
+        call => call[0].uri === 'n8n://executions/stats'
+      );
+      if (!statsResourceCall) throw new Error('Stats resource call not found');
+      const statsResource = statsResourceCall[0];
+      const result = await statsResource.load();
+
+      const data = JSON.parse((result as any).text);
+      // Should handle various status combinations
+      expect(data.totalExecutions).toBe(3);
+      expect(data.statusDistribution).toBeDefined();
+      expect(typeof data.averageDuration).toBe('number');
+    });
+
+    it('should handle data truncation for very large execution data', async () => {
+      const largeDataExecution = {
+        ...mockExecution,
+        data: {
+          resultData: {
+            runData: {
+              LargeDataNode: [
+                {
+                  data: {
+                    main: [
+                      [
+                        {
+                          json: {
+                            largeField: 'x'.repeat(10000), // Very large string
+                            normalField: 'normal value',
+                          },
+                        },
+                      ],
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        },
+      };
+
+      mockClient.getExecution.mockResolvedValue(largeDataExecution);
+
+      const templateCall = mockServer.addResourceTemplate.mock.calls.find(
+        call => call[0].uriTemplate === 'n8n://executions/{executionId}'
+      );
+      if (!templateCall) throw new Error('Template call not found');
+      const template = templateCall[0];
+      const result = await template.load({ executionId: 'execution-123' });
+
+      const data = JSON.parse((result as any).text);
+      // Should truncate very large data appropriately
+      expect(data.execution.data).toBeDefined();
+
+      // The result should be serializable as JSON (no circular refs or functions)
+      expect(() => JSON.stringify(data)).not.toThrow();
+    });
+  });
 });

@@ -1058,7 +1058,9 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
       const mockProjectResponse = {
         ok: true,
         status: 200,
-        json: jest.fn<() => Promise<any>>().mockResolvedValue({ id: 'project-1', name: 'Test Project' }),
+        json: jest
+          .fn<() => Promise<any>>()
+          .mockResolvedValue({ id: 'project-1', name: 'Test Project' }),
         text: jest.fn<() => Promise<string>>().mockResolvedValue(''),
       };
       mockFetch.mockResolvedValue(mockProjectResponse);
@@ -1090,7 +1092,9 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
       const mockUserResponse = {
         ok: true,
         status: 200,
-        json: jest.fn<() => Promise<any>>().mockResolvedValue({ id: 'user-1', email: 'test@example.com' }),
+        json: jest
+          .fn<() => Promise<any>>()
+          .mockResolvedValue({ id: 'user-1', email: 'test@example.com' }),
         text: jest.fn<() => Promise<string>>().mockResolvedValue(''),
       };
       mockFetch.mockResolvedValue(mockUserResponse);
@@ -1122,7 +1126,9 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
       const mockVariableResponse = {
         ok: true,
         status: 200,
-        json: jest.fn<() => Promise<any>>().mockResolvedValue({ id: 'var-1', key: 'TEST_VAR', value: 'test' }),
+        json: jest
+          .fn<() => Promise<any>>()
+          .mockResolvedValue({ id: 'var-1', key: 'TEST_VAR', value: 'test' }),
         text: jest.fn<() => Promise<string>>().mockResolvedValue(''),
       };
       mockFetch.mockResolvedValue(mockVariableResponse);
@@ -1145,10 +1151,10 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
       const mockExecutionResponse = {
         ok: true,
         status: 200,
-        json: jest.fn<() => Promise<any>>().mockResolvedValue({ 
-          id: 123, 
-          finished: true, 
-          data: { resultData: { runData: {} } }
+        json: jest.fn<() => Promise<any>>().mockResolvedValue({
+          id: 123,
+          finished: true,
+          data: { resultData: { runData: {} } },
         }),
         text: jest.fn<() => Promise<string>>().mockResolvedValue(''),
       };
@@ -1222,10 +1228,10 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
       const mockCredentialResponse = {
         ok: true,
         status: 200,
-        json: jest.fn<() => Promise<any>>().mockResolvedValue({ 
-          id: 'cred-1', 
+        json: jest.fn<() => Promise<any>>().mockResolvedValue({
+          id: 'cred-1',
           name: 'Test Credential',
-          type: 'httpBasicAuth'
+          type: 'httpBasicAuth',
         }),
         text: jest.fn<() => Promise<string>>().mockResolvedValue(''),
       };
@@ -1299,19 +1305,26 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
         { name: 'createUser', params: { clientId, email: 'test@example.com', role: 'member' } },
         { name: 'createProject', params: { clientId, name: 'Test Project' } },
         { name: 'createVariable', params: { clientId, key: 'TEST_VAR', value: 'value' } },
-        { name: 'createCredential', params: { clientId, name: 'Test Cred', type: 'httpBasicAuth', data: {} } },
+        {
+          name: 'createCredential',
+          params: { clientId, name: 'Test Cred', type: 'httpBasicAuth', data: {} },
+        },
         { name: 'createTag', params: { clientId, name: 'Test Tag' } },
         { name: 'updateTag', params: { clientId, id: 'tag-1', name: 'Updated Tag' } },
         { name: 'deleteTag', params: { clientId, id: 'tag-1' } },
         { name: 'getWorkflowTags', params: { clientId, workflowId: '1' } },
         { name: 'updateWorkflowTags', params: { clientId, workflowId: '1', tags: ['tag1'] } },
-        { name: 'generateAuditReport', params: { clientId, categories: ['credentials'] } }
+        { name: 'generateAuditReport', params: { clientId, categories: ['credentials'] } },
       ];
 
       // Test all methods indirectly through tool calls
-      for (const method of methods.slice(0, 10)) { // Test a subset to avoid test timeout
+      for (const method of methods.slice(0, 10)) {
+        // Test a subset to avoid test timeout
         try {
-          const toolName = method.name.replace(/([A-Z])/g, '-$1').toLowerCase().replace(/^-/, '');
+          const toolName = method.name
+            .replace(/([A-Z])/g, '-$1')
+            .toLowerCase()
+            .replace(/^-/, '');
           await callToolHandler({
             params: {
               name: toolName,
@@ -1362,7 +1375,9 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
       const mockLicenseResponse = {
         ok: false,
         status: 403,
-        text: jest.fn<() => Promise<string>>().mockResolvedValue('{"message": "This requires an enterprise license"}'),
+        text: jest
+          .fn<() => Promise<string>>()
+          .mockResolvedValue('{"message": "This requires an enterprise license"}'),
       };
       mockFetch.mockResolvedValueOnce(mockLicenseResponse);
 
@@ -1393,12 +1408,12 @@ describe('src/index.ts - Main MCP Server Entry Point', () => {
       await callToolHandler({
         params: {
           name: 'list-executions',
-          arguments: { 
-            clientId, 
+          arguments: {
+            clientId,
             includeData: true,
             status: 'success',
             workflowId: '123',
-            limit: 50 
+            limit: 50,
           },
         },
       });

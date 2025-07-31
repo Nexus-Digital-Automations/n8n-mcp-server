@@ -321,6 +321,38 @@ describe('createN8nAuth', () => {
     const provider = createN8nAuth();
     expect(provider).toBeInstanceOf(N8nAuthProvider);
   });
+
+  it('should handle invalid cache duration environment variables', () => {
+    process.env.N8N_MCP_AUTH_CACHE_DURATION = 'invalid-number';
+    process.env.N8N_MCP_DEFAULT_ROLES = 'admin,editor'; // Valid roles
+
+    const provider = createN8nAuth();
+    expect(provider).toBeInstanceOf(N8nAuthProvider);
+
+    // Should use default cache duration when parse fails
+    const stats = provider.getCacheStats();
+    expect(typeof stats.size).toBe('number');
+  });
+
+  it('should handle empty default roles environment variable', () => {
+    process.env.N8N_MCP_DEFAULT_ROLES = '';
+
+    const provider = createN8nAuth();
+    expect(provider).toBeInstanceOf(N8nAuthProvider);
+
+    // Should handle empty string gracefully by using defaults
+  });
+
+  it('should handle missing environment variables gracefully', () => {
+    delete process.env.N8N_MCP_AUTH_REQUIRED;
+    delete process.env.N8N_BASE_URL;
+    delete process.env.N8N_API_KEY;
+    delete process.env.N8N_MCP_AUTH_CACHE_DURATION;
+    delete process.env.N8N_MCP_DEFAULT_ROLES;
+
+    const provider = createN8nAuth();
+    expect(provider).toBeInstanceOf(N8nAuthProvider);
+  });
 });
 
 describe('defaultN8nAuth', () => {

@@ -347,8 +347,12 @@ export class WorkflowResourceManager {
     workflows.forEach(workflow => {
       if (workflow.tags && Array.isArray(workflow.tags)) {
         workflow.tags.forEach((tag: any) => {
-          const tagName = typeof tag === 'string' ? tag : tag.name;
-          tagUsage[tagName] = (tagUsage[tagName] || 0) + 1;
+          if (tag != null) {
+            const tagName = typeof tag === 'string' ? tag : tag?.name;
+            if (tagName) {
+              tagUsage[tagName] = (tagUsage[tagName] || 0) + 1;
+            }
+          }
         });
       }
     });

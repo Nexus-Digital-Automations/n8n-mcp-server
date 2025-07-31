@@ -2224,8 +2224,12 @@ export async function startServer() {
 
 // Start the server only if this module is run directly
 // Note: import.meta.url check is replaced with process.argv check for Jest compatibility
-if (process.argv[1] && process.argv[1].includes('index.js') && !process.env.NODE_ENV?.includes('test')) {
-  startServer().catch((error) => {
+if (
+  process.argv[1] &&
+  process.argv[1].includes('index.js') &&
+  !process.env.NODE_ENV?.includes('test')
+) {
+  startServer().catch(error => {
     console.error('Failed to start server:', error);
     process.exit(1);
   });

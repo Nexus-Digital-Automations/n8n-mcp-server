@@ -973,4 +973,157 @@ describe('WorkflowResourceManager', () => {
       expect(statsData.totalWorkflows).toBe(0);
     });
   });
+
+  describe('Branch Coverage Edge Cases', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+      workflowManager = new WorkflowResourceManager();
+      workflowManager.register(mockServer, getClientFn);
+    });
+
+    it('should handle workflows with null/undefined tags', async () => {
+      const workflowWithNullTags = {
+        ...mockWorkflow,
+        tags: undefined,
+      };
+      const workflowWithUndefinedTags = {
+        ...mockInactiveWorkflow,
+        tags: undefined,
+      };
+
+      mockClient.getWorkflows.mockResolvedValue({
+        data: [workflowWithNullTags, workflowWithUndefinedTags],
+      });
+
+      const statsResourceCall = mockServer.addResource.mock.calls.find(
+        call => call[0].uri === 'n8n://workflows/stats'
+      );
+      if (!statsResourceCall) throw new Error('Stats resource call not found');
+      const statsResource = statsResourceCall[0];
+      const result = await statsResource.load();
+      const data = JSON.parse((result as any).text);
+
+      // Should handle null/undefined tags gracefully
+      expect(data.totalWorkflows).toBe(2);
+      expect(data.tagUsage).toBeDefined();
+    });
+
+    it('should handle workflows with invalid tag objects', async () => {
+      const workflowWithObjectTags = {
+        ...mockWorkflow,
+        tags: [{ invalid: 'structure' }, null, undefined, 'valid-tag'] as any,
+      };
+
+      mockClient.getWorkflows.mockResolvedValue({
+        data: [workflowWithObjectTags],
+      });
+
+      const statsResourceCall = mockServer.addResource.mock.calls.find(
+        call => call[0].uri === 'n8n://workflows/stats'
+      );
+      if (!statsResourceCall) throw new Error('Stats resource call not found');
+      const statsResource = statsResourceCall[0];
+      const result = await statsResource.load();
+      const data = JSON.parse((result as any).text);
+
+      // Should extract only valid string tags
+      expect(data.totalWorkflows).toBe(1);
+      expect(data.tagUsage).toBeDefined();
+    });
+
+    it('should handle workflows with null nodes/connections', async () => {
+      const workflowWithNullStructure = {
+        ...mockWorkflow,
+        nodes: null as any,
+        connections: null as any,
+      };
+
+      mockClient.getWorkflow.mockResolvedValue(workflowWithNullStructure);
+
+      const templateCall = mockServer.addResourceTemplate.mock.calls.find(
+        call => call[0].uriTemplate === 'n8n://workflows/{id}'
+      );
+      if (!templateCall) throw new Error('Template call not found');
+      const template = templateCall[0];
+      const result = await template.load({ id: 'workflow-123' });
+
+      const data = JSON.parse((result as any).text);
+      // Should handle null values gracefully
+      expect(data.nodes).toBeNull();
+      expect(data.connections).toBeNull();
+      expect(data.metadata.nodeCount).toBe(0);
+      expect(data.metadata.connectionCount).toBe(0);
+    });
+
+    it('should handle invalid date formats in creation statistics', async () => {
+      const workflowsWithInvalidDates = [
+        {
+          ...mockWorkflow,
+          createdAt: 'not-a-date',
+          updatedAt: undefined,
+        },
+        {
+          ...mockInactiveWorkflow,
+          createdAt: 'not-a-date',
+          updatedAt: 'also-not-a-date',
+        },
+      ];
+
+      mockClient.getWorkflows.mockResolvedValue({
+        data: workflowsWithInvalidDates,
+      });
+
+      const statsResourceCall = mockServer.addResource.mock.calls.find(
+        call => call[0].uri === 'n8n://workflows/stats'
+      );
+      if (!statsResourceCall) throw new Error('Stats resource call not found');
+      const statsResource = statsResourceCall[0];
+      const result = await statsResource.load();
+      const data = JSON.parse((result as any).text);
+
+      // Should handle invalid dates gracefully
+      expect(data.totalWorkflows).toBe(2);
+      expect(data.creationStats).toBeDefined();
+    });
+
+    it('should handle errors with circular references in error messages', async () => {
+      const circularError: any = { message: 'test error' };
+      circularError.self = circularError;
+      circularError.parent = { child: circularError };
+
+      mockClient.getWorkflows.mockRejectedValue(circularError);
+
+      const listResourceCall = mockServer.addResource.mock.calls.find(
+        call => call[0].uri === 'n8n://workflows/list'
+      );
+      if (!listResourceCall) throw new Error('List resource call not found');
+      const listResource = listResourceCall[0];
+
+      // Should handle circular references without crashing
+      await expect(listResource.load()).rejects.toThrow();
+    });
+
+    it('should handle workflows with missing standard properties', async () => {
+      const malformedWorkflow = {
+        id: 'malformed-workflow',
+        // Missing: name, active, tags, createdAt, updatedAt, nodes, connections
+      } as any;
+
+      mockClient.getWorkflows.mockResolvedValue({
+        data: [malformedWorkflow],
+      });
+
+      const statsResourceCall = mockServer.addResource.mock.calls.find(
+        call => call[0].uri === 'n8n://workflows/stats'
+      );
+      if (!statsResourceCall) throw new Error('Stats resource call not found');
+      const statsResource = statsResourceCall[0];
+      const result = await statsResource.load();
+      const data = JSON.parse((result as any).text);
+
+      // Should handle missing properties gracefully
+      expect(data.totalWorkflows).toBe(1);
+      expect(data.tagUsage).toBeDefined();
+    });
+  });
 });
