@@ -1,0 +1,220 @@
+import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
+import { N8nAuthProvider, createN8nAuth, defaultN8nAuth } from '../../../src/auth/n8nAuth';
+import { RequestContext } from '../../../src/auth/authProvider';
+
+// Simple test focused on coverage of N8nAuthProvider without complex mocking
+// This avoids the N8nClient import issues by focusing on the simpler methods
+describe('N8nAuthProvider Simple Tests', () => {
+  let authProvider: N8nAuthProvider;
+
+  beforeEach(() => {
+    authProvider = new N8nAuthProvider({
+      required: false,
+      defaultBaseUrl: 'https://test.n8n.io',
+      defaultApiKey: 'test-api-key',
+      validateConnection: false, // Skip connection validation to avoid N8nClient
+      cacheDuration: 5 * 60 * 1000,
+      defaultRoles: ['member'],
+    });
+  });
+
+  afterEach(() => {
+    authProvider.clearCache();
+  });
+
+  describe('constructor', () => {
+    it('should initialize with default configuration', () => {
+      const provider = new N8nAuthProvider();
+      expect(provider).toBeInstanceOf(N8nAuthProvider);
+    });
+
+    it('should initialize with custom configuration', () => {
+      const config = {
+        required: true,
+        defaultBaseUrl: 'https://custom.n8n.io',
+        defaultApiKey: 'custom-api-key',
+        validateConnection: false,
+        cacheDuration: 10 * 60 * 1000,
+        defaultRoles: ['admin'],
+      };
+
+      const provider = new N8nAuthProvider(config);
+      expect(provider).toBeInstanceOf(N8nAuthProvider);
+    });
+  });
+
+  describe('anonymous authentication', () => {
+    it('should allow anonymous access when authentication not required', async () => {
+      const provider = new N8nAuthProvider({ required: false });
+      const context: RequestContext = {
+        clientId: 'test-client',
+        headers: {},
+      };
+
+      const result = await provider.authenticate(context);
+
+      expect(result.success).toBe(true);
+      expect(result.user).toBeDefined();
+      expect(result.user?.id).toBe('anonymous');
+      expect(result.user?.roles).toEqual(['anonymous']);
+      expect(result.context?.authType).toBe('anonymous');
+      expect(result.user?.permissions.community).toBe(true);
+      expect(result.user?.permissions.workflows).toBe(true);
+      expect(result.user?.permissions.executions).toBe(true);
+      expect(result.user?.permissions.enterprise).toBe(false);
+      expect(result.user?.permissions.credentials).toBe(false);
+      expect(result.user?.permissions.users).toBe(false);
+      expect(result.user?.permissions.audit).toBe(false);
+    });
+
+    it('should include context information for anonymous users', async () => {
+      const provider = new N8nAuthProvider({ required: false });
+      const context: RequestContext = {};
+
+      const result = await provider.authenticate(context);
+
+      expect(result.success).toBe(true);
+      expect(result.context?.authType).toBe('anonymous');
+      expect(result.context?.features).toEqual(['community']);
+    });
+  });
+
+  describe('required authentication without validation', () => {
+    it('should require credentials when authentication is required', async () => {
+      const provider = new N8nAuthProvider({ required: true });
+      const context: RequestContext = {
+        clientId: 'test-client',
+        headers: {},
+      };
+
+      const result = await provider.authenticate(context);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Authentication required but no credentials provided');
+    });
+
+    it('should accept credentials when provided and validation is disabled', async () => {
+      const provider = new N8nAuthProvider({
+        required: true,
+        validateConnection: false,
+        defaultBaseUrl: 'https://test.n8n.io',
+        defaultRoles: ['member'],
+      });
+      const context: RequestContext = {
+        clientId: 'test-client',
+        headers: {
+          'x-n8n-api-key': 'valid-api-key',
+        },
+      };
+
+      const result = await provider.authenticate(context);
+
+      expect(result.success).toBe(true);
+      expect(result.user?.n8nApiKey).toBe('valid-api-key');
+      expect(result.user?.n8nBaseUrl).toBe('https://test.n8n.io');
+      expect(result.context?.authType).toBe('n8n-api-key');
+    });
+
+    it('should handle Bearer token authentication', async () => {
+      const provider = new N8nAuthProvider({
+        required: true,
+        validateConnection: false,
+        defaultBaseUrl: 'https://default.n8n.io',
+        defaultRoles: ['member'],
+      });
+      const context: RequestContext = {
+        clientId: 'test-client',
+        headers: {
+          authorization: 'Bearer valid-bearer-token',
+        },
+      };
+
+      const result = await provider.authenticate(context);
+
+      expect(result.success).toBe(true);
+      expect(result.user?.n8nApiKey).toBe('valid-bearer-token');
+      expect(result.user?.n8nBaseUrl).toBe('https://default.n8n.io');
+    });
+  });
+
+  describe('cache management', () => {
+    it('should clear cache', () => {
+      const provider = new N8nAuthProvider();
+      provider.clearCache();
+
+      const stats = provider.getCacheStats();
+      expect(stats.size).toBe(0);
+      expect(stats.entries).toBe(0);
+    });
+
+    it('should provide cache statistics', () => {
+      const provider = new N8nAuthProvider();
+      const stats = provider.getCacheStats();
+
+      expect(typeof stats.size).toBe('number');
+      expect(typeof stats.entries).toBe('number');
+    });
+  });
+
+  describe('refresh authentication', () => {
+    it('should refresh authentication by clearing cache', async () => {
+      const provider = new N8nAuthProvider({
+        required: false,
+        cacheDuration: 60000,
+      });
+
+      const context: RequestContext = {
+        clientId: 'test-client',
+        headers: {},
+      };
+
+      // First authenticate
+      const result1 = await provider.authenticate(context);
+      expect(result1.success).toBe(true);
+
+      // Refresh should work
+      const result2 = await provider.refresh(context);
+      expect(result2.success).toBe(true);
+      expect(result2.user?.id).toBe('anonymous');
+    });
+  });
+});
+
+describe('createN8nAuth', () => {
+  let originalEnv: typeof process.env;
+
+  beforeEach(() => {
+    originalEnv = { ...process.env };
+  });
+
+  afterEach(() => {
+    process.env = originalEnv;
+  });
+
+  it('should create N8nAuthProvider instance', () => {
+    const provider = createN8nAuth();
+    expect(provider).toBeInstanceOf(N8nAuthProvider);
+  });
+
+  it('should handle environment variables', () => {
+    process.env.N8N_MCP_AUTH_REQUIRED = 'true';
+    process.env.N8N_BASE_URL = 'https://env.n8n.io';
+    process.env.N8N_API_KEY = 'env-api-key';
+
+    const provider = createN8nAuth();
+    expect(provider).toBeInstanceOf(N8nAuthProvider);
+  });
+});
+
+describe('defaultN8nAuth', () => {
+  it('should be an instance of N8nAuthProvider', () => {
+    expect(defaultN8nAuth).toBeInstanceOf(N8nAuthProvider);
+  });
+
+  it('should be a singleton instance', async () => {
+    // Import again to test singleton behavior
+    const module = await import('../../../src/auth/n8nAuth');
+    const secondInstance = module.defaultN8nAuth;
+    expect(defaultN8nAuth).toBe(secondInstance);
+  });
+});

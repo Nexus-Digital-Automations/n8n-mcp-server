@@ -1,25 +1,45 @@
 # Linter Errors Report
 
-**Generated:** 2025-07-31T09:23:05.098Z
-**Total Issues:** 6 (6 errors, 0 warnings)
+**Generated:** 2025-07-31T10:35:24.766Z
+**Total Issues:** 16 (0 errors, 16 warnings)
 **Files:** 1
 
-## fastmcp-cli.test.ts (eslint)
+## sseTransport.test.ts (eslint)
 
-**File Path:** `/Users/jeremyparker/Desktop/Claude Coding Projects/n8n-mcp-server/tests/e2e/fastmcp-cli.test.ts`
-**Issues:** 6
+**File Path:** `/Users/jeremyparker/Desktop/Claude Coding Projects/n8n-mcp-server/tests/unit/transport/sseTransport.test.ts`
+**Issues:** 16
 
-❌ **Line 58:38** - '__dirname' is not defined. `[no-undef]`
+⚠️ **Line 302:23** - Forbidden non-null assertion. `[@typescript-eslint/no-non-null-assertion]`
 
-❌ **Line 148:38** - '__dirname' is not defined. `[no-undef]`
+⚠️ **Line 327:19** - Forbidden non-null assertion. `[@typescript-eslint/no-non-null-assertion]`
 
-❌ **Line 216:38** - '__dirname' is not defined. `[no-undef]`
+⚠️ **Line 359:21** - Forbidden non-null assertion. `[@typescript-eslint/no-non-null-assertion]`
 
-❌ **Line 345:38** - '__dirname' is not defined. `[no-undef]`
+⚠️ **Line 365:21** - Forbidden non-null assertion. `[@typescript-eslint/no-non-null-assertion]`
 
-❌ **Line 413:36** - '__dirname' is not defined. `[no-undef]`
+⚠️ **Line 372:21** - Forbidden non-null assertion. `[@typescript-eslint/no-non-null-assertion]`
 
-❌ **Line 466:36** - '__dirname' is not defined. `[no-undef]`
+⚠️ **Line 379:21** - Forbidden non-null assertion. `[@typescript-eslint/no-non-null-assertion]`
+
+⚠️ **Line 389:21** - Forbidden non-null assertion. `[@typescript-eslint/no-non-null-assertion]`
+
+⚠️ **Line 395:21** - Forbidden non-null assertion. `[@typescript-eslint/no-non-null-assertion]`
+
+⚠️ **Line 402:21** - Forbidden non-null assertion. `[@typescript-eslint/no-non-null-assertion]`
+
+⚠️ **Line 421:23** - Forbidden non-null assertion. `[@typescript-eslint/no-non-null-assertion]`
+
+⚠️ **Line 438:21** - Forbidden non-null assertion. `[@typescript-eslint/no-non-null-assertion]`
+
+⚠️ **Line 455:23** - Forbidden non-null assertion. `[@typescript-eslint/no-non-null-assertion]`
+
+⚠️ **Line 466:21** - Forbidden non-null assertion. `[@typescript-eslint/no-non-null-assertion]`
+
+⚠️ **Line 544:21** - Forbidden non-null assertion. `[@typescript-eslint/no-non-null-assertion]`
+
+⚠️ **Line 645:21** - Forbidden non-null assertion. `[@typescript-eslint/no-non-null-assertion]`
+
+⚠️ **Line 666:21** - Forbidden non-null assertion. `[@typescript-eslint/no-non-null-assertion]`
 
 ---
 
