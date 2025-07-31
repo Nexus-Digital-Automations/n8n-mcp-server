@@ -59,8 +59,14 @@ export default {
   
   // Transform ignore patterns for ES modules
   transformIgnorePatterns: [
-    'node_modules/(?!(node-fetch|fastmcp)/)'
+    'node_modules/(?!(node-fetch|fastmcp|@modelcontextprotocol)/)'
   ],
+  
+  // Module name mapping - mock ES modules
+  moduleNameMapper: {
+    '^node-fetch$': '<rootDir>/tests/__mocks__/node-fetch.js',
+    '^fastmcp$': '<rootDir>/tests/__mocks__/fastmcp.js'
+  },
   
   // Files to include in coverage
   collectCoverageFrom: [

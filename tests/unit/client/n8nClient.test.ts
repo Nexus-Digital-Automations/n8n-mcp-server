@@ -179,6 +179,7 @@ describe('N8nClient', () => {
         Promise.resolve({
           ok: true,
           headers: { get: () => 'application/json' },
+          json: () => Promise.resolve({}),
           text: () => Promise.resolve(''),
         } as unknown as Response)
       );
@@ -277,6 +278,7 @@ describe('N8nClient', () => {
         Promise.resolve({
           ok: true,
           headers: { get: () => 'application/json' },
+          json: () => Promise.resolve({}),
           text: () => Promise.resolve(''),
         } as unknown as Response)
       );
