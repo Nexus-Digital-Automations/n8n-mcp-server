@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach, jest, afterEach } from '@jest/globals';
-import { N8nClient } from '../../../src/client/n8nClient.js';
+import { N8nClient } from '../../../src/client/n8nClient';
 
-// Mock node-fetch
-const mockFetch = jest.fn() as jest.MockedFunction<any>;
+// Mock node-fetch before importing
+const mockFetch = jest.fn();
 jest.mock('node-fetch', () => mockFetch);
 
 describe('N8nClient', () => {
@@ -37,8 +37,8 @@ describe('N8nClient', () => {
         headers: {
           get: jest.fn().mockReturnValue('application/json'),
         },
-        json: jest.fn().mockResolvedValue({ success: true } as any),
-      } as any;
+        json: jest.fn(() => Promise.resolve({ success: true })),
+      };
       mockFetch.mockResolvedValue(mockResponse as any);
 
       const result = await client.getWorkflows();
@@ -60,8 +60,8 @@ describe('N8nClient', () => {
       const mockResponse = {
         ok: false,
         status: 404,
-        text: jest.fn().mockResolvedValue('Not Found' as any),
-      } as any;
+        text: jest.fn(() => Promise.resolve('Not Found')),
+      };
       mockFetch.mockResolvedValue(mockResponse as any);
 
       await expect(client.getWorkflows()).rejects.toThrow(
@@ -70,7 +70,7 @@ describe('N8nClient', () => {
     });
 
     it('should handle network errors', async () => {
-      mockFetch.mockRejectedValue(new Error('Network error') as any);
+      mockFetch.mockRejectedValue(new Error('Network error'));
 
       await expect(client.getWorkflows()).rejects.toThrow('n8n API request failed: Network error');
     });
@@ -81,8 +81,8 @@ describe('N8nClient', () => {
         headers: {
           get: jest.fn().mockReturnValue('text/plain'),
         },
-        text: jest.fn().mockResolvedValue('Plain text response' as any),
-      } as any;
+        text: jest.fn(() => Promise.resolve('Plain text response')),
+      };
       mockFetch.mockResolvedValue(mockResponse as any);
 
       const result = await client.getWorkflows();
@@ -104,8 +104,8 @@ describe('N8nClient', () => {
 
     it('should get workflows with pagination', async () => {
       const mockWorkflows = [
-        global.testUtils.createMockWorkflow({ id: '1' }),
-        global.testUtils.createMockWorkflow({ id: '2' }),
+        (global as any).testUtils.createMockWorkflow({ id: '1' }),
+        (global as any).testUtils.createMockWorkflow({ id: '2' }),
       ];
 
       mockFetch.mockImplementation(() =>
@@ -126,7 +126,7 @@ describe('N8nClient', () => {
     });
 
     it('should get single workflow', async () => {
-      const mockWorkflow = global.testUtils.createMockWorkflow();
+      const mockWorkflow = (global as any).testUtils.createMockWorkflow();
 
       mockFetch.mockImplementation(() =>
         Promise.resolve({
@@ -146,7 +146,7 @@ describe('N8nClient', () => {
     });
 
     it('should create workflow', async () => {
-      const mockWorkflow = global.testUtils.createMockWorkflow();
+      const mockWorkflow = (global as any).testUtils.createMockWorkflow();
       const workflowData = {
         name: 'Test Workflow',
         nodes: [],
@@ -196,8 +196,8 @@ describe('N8nClient', () => {
   describe('user methods', () => {
     it('should get users', async () => {
       const mockUsers = [
-        global.testUtils.createMockUser({ id: '1' }),
-        global.testUtils.createMockUser({ id: '2' }),
+        (global as any).testUtils.createMockUser({ id: '1' }),
+        (global as any).testUtils.createMockUser({ id: '2' }),
       ];
 
       mockFetch.mockImplementation(() =>
@@ -218,7 +218,7 @@ describe('N8nClient', () => {
     });
 
     it('should create user', async () => {
-      const mockUser = global.testUtils.createMockUser();
+      const mockUser = (global as any).testUtils.createMockUser();
       const userData = {
         email: 'test@example.com',
         firstName: 'Test',
@@ -250,8 +250,8 @@ describe('N8nClient', () => {
   describe('execution methods', () => {
     it('should get executions', async () => {
       const mockExecutions = [
-        global.testUtils.createMockExecution({ id: '1' }),
-        global.testUtils.createMockExecution({ id: '2' }),
+        (global as any).testUtils.createMockExecution({ id: '1' }),
+        (global as any).testUtils.createMockExecution({ id: '2' }),
       ];
 
       mockFetch.mockImplementation(() =>
