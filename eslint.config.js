@@ -110,7 +110,7 @@ export default [
   
   // Apply to CommonJS files
   {
-    files: ['**/*.cjs'],
+    files: ['**/*.cjs', '**/create-quality-tasks.js'],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'commonjs',
