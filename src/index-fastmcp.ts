@@ -7,6 +7,10 @@ import { createWorkflowTools } from './tools/workflow.js';
 import { createProjectTools } from './tools/projects.js';
 import { createUserTools } from './tools/users.js';
 import { createVariableTools } from './tools/variables.js';
+import { createExecutionTools } from './tools/executions.js';
+import { createTagTools } from './tools/tags.js';
+import { createCredentialTools } from './tools/credentials.js';
+import { createAuditTools } from './tools/audit.js';
 
 // Global client instance
 let n8nClient: N8nClient | null = null;
@@ -50,6 +54,10 @@ createWorkflowTools(getClient, server);
 createProjectTools(getClient, server);
 createUserTools(getClient, server);
 createVariableTools(getClient, server);
+createExecutionTools(getClient, server);
+createTagTools(getClient, server);
+createCredentialTools(getClient, server);
+createAuditTools(getClient, server);
 
 // Override the init-n8n tool to properly set the global client
 server.addTool({
