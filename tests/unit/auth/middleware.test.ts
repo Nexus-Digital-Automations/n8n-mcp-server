@@ -478,6 +478,26 @@ describe('FastMCPAuthMiddleware', () => {
 
       expect(mockToolFunction).toHaveBeenCalled();
     });
+
+    it('should extract context from arguments without headers/metadata', async () => {
+      const mockToolFunction = jest
+        .fn<(...args: any[]) => Promise<string>>()
+        .mockResolvedValue('result');
+      const wrappedTool = middleware.wrapTool('test-tool', mockToolFunction);
+
+      const args: any[] = [
+        { data: 'test' },
+        {
+          session: { id: 'session-123' },
+          // No headers or metadata to test the fallback branches
+        },
+      ];
+
+      // This will internally call extractContextFromArgs with missing headers/metadata
+      await wrappedTool(...args).catch(() => {}); // Ignore errors for this test
+
+      expect(mockToolFunction).toHaveBeenCalledWith(...args);
+    });
   });
 
   describe('error handling and edge cases', () => {
@@ -540,6 +560,230 @@ describe('FastMCPAuthMiddleware', () => {
       await wrappedTool(...complexArgs);
 
       expect(mockToolFunction).toHaveBeenCalledWith(...complexArgs);
+    });
+
+    it('should allow anonymous resource access when auth fails and not required', async () => {
+      const failingAuthProvider = new MockAuthProvider(false);
+      const middleware = new FastMCPAuthMiddleware({
+        authProvider: failingAuthProvider,
+        requireAuth: false, // Auth not required
+      });
+
+      const context: RequestContext = {
+        clientId: 'test-client',
+        headers: {},
+      };
+
+      // Should not throw error for anonymous access to protected resource
+      await expect(
+        middleware.checkResourceAccess('n8n://protected-resource', context)
+      ).resolves.not.toThrow();
+    });
+  });
+
+  describe('private method coverage', () => {
+    describe('createAuthenticateFunction', () => {
+      it('should create authentication function that handles successful auth', async () => {
+        const middleware = new FastMCPAuthMiddleware({
+          authProvider: mockAuthProvider,
+        });
+
+        // Access the private method via type assertion
+        const authFunction = (middleware as any).createAuthenticateFunction();
+
+        const mockRequest = {
+          clientId: 'test-client',
+          headers: { authorization: 'Bearer token' },
+          metadata: { userAgent: 'test' },
+        };
+
+        const result = await authFunction(mockRequest);
+        expect(result).toBeDefined();
+      });
+
+      it('should create authentication function that handles auth failure with requireAuth=true', async () => {
+        const failingAuthProvider = new MockAuthProvider(false);
+        const middleware = new FastMCPAuthMiddleware({
+          authProvider: failingAuthProvider,
+          requireAuth: true,
+          authErrorMessage: 'Authentication required',
+        });
+
+        const authFunction = (middleware as any).createAuthenticateFunction();
+
+        const mockRequest = {
+          clientId: 'test-client',
+          headers: {},
+        };
+
+        await expect(authFunction(mockRequest)).rejects.toThrow('Authentication required');
+      });
+
+      it('should create authentication function that allows anonymous access when requireAuth=false', async () => {
+        const failingAuthProvider = new MockAuthProvider(false);
+        const middleware = new FastMCPAuthMiddleware({
+          authProvider: failingAuthProvider,
+          requireAuth: false,
+        });
+
+        const authFunction = (middleware as any).createAuthenticateFunction();
+
+        const mockRequest = {
+          clientId: 'test-client',
+          headers: {},
+        };
+
+        const result = await authFunction(mockRequest);
+        expect(result).toBeNull();
+      });
+
+      it('should create authentication function that handles exceptions with requireAuth=true', async () => {
+        const throwingAuthProvider = {
+          authenticate: jest
+            .fn<(context: RequestContext) => Promise<AuthResult>>()
+            .mockRejectedValue(new Error('Network error')),
+          canAccessTool: jest
+            .fn<(toolName: string, context: RequestContext) => Promise<boolean>>()
+            .mockResolvedValue(false),
+          canAccessResource: jest
+            .fn<(resourceUri: string, context: RequestContext) => Promise<boolean>>()
+            .mockResolvedValue(false),
+          refresh: jest
+            .fn<(context: RequestContext) => Promise<AuthResult>>()
+            .mockRejectedValue(new Error('Network error')),
+        };
+
+        const middleware = new FastMCPAuthMiddleware({
+          authProvider: throwingAuthProvider,
+          requireAuth: true,
+        });
+
+        const authFunction = (middleware as any).createAuthenticateFunction();
+
+        const mockRequest = {
+          clientId: 'test-client',
+          headers: {},
+        };
+
+        await expect(authFunction(mockRequest)).rejects.toThrow('Network error');
+      });
+
+      it('should create authentication function that handles exceptions with requireAuth=false', async () => {
+        const throwingAuthProvider = {
+          authenticate: jest
+            .fn<(context: RequestContext) => Promise<AuthResult>>()
+            .mockRejectedValue(new Error('Network error')),
+          canAccessTool: jest
+            .fn<(toolName: string, context: RequestContext) => Promise<boolean>>()
+            .mockResolvedValue(false),
+          canAccessResource: jest
+            .fn<(resourceUri: string, context: RequestContext) => Promise<boolean>>()
+            .mockResolvedValue(false),
+          refresh: jest
+            .fn<(context: RequestContext) => Promise<AuthResult>>()
+            .mockRejectedValue(new Error('Network error')),
+        };
+
+        const middleware = new FastMCPAuthMiddleware({
+          authProvider: throwingAuthProvider,
+          requireAuth: false,
+        });
+
+        const authFunction = (middleware as any).createAuthenticateFunction();
+
+        const mockRequest = {
+          clientId: 'test-client',
+          headers: {},
+        };
+
+        const result = await authFunction(mockRequest);
+        expect(result).toBeNull();
+      });
+    });
+
+    describe('createRequestContext', () => {
+      it('should create request context with all fields', () => {
+        const middleware = new FastMCPAuthMiddleware({
+          authProvider: mockAuthProvider,
+        });
+
+        const mockRequest = {
+          clientId: 'test-client-123',
+          id: 'fallback-id',
+          headers: {
+            authorization: 'Bearer token',
+            'user-agent': 'test-client',
+          },
+          metadata: {
+            timestamp: Date.now(),
+            version: '1.0.0',
+          },
+        };
+
+        const context = (middleware as any).createRequestContext(mockRequest);
+
+        expect(context).toEqual({
+          clientId: 'test-client-123',
+          headers: {
+            authorization: 'Bearer token',
+            'user-agent': 'test-client',
+          },
+          metadata: {
+            timestamp: expect.any(Number),
+            version: '1.0.0',
+          },
+        });
+      });
+
+      it('should create request context with fallback clientId', () => {
+        const middleware = new FastMCPAuthMiddleware({
+          authProvider: mockAuthProvider,
+        });
+
+        const mockRequest = {
+          id: 'fallback-id-456',
+          headers: { authorization: 'Bearer token' },
+          metadata: { test: 'data' },
+        };
+
+        const context = (middleware as any).createRequestContext(mockRequest);
+
+        expect(context.clientId).toBe('fallback-id-456');
+      });
+
+      it('should create request context with default empty objects', () => {
+        const middleware = new FastMCPAuthMiddleware({
+          authProvider: mockAuthProvider,
+        });
+
+        const mockRequest = {
+          clientId: 'test-client',
+        };
+
+        const context = (middleware as any).createRequestContext(mockRequest);
+
+        expect(context).toEqual({
+          clientId: 'test-client',
+          headers: {},
+          metadata: {},
+        });
+      });
+
+      it('should handle completely empty request', () => {
+        const middleware = new FastMCPAuthMiddleware({
+          authProvider: mockAuthProvider,
+        });
+
+        const mockRequest = {};
+
+        const context = (middleware as any).createRequestContext(mockRequest);
+
+        expect(context).toEqual({
+          clientId: undefined,
+          headers: {},
+          metadata: {},
+        });
+      });
     });
   });
 });
