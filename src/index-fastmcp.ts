@@ -4,6 +4,9 @@ import { FastMCP } from 'fastmcp';
 import { z } from 'zod';
 import { N8nClient } from './client/n8nClient.js';
 import { createWorkflowTools } from './tools/workflow.js';
+import { createProjectTools } from './tools/projects.js';
+import { createUserTools } from './tools/users.js';
+import { createVariableTools } from './tools/variables.js';
 
 // Global client instance
 let n8nClient: N8nClient | null = null;
@@ -42,8 +45,11 @@ const setClient = (client: N8nClient) => {
   n8nClient = client;
 };
 
-// Register workflow tools using the createWorkflowTools helper
+// Register all tools using the create*Tools helpers
 createWorkflowTools(getClient, server);
+createProjectTools(getClient, server);
+createUserTools(getClient, server);
+createVariableTools(getClient, server);
 
 // Override the init-n8n tool to properly set the global client
 server.addTool({

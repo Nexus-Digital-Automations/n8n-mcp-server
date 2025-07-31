@@ -11,6 +11,8 @@ export interface N8nUser {
   resetPasswordToken?: string;
   globalRoleId?: string;
   isPending?: boolean;
+  disabled?: boolean;
+  lastSeenAt?: string;
   globalRole?: {
     scope: string;
     name: string;
@@ -174,7 +176,7 @@ export interface CreateCredentialRequest {
 
 export interface CreateProjectRequest {
   name: string;
-  type?: 'Personal' | 'Team';
+  type?: string;
 }
 
 export interface UpdateProjectRequest {
