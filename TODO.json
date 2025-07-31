@@ -24,24 +24,24 @@
     {
       "id": "linter_task_active",
       "title": "Fix Linter Errors - IMMEDIATE",
-      "description": "Fix 6 errors and 0 warnings found in recently edited files: fastmcp-cli.test.ts",
+      "description": "Fix 0 errors and 0 warnings found in recently edited files: tsconfig.json",
       "mode": "DEVELOPMENT",
       "priority": "high",
       "status": "pending",
       "important_files": [
         "development/linter-errors.md",
-        "tests/e2e/fastmcp-cli.test.ts"
+        "tsconfig.json"
       ],
       "success_criteria": [
         "All linter errors in edited files resolved",
         "development/linter-errors.md shows no issues for edited files",
         "Code passes linting without warnings or errors"
       ],
-      "created_at": "2025-07-31T09:23:05.096Z",
+      "created_at": "2025-07-31T09:31:06.169Z",
       "is_linter_task": true,
       "linter_summary": {
-        "total_violations": 6,
-        "errors": 6,
+        "total_violations": 0,
+        "errors": 0,
         "warnings": 0,
         "files_affected": 1
       }
@@ -1763,7 +1763,7 @@
       "description": "Resolve import.meta compilation errors in E2E tests and fix ES module configuration issues",
       "mode": "DEVELOPMENT",
       "priority": "high",
-      "status": "pending",
+      "status": "completed",
       "success_criteria": [
         "All TypeScript import.meta errors resolved",
         "E2E tests compile without module configuration errors",
@@ -2025,14 +2025,106 @@
       "subtasks": [],
       "is_review_task": true,
       "strike_number": 3
+    },
+    {
+      "id": "complete-auth-unit-tests-1753954807583",
+      "title": "Complete Unit Tests for Auth Modules",
+      "description": "Implement comprehensive unit tests for authentication modules (authProvider, middleware, n8nAuth) to achieve 80%+ coverage",
+      "mode": "DEVELOPMENT",
+      "priority": "high",
+      "status": "pending",
+      "success_criteria": [
+        "Auth modules achieve 80%+ test coverage",
+        "All authentication flows tested with mocks",
+        "Error handling scenarios covered",
+        "Integration with n8n auth validated",
+        "Tests pass consistently in CI"
+      ],
+      "important_files": [
+        "src/auth/authProvider.ts",
+        "src/auth/middleware.ts",
+        "src/auth/n8nAuth.ts",
+        "tests/unit/auth/"
+      ],
+      "estimate": "6-8 hours",
+      "created_at": "2025-07-31T09:40:07.583Z"
+    },
+    {
+      "id": "complete-resources-unit-tests-1753954807583",
+      "title": "Complete Unit Tests for Resources Modules",
+      "description": "Implement comprehensive unit tests for resource modules (executionResources, resourceManager, workflowResources) to achieve 80%+ coverage",
+      "mode": "DEVELOPMENT",
+      "priority": "high",
+      "status": "pending",
+      "success_criteria": [
+        "Resources modules achieve 80%+ test coverage",
+        "Resource CRUD operations fully tested",
+        "URI templating and parameter handling tested",
+        "Mock n8n client integration validated",
+        "Error scenarios and edge cases covered"
+      ],
+      "important_files": [
+        "src/resources/executionResources.ts",
+        "src/resources/resourceManager.ts",
+        "src/resources/workflowResources.ts",
+        "tests/unit/resources/"
+      ],
+      "estimate": "8-10 hours",
+      "created_at": "2025-07-31T09:40:07.583Z"
+    },
+    {
+      "id": "complete-transport-unit-tests-1753954807583",
+      "title": "Complete Unit Tests for Transport Modules",
+      "description": "Implement comprehensive unit tests for transport modules (sseTransport, transportConfig) to achieve 80%+ coverage",
+      "mode": "DEVELOPMENT",
+      "priority": "medium",
+      "status": "pending",
+      "success_criteria": [
+        "Transport modules achieve 80%+ test coverage",
+        "SSE transport functionality tested",
+        "Configuration validation covered",
+        "Connection handling and error scenarios tested",
+        "WebSocket and HTTP transport mocking implemented"
+      ],
+      "important_files": [
+        "src/transport/sseTransport.ts",
+        "src/transport/transportConfig.ts",
+        "tests/unit/transport/"
+      ],
+      "estimate": "4-6 hours",
+      "created_at": "2025-07-31T09:40:07.583Z"
+    },
+    {
+      "id": "fix-remaining-typescript-issues-1753954807583",
+      "title": "Fix Remaining TypeScript Test Compilation Issues",
+      "description": "Resolve remaining TypeScript errors in test files that prevent proper Jest execution and type checking",
+      "mode": "DEVELOPMENT",
+      "priority": "high",
+      "status": "pending",
+      "success_criteria": [
+        "All TypeScript compilation errors in tests resolved",
+        "Jest can execute all test files without TS errors",
+        "Mock configurations properly typed",
+        "import.meta issues resolved for E2E tests",
+        "Global test utilities properly declared"
+      ],
+      "important_files": [
+        "tests/unit/client/n8nClient.test.ts",
+        "tests/unit/tools/workflow.test.ts",
+        "tests/e2e/fastmcp-cli.test.ts",
+        "jest.config.js",
+        "tsconfig.json"
+      ],
+      "estimate": "2-3 hours",
+      "created_at": "2025-07-31T09:40:07.583Z"
     }
   ],
   "review_strikes": 0,
   "strikes_completed_last_run": false,
   "current_task_index": 0,
   "last_mode": "TASK_CREATION",
-  "execution_count": 160,
-  "last_hook_activation": 1753953946800,
+  "execution_count": 164,
+  "last_hook_activation": 1753954731617,
   "__removedLinterTasks": {
     "removedCount": 1,
     "finalTaskCount": 50

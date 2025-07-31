@@ -133,7 +133,7 @@ export class ResourceManager {
           required: true,
         },
       ],
-      load: async ({ nodeType }) => {
+      load: async ({ nodeType }: { nodeType: string }) => {
         const nodeDoc = await this.getNodeDocumentation(nodeType);
         return {
           text: JSON.stringify(nodeDoc, null, 2),
@@ -173,7 +173,7 @@ export class ResourceManager {
           required: true,
         },
       ],
-      load: async ({ credType }) => {
+      load: async ({ credType }: { credType: string }) => {
         const template = await this.getCredentialTemplate(credType);
         return {
           text: JSON.stringify(template, null, 2),

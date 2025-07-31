@@ -80,7 +80,7 @@ server.addTool({
     idempotentHint: true,
     openWorldHint: true,
   },
-  execute: async args => {
+  execute: async (args: any) => {
     try {
       // Create and set the global client
       const client = new N8nClient(args.baseUrl, args.apiKey);

@@ -1,5 +1,8 @@
 import { describe, it, expect, beforeAll, afterAll, jest } from '@jest/globals';
-import { FastMCP } from 'fastmcp';
+import { FastMCP, type ToolOptions } from 'fastmcp';
+
+// Type assertion for Jest mock functions to avoid strict typing issues
+type MockFn = jest.MockedFunction<any>;
 
 describe('FastMCP Server Integration', () => {
   let server: FastMCP;
@@ -25,12 +28,12 @@ describe('FastMCP Server Integration', () => {
   });
 
   it('should be able to add tools', () => {
-    const mockTool = {
+    const mockTool: ToolOptions = {
       name: 'test-tool',
       description: 'A test tool',
       parameters: {},
       execute: jest.fn(),
-    } as any;
+    };
 
     expect(() => {
       server.addTool(mockTool);
@@ -38,13 +41,13 @@ describe('FastMCP Server Integration', () => {
   });
 
   it('should handle tool execution', async () => {
-    const mockTool = {
+    const mockExecute: MockFn = jest.fn(() => Promise.resolve('execution result'));
+    const mockTool: ToolOptions = {
       name: 'test-execution-tool',
       description: 'A test tool for execution',
       parameters: {},
-      // @ts-ignore - Suppressing Jest mock type issues for testing
-      execute: jest.fn().mockResolvedValue('execution result'),
-    } as any;
+      execute: mockExecute,
+    };
 
     server.addTool(mockTool);
 
@@ -57,7 +60,11 @@ describe('FastMCP Server Integration', () => {
   });
 
   it('should handle tool with parameters', async () => {
-    const mockTool = {
+    const mockExecute: MockFn = jest.fn((args: any) =>
+      Promise.resolve(`Received: ${args.testParam}`)
+    );
+
+    const mockTool: ToolOptions = {
       name: 'test-params-tool',
       description: 'A test tool with parameters',
       parameters: {
@@ -66,13 +73,9 @@ describe('FastMCP Server Integration', () => {
           description: 'A test parameter',
         },
       },
-      // @ts-ignore - Suppressing Jest mock type issues for testing
-      execute: jest
-        .fn()
-        .mockImplementation((args: any) => Promise.resolve(`Received: ${args.testParam}`)),
+      execute: mockExecute,
     };
 
-    // @ts-ignore - Suppressing strict FastMCP type checking for test
     server.addTool(mockTool);
 
     const result = await mockTool.execute({ testParam: 'test-value' });
@@ -80,13 +83,13 @@ describe('FastMCP Server Integration', () => {
   });
 
   it('should handle tool errors gracefully', async () => {
-    const mockTool = {
+    const mockExecute: MockFn = jest.fn(() => Promise.reject(new Error('Test error')));
+    const mockTool: ToolOptions = {
       name: 'test-error-tool',
       description: 'A test tool that throws errors',
       parameters: {},
-      // @ts-ignore - Suppressing Jest mock type issues for testing
-      execute: jest.fn().mockRejectedValue(new Error('Test error')),
-    } as any;
+      execute: mockExecute,
+    };
 
     server.addTool(mockTool);
 
@@ -96,32 +99,37 @@ describe('FastMCP Server Integration', () => {
   describe('Tool Registration Validation', () => {
     it('should accept tools with basic properties', () => {
       // Our mock FastMCP doesn't enforce validation, so we test basic acceptance
+      const mockTool: ToolOptions = {
+        name: 'test-tool-validation',
+        description: 'Tool for validation testing',
+        parameters: {},
+        execute: jest.fn(),
+      };
+
       expect(() => {
-        server.addTool({
-          name: 'test-tool-validation',
-          description: 'Tool for validation testing',
-          parameters: {},
-          execute: jest.fn(),
-        } as any);
+        server.addTool(mockTool);
       }).not.toThrow();
     });
 
     it('should handle tool registration gracefully', () => {
       // Mock implementation accepts all tools without validation
+      const mockTool: ToolOptions = {
+        name: 'another-test-tool',
+        description: 'Another test tool',
+        parameters: {},
+        execute: jest.fn(),
+      };
+
       expect(() => {
-        server.addTool({
-          name: 'another-test-tool',
-          description: 'Another test tool',
-          parameters: {},
-          execute: jest.fn(),
-        } as any);
+        server.addTool(mockTool);
       }).not.toThrow();
     });
   });
 
   describe('Tool Annotations', () => {
     it('should accept tool annotations', () => {
-      const mockTool = {
+      const mockExecute: MockFn = jest.fn(() => Promise.resolve('annotated result'));
+      const mockTool: ToolOptions = {
         name: 'annotated-tool',
         description: 'A tool with annotations',
         parameters: {},
@@ -132,9 +140,8 @@ describe('FastMCP Server Integration', () => {
           idempotentHint: true,
           openWorldHint: false,
         },
-        // @ts-ignore - Suppressing Jest mock type issues for testing
-        execute: jest.fn().mockResolvedValue('annotated result'),
-      } as any;
+        execute: mockExecute,
+      };
 
       expect(() => {
         server.addTool(mockTool);

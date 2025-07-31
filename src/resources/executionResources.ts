@@ -69,7 +69,7 @@ export class ExecutionResourceManager {
           required: true,
         },
       ],
-      load: async ({ id }) => {
+      load: async ({ id }: { id: string }) => {
         const client = getClient();
         if (!client) {
           throw new Error('n8n client not initialized. Run init-n8n first.');
@@ -94,7 +94,7 @@ export class ExecutionResourceManager {
           required: true,
         },
       ],
-      load: async ({ id }) => {
+      load: async ({ id }: { id: string }) => {
         const client = getClient();
         if (!client) {
           throw new Error('n8n client not initialized. Run init-n8n first.');
@@ -173,7 +173,7 @@ export class ExecutionResourceManager {
           required: true,
         },
       ],
-      load: async ({ executionId }) => {
+      load: async ({ executionId }: { executionId: string }) => {
         const client = getClient();
         if (!client) {
           throw new Error('n8n client not initialized. Run init-n8n first.');
@@ -198,7 +198,7 @@ export class ExecutionResourceManager {
           required: true,
         },
       ],
-      load: async ({ workflowId }) => {
+      load: async ({ workflowId }: { workflowId: string }) => {
         const client = getClient();
         if (!client) {
           throw new Error('n8n client not initialized. Run init-n8n first.');

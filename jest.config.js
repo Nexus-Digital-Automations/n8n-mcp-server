@@ -69,6 +69,11 @@ export default {
     '^fastmcp$': '<rootDir>/tests/__mocks__/fastmcp.js'
   },
   
+  // Additional TypeScript configuration
+  modulePathIgnorePatterns: [
+    '<rootDir>/node_modules/'
+  ],
+  
   // Files to include in coverage
   collectCoverageFrom: [
     'src/**/*.ts',
