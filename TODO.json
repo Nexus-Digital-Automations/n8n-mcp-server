@@ -2,6 +2,95 @@
   "project": "@illuminaresolutions/n8n-mcp-server",
   "tasks": [
     {
+      "id": "fix-index-tests-failures",
+      "title": "Fix 37 Failing Tests in index.test.ts",
+      "description": "Fix all 37 failing unit tests in tests/unit/index.test.ts which are testing src/index.ts (currently 0% coverage). These tests cover server initialization, request handlers, tools registration, and integration.",
+      "mode": "DEVELOPMENT",
+      "priority": "high",
+      "status": "pending",
+      "success_criteria": [
+        "All 37 tests in tests/unit/index.test.ts pass",
+        "src/index.ts achieves at least 80% test coverage",
+        "Server initialization tests validate proper MCP server setup",
+        "Tool registration tests verify all tools are properly exposed",
+        "Integration tests validate n8n client functionality"
+      ],
+      "important_files": [
+        "tests/unit/index.test.ts",
+        "src/index.ts"
+      ],
+      "estimate": "4-6 hours",
+      "created_at": "2025-07-31T17:56:57.210Z"
+    },
+    {
+      "id": "fix-jest-config-linting",
+      "title": "Fix Jest Configuration Linting Issues",
+      "description": "Fix ESLint process global undefined errors in jest.config.js. The linter report shows 6 \"process is not defined\" errors that need to be resolved.",
+      "mode": "DEVELOPMENT",
+      "priority": "medium",
+      "status": "pending",
+      "success_criteria": [
+        "All ESLint errors in jest.config.js resolved",
+        "Jest configuration runs without linting warnings",
+        "Process globals properly configured in ESLint config"
+      ],
+      "important_files": [
+        "jest.config.js",
+        "eslint.config.js"
+      ],
+      "estimate": "1-2 hours",
+      "created_at": "2025-07-31T17:56:57.210Z"
+    },
+    {
+      "id": "improve-test-reliability",
+      "title": "Improve Test Suite Reliability and Coverage",
+      "description": "Address test suite reliability issues and improve coverage gaps in auth (92%), resources (96.68%), and transport (98.09%) modules to reach consistent 95%+ coverage.",
+      "mode": "DEVELOPMENT",
+      "priority": "medium",
+      "status": "pending",
+      "success_criteria": [
+        "Test suite runs consistently without flaky failures",
+        "Auth module coverage improved to 95%+",
+        "Resources module coverage improved to 98%+",
+        "Transport module coverage improved to 99%+",
+        "All modules maintain minimum 95% coverage"
+      ],
+      "important_files": [
+        "src/auth/n8nAuth.ts",
+        "src/resources/executionResources.ts",
+        "src/resources/workflowResources.ts",
+        "src/transport/sseTransport.ts",
+        "tests/unit/auth/",
+        "tests/unit/resources/",
+        "tests/unit/transport/"
+      ],
+      "estimate": "3-4 hours",
+      "created_at": "2025-07-31T17:56:57.210Z"
+    },
+    {
+      "id": "optimize-build-pipeline",
+      "title": "Optimize Build and Quality Assurance Pipeline",
+      "description": "Optimize the build pipeline and improve quality assurance processes to ensure consistent 100% strike success across build, lint, and test phases.",
+      "mode": "DEVELOPMENT",
+      "priority": "low",
+      "status": "pending",
+      "success_criteria": [
+        "Build process optimized for speed and reliability",
+        "Quality pipeline runs consistently without failures",
+        "All three strikes (build, lint, tests) achieve 100% success",
+        "CI/CD integration validated and stable"
+      ],
+      "important_files": [
+        "package.json",
+        "tsconfig.build.json",
+        "eslint.config.js",
+        "jest.config.js",
+        ".husky/"
+      ],
+      "estimate": "2-3 hours",
+      "created_at": "2025-07-31T17:56:57.210Z"
+    },
+    {
       "id": "quality_fix_failing_tests",
       "title": "Fix Failing Unit Tests",
       "description": "Fix 13 failing unit tests across variables.test.ts, tags.test.ts, and users.test.ts files",
@@ -2369,7 +2458,7 @@
       "description": "Current coverage is 89.71%. Add tests for error handling and edge cases in execution resource management.",
       "mode": "TESTING",
       "priority": "high",
-      "status": "pending",
+      "status": "completed",
       "success_criteria": [
         "Execution resources coverage reaches 90%+",
         "Error handling paths tested",
@@ -2388,7 +2477,7 @@
       "description": "Current coverage is 88.6%. Add tests for audit functionality edge cases and error scenarios.",
       "mode": "TESTING",
       "priority": "high",
-      "status": "pending",
+      "status": "completed",
       "success_criteria": [
         "Audit tools coverage reaches 90%+",
         "All audit scenarios tested",
@@ -2407,7 +2496,7 @@
       "description": "Analyze project quality issues and create specific tasks to reach 100% quality for all strikes",
       "mode": "DEVELOPMENT",
       "priority": "high",
-      "status": "pending",
+      "status": "completed",
       "prompt": "Project quality assessment shows issues preventing 100% strike success:\n\nQuality Status:\n- Strike 1 (Build): 100%\n- Strike 2 (Lint): 60%  \n- Strike 3 (Tests): 30%\n\nIssues Found:\n- Lint and Code Quality: Lint check failed\n- Test Coverage and Success: Tests are failing\n- Test Coverage and Success: Coverage check failed\n\nTASK: Analyze these quality gaps and create specific improvement tasks to bring ALL strikes to 100% quality. Create tasks for:\n1. Build issues (missing dependencies, build failures, configuration)\n2. Code quality issues (lint errors, style violations, code standards)\n3. Testing issues (failing tests, missing coverage, test setup)\n\nInsert all improvement tasks BEFORE the strike review tasks. Strikes should always remain last in the task list.",
       "success_criteria": [
         "All quality issues identified and analyzed",
@@ -2490,9 +2579,9 @@
   "review_strikes": 0,
   "strikes_completed_last_run": false,
   "current_task_index": 0,
-  "last_mode": "TESTING",
-  "execution_count": 222,
-  "last_hook_activation": 1753983552042,
+  "last_mode": "TASK_CREATION",
+  "execution_count": 224,
+  "last_hook_activation": 1753984476007,
   "__removedLinterTasks": {
     "removedCount": 1,
     "finalTaskCount": 68
