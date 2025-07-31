@@ -2212,7 +2212,21 @@ server.setRequestHandler(CallToolRequestSchema, async request => {
   }
 });
 
-// Start the server
-const transport = new StdioServerTransport();
-await server.connect(transport);
-console.error('N8N MCP Server running on stdio');
+// Export the server and initialization function for testing
+export { server, clients, N8nClient };
+
+// Main function to start the server
+export async function startServer() {
+  const transport = new StdioServerTransport();
+  await server.connect(transport);
+  console.error('N8N MCP Server running on stdio');
+}
+
+// Start the server only if this module is run directly
+// Note: import.meta.url check is replaced with process.argv check for Jest compatibility
+if (process.argv[1] && process.argv[1].includes('index.js') && !process.env.NODE_ENV?.includes('test')) {
+  startServer().catch((error) => {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  });
+}

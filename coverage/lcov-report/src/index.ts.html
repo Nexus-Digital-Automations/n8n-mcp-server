@@ -25,28 +25,28 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/347</span>
+                <span class='fraction'>0/351</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/156</span>
+                <span class='fraction'>0/157</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/37</span>
+                <span class='fraction'>0/39</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/341</span>
+                <span class='fraction'>0/345</span>
             </div>
         
             
@@ -2281,7 +2281,20 @@
 <a name='L2216'></a><a href='#L2216'>2216</a>
 <a name='L2217'></a><a href='#L2217'>2217</a>
 <a name='L2218'></a><a href='#L2218'>2218</a>
-<a name='L2219'></a><a href='#L2219'>2219</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L2219'></a><a href='#L2219'>2219</a>
+<a name='L2220'></a><a href='#L2220'>2220</a>
+<a name='L2221'></a><a href='#L2221'>2221</a>
+<a name='L2222'></a><a href='#L2222'>2222</a>
+<a name='L2223'></a><a href='#L2223'>2223</a>
+<a name='L2224'></a><a href='#L2224'>2224</a>
+<a name='L2225'></a><a href='#L2225'>2225</a>
+<a name='L2226'></a><a href='#L2226'>2226</a>
+<a name='L2227'></a><a href='#L2227'>2227</a>
+<a name='L2228'></a><a href='#L2228'>2228</a>
+<a name='L2229'></a><a href='#L2229'>2229</a>
+<a name='L2230'></a><a href='#L2230'>2230</a>
+<a name='L2231'></a><a href='#L2231'>2231</a>
+<a name='L2232'></a><a href='#L2232'>2232</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -4496,9 +4509,22 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">#!/usr/bin/env node
 &nbsp;
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
@@ -6713,10 +6739,23 @@ const clients = <span class="cstat-no" title="statement not covered" >new Map&lt
   }
 });
 &nbsp;
-// Start the server
-const transport = <span class="cstat-no" title="statement not covered" >new StdioServerTransport();</span>
-<span class="cstat-no" title="statement not covered" >await server.connect(transport);</span>
-<span class="cstat-no" title="statement not covered" >console.error('N8N MCP Server running on stdio');</span>
+// Export the server and initialization function for testing
+export { server, clients, N8nClient };
+&nbsp;
+// Main function to start the server
+export async function <span class="fstat-no" title="function not covered" >startServer(</span>) {
+  const transport = <span class="cstat-no" title="statement not covered" >new StdioServerTransport();</span>
+<span class="cstat-no" title="statement not covered" >  await server.connect(transport);</span>
+<span class="cstat-no" title="statement not covered" >  console.error('N8N MCP Server running on stdio');</span>
+}
+&nbsp;
+// Start the server only if this module is run directly
+<span class="cstat-no" title="statement not covered" ><span class="missing-if-branch" title="if path not taken" >I</span>if (import.meta.url === `file://${process.argv[1]}`) {</span>
+<span class="cstat-no" title="statement not covered" >  startServer().catch(<span class="fstat-no" title="function not covered" >(e</span>rror) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >    console.error('Failed to start server:', error);</span>
+<span class="cstat-no" title="statement not covered" >    process.exit(1);</span>
+  });
+}
 &nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -6724,7 +6763,7 @@ const transport = <span class="cstat-no" title="statement not covered" >new Stdi
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-07-31T17:42:49.461Z
+                at 2025-07-31T18:01:09.317Z
             </div>
         <script src="../prettify.js"></script>
         <script>

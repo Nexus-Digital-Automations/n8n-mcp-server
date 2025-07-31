@@ -305,7 +305,7 @@ describe('Audit Tools', () => {
 
       const result = await generateAuditReportTool.execute({});
 
-      expect(result).toContain('## Credentials Risk Assessment');  
+      expect(result).toContain('## Credentials Risk Assessment');
       expect(result).toContain('```json\n"All credentials secure"\n```');
       expect(result).toContain('## Nodes Risk Assessment');
       // Arrays are objects, so they use Object.entries() processing
@@ -333,10 +333,10 @@ describe('Audit Tools', () => {
       // Object-type report should show key-value pairs
       expect(result).toContain('**encrypted-count:** 5');
       expect(result).toContain('**total-count:** 10');
-      
+
       // String-type report should show JSON block
       expect(result).toContain('```json\n"No nodes to assess"\n```');
-      
+
       // Null is falsy, so instance section should not appear
       expect(result).not.toContain('## Instance Risk Assessment');
     });
@@ -388,7 +388,7 @@ describe('Audit Tools', () => {
       const mockAuditReport = {
         'Database Settings': { type: 'test' },
         'Credentials Risk Report': 'credentials-info', // truthy string - triggers lines 56-58
-        'Nodes Risk Report': 42, // truthy number - triggers lines 78-80  
+        'Nodes Risk Report': 42, // truthy number - triggers lines 78-80
         'Instance Risk Report': 'instance-secure', // truthy string - triggers lines 100-102
       } as any;
 
