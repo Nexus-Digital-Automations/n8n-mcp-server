@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/611</span>
+                <span class='fraction'>0/613</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/590</span>
+                <span class='fraction'>0/592</span>
             </div>
         
             
@@ -1487,7 +1487,9 @@
 <a name='L1422'></a><a href='#L1422'>1422</a>
 <a name='L1423'></a><a href='#L1423'>1423</a>
 <a name='L1424'></a><a href='#L1424'>1424</a>
-<a name='L1425'></a><a href='#L1425'>1425</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L1425'></a><a href='#L1425'>1425</a>
+<a name='L1426'></a><a href='#L1426'>1426</a>
+<a name='L1427'></a><a href='#L1427'>1427</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -2092,6 +2094,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -2210,6 +2213,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -3514,12 +3518,13 @@ export function <span class="fstat-no" title="function not covered" >createTempl
         const templateData = <span class="cstat-no" title="statement not covered" >args.templateData;</span>
 &nbsp;
         // Validate template structure
-<span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (!templateData.template || !templateData.template.nodes) {</span>
+        const template = <span class="cstat-no" title="statement not covered" >templateData as any;</span>
+<span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (!template.template || !template.template.nodes) {</span>
 <span class="cstat-no" title="statement not covered" >          throw new UserError('Invalid template data: missing nodes structure');</span>
         }
 &nbsp;
         // Clone template data to avoid modifying original
-        const workflowData = <span class="cstat-no" title="statement not covered" >JSON.parse(JSON.stringify(templateData.template));</span>
+        const workflowData = <span class="cstat-no" title="statement not covered" >JSON.parse(JSON.stringify(template.template));</span>
 &nbsp;
         // Apply parameter mapping
 <span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (args.parameterMapping &amp;&amp; Object.keys(args.parameterMapping).length &gt; 0) {</span>
@@ -3634,8 +3639,9 @@ export function <span class="fstat-no" title="function not covered" >createTempl
         }
 &nbsp;
         // Show requirements if available
-<span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (templateData.requirements) {</span>
-          const req = <span class="cstat-no" title="statement not covered" >templateData.requirements;</span>
+        const typedTemplateData = <span class="cstat-no" title="statement not covered" >templateData as any;</span>
+<span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (typedTemplateData.requirements) {</span>
+          const req = <span class="cstat-no" title="statement not covered" >typedTemplateData.requirements;</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >          <span class="missing-if-branch" title="if path not taken" >I</span>if (req.credentials &amp;&amp; req.credentials.length &gt; 0) {</span>
 <span class="cstat-no" title="statement not covered" >            result += `## ⚠️ Required Credentials\n`;</span>
@@ -4342,7 +4348,7 @@ function <span class="fstat-no" title="function not covered" >analyzeAIProcessin
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-08-02T19:30:49.930Z
+                at 2025-08-02T19:37:12.686Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
