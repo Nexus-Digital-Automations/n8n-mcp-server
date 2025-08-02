@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">13.33% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/71</span>
+                <span class='fraction'>10/75</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">15.9% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/44</span>
+                <span class='fraction'>7/44</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">15.38% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/13</span>
+                <span class='fraction'>2/13</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">13.33% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/71</span>
+                <span class='fraction'>10/75</span>
             </div>
         
             
@@ -432,6 +432,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -476,17 +478,15 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -753,7 +753,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -763,7 +762,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -774,13 +774,13 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
  * n8n-specific Authentication Provider
  *
@@ -839,13 +839,13 @@ interface AuthCacheEntry {
  */
 export class N8nAuthProvider extends BaseAuthProvider {
   private config: Required&lt;N8nAuthConfig&gt;;
-  private authCache = <span class="cstat-no" title="statement not covered" >new Map&lt;string, AuthCacheEntry&gt;();</span>
+  private authCache = new Map&lt;string, AuthCacheEntry&gt;();
 &nbsp;
-<span class="fstat-no" title="function not covered" >  constructor(c</span>onfig: N8nAuthConfig = <span class="branch-0 cbranch-no" title="branch not covered" >{})</span> {
-<span class="cstat-no" title="statement not covered" >    super();</span>
+  constructor(config: N8nAuthConfig = <span class="branch-0 cbranch-no" title="branch not covered" >{})</span> {
+    super();
 &nbsp;
     // Set defaults
-<span class="cstat-no" title="statement not covered" >    this.config = {</span>
+    this.config = {
       required: false,
       defaultBaseUrl: process.env.N8N_BASE_URL || '',
       defaultApiKey: process.env.N8N_API_KEY || '',
@@ -1121,25 +1121,25 @@ export class N8nAuthProvider extends BaseAuthProvider {
 /**
  * Create n8n authentication provider from environment variables
  */
-export function <span class="fstat-no" title="function not covered" >createN8nAuth(</span>): N8nAuthProvider {
-  const config: N8nAuthConfig = <span class="cstat-no" title="statement not covered" >{</span>
+export function createN8nAuth(): N8nAuthProvider {
+  const config: N8nAuthConfig = {
     required: process.env.N8N_MCP_AUTH_REQUIRED === 'true',
     defaultBaseUrl: process.env.N8N_BASE_URL,
     defaultApiKey: process.env.N8N_API_KEY,
     validateConnection: process.env.N8N_MCP_VALIDATE_CONNECTION !== 'false',
     cacheDuration: process.env.N8N_MCP_AUTH_CACHE_DURATION
-      ? parseInt(process.env.N8N_MCP_AUTH_CACHE_DURATION)
+      ? <span class="branch-0 cbranch-no" title="branch not covered" >parseInt(process.env.N8N_MCP_AUTH_CACHE_DURATION)</span>
       : undefined,
     defaultRoles: process.env.N8N_MCP_DEFAULT_ROLES?.split(',') || undefined,
   };
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  return new N8nAuthProvider(config);</span>
+  return new N8nAuthProvider(config);
 }
 &nbsp;
 /**
  * Default n8n authentication provider instance
  */
-export const defaultN8nAuth = <span class="cstat-no" title="statement not covered" >createN8nAuth();</span>
+export const defaultN8nAuth = createN8nAuth();
 &nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -1147,7 +1147,7 @@ export const defaultN8nAuth = <span class="cstat-no" title="statement not covere
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-08-02T19:02:58.008Z
+                at 2025-08-02T19:32:01.784Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

@@ -601,12 +601,13 @@ export function createTemplateTools(getClient: () => N8nClient | null, server: a
         const templateData = args.templateData;
 
         // Validate template structure
-        if (!templateData.template || !templateData.template.nodes) {
+        const template = templateData as any;
+        if (!template.template || !template.template.nodes) {
           throw new UserError('Invalid template data: missing nodes structure');
         }
 
         // Clone template data to avoid modifying original
-        const workflowData = JSON.parse(JSON.stringify(templateData.template));
+        const workflowData = JSON.parse(JSON.stringify(template.template));
 
         // Apply parameter mapping
         if (args.parameterMapping && Object.keys(args.parameterMapping).length > 0) {
@@ -721,8 +722,9 @@ export function createTemplateTools(getClient: () => N8nClient | null, server: a
         }
 
         // Show requirements if available
-        if (templateData.requirements) {
-          const req = templateData.requirements;
+        const typedTemplateData = templateData as any;
+        if (typedTemplateData.requirements) {
+          const req = typedTemplateData.requirements;
 
           if (req.credentials && req.credentials.length > 0) {
             result += `## ⚠️ Required Credentials\n`;
