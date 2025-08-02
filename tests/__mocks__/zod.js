@@ -14,7 +14,7 @@ const createMockSchema = (type = 'any', constraints = {}) => {
     switch (type) {
       case 'string':
         if (typeof data !== 'string') throw new Error(`Expected string, received ${typeof data}`);
-        if (constraints.min !== undefined && data.length < constraints.min) throw new Error(`String must be at least ${constraints.min} characters`);
+        if (constraints.min !== undefined && data.length < constraints.min) throw new Error(`String must be at least ${constraints.min} character${constraints.min === 1 ? '' : 's'}`);
         if (constraints.max !== undefined && data.length > constraints.max) throw new Error(`String must be at most ${constraints.max} characters`);
         if (constraints.email && !data.includes('@')) throw new Error('Invalid email format');
         if (constraints.url && !data.startsWith('http')) throw new Error('Invalid URL format');
@@ -48,8 +48,11 @@ const createMockSchema = (type = 'any', constraints = {}) => {
         return { success: false, error: { message: error.message } };
       }
     },
-    optional: () => createMockSchema(type, { ...constraints, required: false }),
-    min: (value) => createMockSchema(type, { ...constraints, min: value }),
+    optional: () => ({ 
+      ...createMockSchema(type, { ...constraints, required: false }),
+      optional: true
+    }),
+    min: (value) => createMockSchema(type, { ...constraints, min: value, required: constraints.required !== false }),
     max: (value) => createMockSchema(type, { ...constraints, max: value }),
     email: () => createMockSchema(type, { ...constraints, email: true }),
     url: () => createMockSchema(type, { ...constraints, url: true }),
@@ -104,8 +107,11 @@ const mockZod = {
     object: (shape) => ({
       shape,
       parse: (data) => {
-        if (data === undefined || data === null) {
-          data = {};
+        if (data === null) {
+          throw new Error('Expected object, received null');
+        }
+        if (data === undefined) {
+          throw new Error('Expected object, received undefined');
         }
         if (typeof data !== 'object') {
           throw new Error(`Expected object, received ${typeof data}`);
@@ -125,24 +131,26 @@ const mockZod = {
                 result[key] = schema.parse(value);
               }
             } else {
-              // Check if field has a default value
-              if (schema?.parse) {
-                try {
-                  // Try to parse undefined - if it has a default, it will return the default
-                  const defaultResult = schema.parse(undefined);
-                  if (defaultResult !== undefined) {
-                    result[key] = defaultResult;
-                  }
-                } catch (error) {
-                  // Check if the schema is optional by looking for optional in the error or schema structure
-                  const isOptional = schema.optional || 
-                                   (schema._def && schema._def.typeName === 'ZodOptional') ||
-                                   error.message.includes('optional');
-                  
-                  if (!isOptional) {
-                    // Only throw for truly required fields
+              // Check if field is optional
+              const isOptional = schema.optional === true;
+              
+              if (!isOptional) {
+                // For required fields, try to apply default values first
+                if (schema?.parse) {
+                  try {
+                    // Try to parse undefined - if it has a default, it will return the default
+                    const defaultResult = schema.parse(undefined);
+                    if (defaultResult !== undefined) {
+                      result[key] = defaultResult;
+                    } else {
+                      throw new Error(`Missing required field: ${key}`);
+                    }
+                  } catch {
+                    // If parse fails and no default, field is truly required
                     throw new Error(`Missing required field: ${key}`);
                   }
+                } else {
+                  throw new Error(`Missing required field: ${key}`);
                 }
               }
             }
@@ -189,7 +197,18 @@ const mockZod = {
       default: (defaultValue) => ({
         ...mockZod.z.object(shape),
         parse: (data) => {
-          if (data === undefined) return defaultValue;
+          if (data === undefined) {
+            // For undefined data, start with the default value
+            data = defaultValue;
+          }
+          
+          // If we have an empty object as default and shape is defined, we need to apply nested defaults
+          if (typeof defaultValue === 'object' && defaultValue !== null && Object.keys(defaultValue).length === 0 && shape) {
+            // Parse with shape to apply nested defaults
+            const resultWithDefaults = mockZod.z.object(shape).parse(data);
+            return resultWithDefaults;
+          }
+          
           const result = mockZod.z.object(shape).parse(data);
           // Merge default values deeply for nested objects
           if (typeof defaultValue === 'object' && typeof result === 'object') {

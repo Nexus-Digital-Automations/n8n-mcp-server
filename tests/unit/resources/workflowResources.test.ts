@@ -66,9 +66,15 @@ describe('WorkflowResourceManager', () => {
     tags: ['draft'],
     createdAt: '2023-01-02T10:00:00Z',
     updatedAt: '2023-01-02T11:00:00Z',
-    nodes: [{ id: 'node3', type: 'n8n-nodes-base.webhook', name: 'Webhook' }] as Array<
-      Record<string, unknown>
-    >,
+    nodes: [
+      {
+        id: 'node3',
+        name: 'Webhook',
+        type: 'n8n-nodes-base.webhook',
+        typeVersion: 1,
+        position: [100, 200] as [number, number],
+      },
+    ],
     connections: {},
   };
 
