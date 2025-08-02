@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { UserError } from 'fastmcp';
 import { N8nClient } from '../client/n8nClient.js';
-import { N8nWorkflow, N8nExecution } from '../types/n8n.js';
+import { N8nWorkflow } from '../types/n8n.js';
 
 // Zod schemas for monitoring and configuration
 const WorkflowSettingsSchema = z.object({
@@ -12,20 +12,27 @@ const WorkflowSettingsSchema = z.object({
 const ErrorNotificationSchema = z.object({
   workflowId: z.string().min(1, 'Workflow ID is required'),
   enableNotifications: z.boolean(),
-  notificationSettings: z.object({
-    email: z.string().email().optional(),
-    webhook: z.string().url().optional(),
-    slack: z.string().optional(),
-    retryAttempts: z.number().min(0).max(10).optional().default(3),
-    notifyOnFailure: z.boolean().optional().default(true),
-    notifyOnSuccess: z.boolean().optional().default(false),
-  }).optional(),
+  notificationSettings: z
+    .object({
+      email: z.string().email().optional(),
+      webhook: z.string().url().optional(),
+      slack: z.string().optional(),
+      retryAttempts: z.number().min(0).max(10).optional().default(3),
+      notifyOnFailure: z.boolean().optional().default(true),
+      notifyOnSuccess: z.boolean().optional().default(false),
+    })
+    .optional(),
 });
 
 const PerformanceTrackingSchema = z.object({
   workflowId: z.string().optional(),
   timeframe: z.enum(['hour', 'day', 'week', 'month']).optional().default('day'),
-  includeMetrics: z.array(z.enum(['execution-time', 'success-rate', 'error-rate', 'node-performance', 'resource-usage'])).optional().default(['execution-time', 'success-rate', 'error-rate']),
+  includeMetrics: z
+    .array(
+      z.enum(['execution-time', 'success-rate', 'error-rate', 'node-performance', 'resource-usage'])
+    )
+    .optional()
+    .default(['execution-time', 'success-rate', 'error-rate']),
 });
 
 const WorkflowHealthSchema = z.object({
@@ -37,7 +44,12 @@ const WorkflowHealthSchema = z.object({
 const AlertRuleSchema = z.object({
   workflowId: z.string().min(1, 'Workflow ID is required'),
   ruleName: z.string().min(1, 'Rule name is required'),
-  condition: z.enum(['execution-time-exceeds', 'error-rate-exceeds', 'success-rate-below', 'consecutive-failures']),
+  condition: z.enum([
+    'execution-time-exceeds',
+    'error-rate-exceeds',
+    'success-rate-below',
+    'consecutive-failures',
+  ]),
   threshold: z.number().min(0),
   action: z.enum(['email', 'webhook', 'disable-workflow', 'log-only']),
   actionConfig: z.record(z.any()).optional(),
@@ -48,7 +60,8 @@ export function createMonitoringTools(getClient: () => N8nClient | null, server:
   // Configure workflow settings
   server.addTool({
     name: 'configure-workflow-settings',
-    description: 'Configure advanced workflow settings including timeouts, retries, error handling, and execution policies',
+    description:
+      'Configure advanced workflow settings including timeouts, retries, error handling, and execution policies',
     parameters: WorkflowSettingsSchema,
     annotations: {
       title: 'Configure Workflow Settings',
@@ -65,7 +78,7 @@ export function createMonitoringTools(getClient: () => N8nClient | null, server:
 
       try {
         const workflow = await client.getWorkflow(args.workflowId);
-        
+
         // Merge new settings with existing settings
         const updatedSettings = {
           ...workflow.settings,
@@ -77,20 +90,22 @@ export function createMonitoringTools(getClient: () => N8nClient | null, server:
           settings: updatedSettings,
         });
 
-        return `Successfully updated workflow settings for "${workflow.name}":\n\n` +
-               `**Applied Settings:**\n\`\`\`json\n${JSON.stringify(args.settings, null, 2)}\n\`\`\`\n\n` +
-               `**Current Complete Settings:**\n\`\`\`json\n${JSON.stringify(updatedSettings, null, 2)}\n\`\`\`\n\n` +
-               `**Common Setting Options:**\n` +
-               `- \`timeout\`: Execution timeout in seconds\n` +
-               `- \`retryOnFail\`: Number of retry attempts on failure\n` +
-               `- \`maxExecutionTime\`: Maximum execution time limit\n` +
-               `- \`saveExecutionProgress\`: Save intermediate execution data\n` +
-               `- \`saveDataErrorExecution\`: Save data on error executions\n` +
-               `- \`saveDataSuccessExecution\`: Save data on successful executions\n` +
-               `- \`saveManualExecutions\`: Save manually triggered executions\n` +
-               `- \`callerPolicy\`: Execution caller policy restrictions\n` +
-               `- \`errorWorkflow\`: Workflow to run on error\n` +
-               `- \`timezone\`: Timezone for scheduled executions`;
+        return (
+          `Successfully updated workflow settings for "${workflow.name}":\n\n` +
+          `**Applied Settings:**\n\`\`\`json\n${JSON.stringify(args.settings, null, 2)}\n\`\`\`\n\n` +
+          `**Current Complete Settings:**\n\`\`\`json\n${JSON.stringify(updatedSettings, null, 2)}\n\`\`\`\n\n` +
+          `**Common Setting Options:**\n` +
+          `- \`timeout\`: Execution timeout in seconds\n` +
+          `- \`retryOnFail\`: Number of retry attempts on failure\n` +
+          `- \`maxExecutionTime\`: Maximum execution time limit\n` +
+          `- \`saveExecutionProgress\`: Save intermediate execution data\n` +
+          `- \`saveDataErrorExecution\`: Save data on error executions\n` +
+          `- \`saveDataSuccessExecution\`: Save data on successful executions\n` +
+          `- \`saveManualExecutions\`: Save manually triggered executions\n` +
+          `- \`callerPolicy\`: Execution caller policy restrictions\n` +
+          `- \`errorWorkflow\`: Workflow to run on error\n` +
+          `- \`timezone\`: Timezone for scheduled executions`
+        );
       } catch (error: any) {
         throw new UserError(`Failed to configure workflow settings: ${error.message}`);
       }
@@ -100,7 +115,8 @@ export function createMonitoringTools(getClient: () => N8nClient | null, server:
   // Setup error notifications
   server.addTool({
     name: 'setup-error-notifications',
-    description: 'Configure error notifications and alerting for workflow failures and performance issues',
+    description:
+      'Configure error notifications and alerting for workflow failures and performance issues',
     parameters: ErrorNotificationSchema,
     annotations: {
       title: 'Setup Error Notifications',
@@ -117,7 +133,7 @@ export function createMonitoringTools(getClient: () => N8nClient | null, server:
 
       try {
         const workflow = await client.getWorkflow(args.workflowId);
-        
+
         // Configure notification settings
         const notificationConfig = {
           errorNotifications: args.enableNotifications,
@@ -135,18 +151,20 @@ export function createMonitoringTools(getClient: () => N8nClient | null, server:
           settings: updatedSettings,
         });
 
-        return `${args.enableNotifications ? '✅ Enabled' : '❌ Disabled'} error notifications for workflow "${workflow.name}":\n\n` +
-               `**Notification Configuration:**\n` +
-               `- Notifications Enabled: ${args.enableNotifications ? 'Yes' : 'No'}\n` +
-               `- Retry Attempts: ${args.notificationSettings?.retryAttempts || 3}\n` +
-               `- Notify on Failure: ${args.notificationSettings?.notifyOnFailure ? 'Yes' : 'No'}\n` +
-               `- Notify on Success: ${args.notificationSettings?.notifyOnSuccess ? 'Yes' : 'No'}\n\n` +
-               `**Notification Channels:**\n` +
-               `- Email: ${args.notificationSettings?.email || 'Not configured'}\n` +
-               `- Webhook: ${args.notificationSettings?.webhook || 'Not configured'}\n` +
-               `- Slack: ${args.notificationSettings?.slack || 'Not configured'}\n\n` +
-               `**Full Configuration:**\n\`\`\`json\n${JSON.stringify(notificationConfig, null, 2)}\n\`\`\`\n\n` +
-               `**Note:** In a production environment, you would also need to configure the actual notification channels (email server, webhook endpoints, Slack integration) in your n8n instance settings.`;
+        return (
+          `${args.enableNotifications ? '✅ Enabled' : '❌ Disabled'} error notifications for workflow "${workflow.name}":\n\n` +
+          `**Notification Configuration:**\n` +
+          `- Notifications Enabled: ${args.enableNotifications ? 'Yes' : 'No'}\n` +
+          `- Retry Attempts: ${args.notificationSettings?.retryAttempts || 3}\n` +
+          `- Notify on Failure: ${args.notificationSettings?.notifyOnFailure ? 'Yes' : 'No'}\n` +
+          `- Notify on Success: ${args.notificationSettings?.notifyOnSuccess ? 'Yes' : 'No'}\n\n` +
+          `**Notification Channels:**\n` +
+          `- Email: ${args.notificationSettings?.email || 'Not configured'}\n` +
+          `- Webhook: ${args.notificationSettings?.webhook || 'Not configured'}\n` +
+          `- Slack: ${args.notificationSettings?.slack || 'Not configured'}\n\n` +
+          `**Full Configuration:**\n\`\`\`json\n${JSON.stringify(notificationConfig, null, 2)}\n\`\`\`\n\n` +
+          `**Note:** In a production environment, you would also need to configure the actual notification channels (email server, webhook endpoints, Slack integration) in your n8n instance settings.`
+        );
       } catch (error: any) {
         throw new UserError(`Failed to setup error notifications: ${error.message}`);
       }
@@ -156,7 +174,8 @@ export function createMonitoringTools(getClient: () => N8nClient | null, server:
   // Performance tracking and metrics
   server.addTool({
     name: 'track-workflow-performance',
-    description: 'Track and analyze workflow performance metrics including execution times, success rates, and resource usage',
+    description:
+      'Track and analyze workflow performance metrics including execution times, success rates, and resource usage',
     parameters: PerformanceTrackingSchema,
     annotations: {
       title: 'Track Workflow Performance',
@@ -180,7 +199,7 @@ export function createMonitoringTools(getClient: () => N8nClient | null, server:
           week: 7 * 24 * 60 * 60 * 1000,
           month: 30 * 24 * 60 * 60 * 1000,
         };
-        
+
         const startTime = new Date(now.getTime() - timeframeDuration[args.timeframe]);
 
         let workflows: N8nWorkflow[] = [];
@@ -202,8 +221,9 @@ export function createMonitoringTools(getClient: () => N8nClient | null, server:
           });
 
           // Filter executions by timeframe and workflow ID
-          const recentExecutions = executions.data.filter(execution => 
-            execution.workflowId === workflow.id && new Date(execution.startedAt) >= startTime
+          const recentExecutions = executions.data.filter(
+            execution =>
+              execution.workflowId === workflow.id && new Date(execution.startedAt) >= startTime
           );
 
           if (recentExecutions.length === 0 && args.workflowId) {
@@ -227,8 +247,8 @@ export function createMonitoringTools(getClient: () => N8nClient | null, server:
           };
 
           // Calculate execution times for completed executions
-          const completedExecutions = recentExecutions.filter(e => 
-            e.status === 'success' || e.status === 'error'
+          const completedExecutions = recentExecutions.filter(
+            e => e.status === 'success' || e.status === 'error'
           );
 
           if (completedExecutions.length > 0) {
@@ -237,7 +257,8 @@ export function createMonitoringTools(getClient: () => N8nClient | null, server:
               .map(e => new Date(e.stoppedAt!).getTime() - new Date(e.startedAt).getTime());
 
             if (executionTimes.length > 0) {
-              metrics.averageExecutionTime = executionTimes.reduce((a, b) => a + b, 0) / executionTimes.length;
+              metrics.averageExecutionTime =
+                executionTimes.reduce((a, b) => a + b, 0) / executionTimes.length;
               metrics.minExecutionTime = Math.min(...executionTimes);
               metrics.maxExecutionTime = Math.max(...executionTimes);
             }
@@ -258,7 +279,10 @@ export function createMonitoringTools(getClient: () => N8nClient | null, server:
           }
 
           // Success/Error rates
-          if (args.includeMetrics.includes('success-rate') || args.includeMetrics.includes('error-rate')) {
+          if (
+            args.includeMetrics.includes('success-rate') ||
+            args.includeMetrics.includes('error-rate')
+          ) {
             performanceReport += `**Execution Statistics:**\n`;
             performanceReport += `- Total Executions: ${metrics.totalExecutions}\n`;
             performanceReport += `- Successful: ${metrics.successfulExecutions} (${metrics.successRate.toFixed(1)}%)\n`;
@@ -267,20 +291,28 @@ export function createMonitoringTools(getClient: () => N8nClient | null, server:
           }
 
           // Performance assessment
-          const performanceRating = 
-            metrics.successRate >= 95 && metrics.averageExecutionTime < 10000 ? '🟢 Excellent' :
-            metrics.successRate >= 90 && metrics.averageExecutionTime < 30000 ? '🟡 Good' :
-            metrics.successRate >= 80 ? '🟠 Fair' : '🔴 Poor';
+          const performanceRating =
+            metrics.successRate >= 95 && metrics.averageExecutionTime < 10000
+              ? '🟢 Excellent'
+              : metrics.successRate >= 90 && metrics.averageExecutionTime < 30000
+                ? '🟡 Good'
+                : metrics.successRate >= 80
+                  ? '🟠 Fair'
+                  : '🔴 Poor';
 
           performanceReport += `**Performance Rating:** ${performanceRating}\n`;
 
           // Recommendations
           const recommendations = [];
           if (metrics.errorRate > 10) {
-            recommendations.push('High error rate detected - review workflow logic and error handling');
+            recommendations.push(
+              'High error rate detected - review workflow logic and error handling'
+            );
           }
           if (metrics.averageExecutionTime > 30000) {
-            recommendations.push('Long execution times - consider optimizing slow nodes or breaking into smaller workflows');
+            recommendations.push(
+              'Long execution times - consider optimizing slow nodes or breaking into smaller workflows'
+            );
           }
           if (metrics.successRate < 90) {
             recommendations.push('Low success rate - investigate common failure patterns');
@@ -310,7 +342,8 @@ export function createMonitoringTools(getClient: () => N8nClient | null, server:
   // Workflow health check
   server.addTool({
     name: 'check-workflow-health',
-    description: 'Perform comprehensive health checks on workflows including configuration validation, dependency analysis, and optimization recommendations',
+    description:
+      'Perform comprehensive health checks on workflows including configuration validation, dependency analysis, and optimization recommendations',
     parameters: WorkflowHealthSchema,
     annotations: {
       title: 'Check Workflow Health',
@@ -371,26 +404,35 @@ export function createMonitoringTools(getClient: () => N8nClient | null, server:
 
             // Check for common issues
             if (workflow.nodes.length > 50) {
-              warnings.push('Workflow has many nodes (>50) - consider breaking into smaller workflows');
+              warnings.push(
+                'Workflow has many nodes (>50) - consider breaking into smaller workflows'
+              );
               healthScore.maintainability -= 20;
             }
 
             // Check for missing credentials
-            const nodesWithCredentials = workflow.nodes.filter(node => 
-              node.credentials && Object.keys(node.credentials).length > 0
+            const nodesWithCredentials = workflow.nodes.filter(
+              node => node.credentials && Object.keys(node.credentials).length > 0
             );
 
-            if (nodesWithCredentials.length === 0 && uniqueNodeTypes.some(type => 
-              ['http-request', 'gmail', 'slack', 'webhook'].some(cred => type.toLowerCase().includes(cred))
-            )) {
-              issues.push('Nodes that typically require credentials found without credential configuration');
+            if (
+              nodesWithCredentials.length === 0 &&
+              uniqueNodeTypes.some(type =>
+                ['http-request', 'gmail', 'slack', 'webhook'].some(cred =>
+                  type.toLowerCase().includes(cred)
+                )
+              )
+            ) {
+              issues.push(
+                'Nodes that typically require credentials found without credential configuration'
+              );
               healthScore.security -= 30;
             }
 
             // Performance analysis
             if (args.checkType === 'detailed' || args.checkType === 'comprehensive') {
-              const heavyNodes = workflow.nodes.filter(node => 
-                ['code', 'function', 'python', 'loop', 'merge'].some(heavy => 
+              const heavyNodes = workflow.nodes.filter(node =>
+                ['code', 'function', 'python', 'loop', 'merge'].some(heavy =>
                   node.type.toLowerCase().includes(heavy)
                 )
               );
@@ -404,8 +446,8 @@ export function createMonitoringTools(getClient: () => N8nClient | null, server:
             // Comprehensive analysis
             if (args.checkType === 'comprehensive') {
               // Check for error handling
-              const errorHandlingNodes = workflow.nodes.filter(node => 
-                node.parameters && JSON.stringify(node.parameters).includes('error')
+              const errorHandlingNodes = workflow.nodes.filter(
+                node => node.parameters && JSON.stringify(node.parameters).includes('error')
               );
 
               if (errorHandlingNodes.length === 0) {
@@ -414,12 +456,14 @@ export function createMonitoringTools(getClient: () => N8nClient | null, server:
               }
 
               // Check for testing/debugging features
-              const debugNodes = workflow.nodes.filter(node => 
+              const debugNodes = workflow.nodes.filter(node =>
                 ['sticky-note', 'no-op', 'set'].includes(node.type.toLowerCase())
               );
 
               if (debugNodes.length === 0 && workflow.nodes.length > 5) {
-                recommendations.push('Consider adding debugging/documentation nodes for better maintainability');
+                recommendations.push(
+                  'Consider adding debugging/documentation nodes for better maintainability'
+                );
                 healthScore.maintainability -= 5;
               }
             }
@@ -427,16 +471,25 @@ export function createMonitoringTools(getClient: () => N8nClient | null, server:
 
           // Calculate overall health score
           healthScore.overall = Math.round(
-            (healthScore.configuration + healthScore.security + healthScore.performance + 
-             healthScore.reliability + healthScore.maintainability) / 5
+            (healthScore.configuration +
+              healthScore.security +
+              healthScore.performance +
+              healthScore.reliability +
+              healthScore.maintainability) /
+              5
           );
 
           // Health rating
-          const healthRating = 
-            healthScore.overall >= 90 ? '🟢 Excellent' :
-            healthScore.overall >= 80 ? '🟡 Good' :
-            healthScore.overall >= 70 ? '🟠 Fair' :
-            healthScore.overall >= 60 ? '🔴 Poor' : '🚨 Critical';
+          const healthRating =
+            healthScore.overall >= 90
+              ? '🟢 Excellent'
+              : healthScore.overall >= 80
+                ? '🟡 Good'
+                : healthScore.overall >= 70
+                  ? '🟠 Fair'
+                  : healthScore.overall >= 60
+                    ? '🔴 Poor'
+                    : '🚨 Critical';
 
           healthReport += `### ${workflow.name} (${workflow.id})\n`;
           healthReport += `**Overall Health:** ${healthRating} (${healthScore.overall}/100)\n\n`;
@@ -495,7 +548,8 @@ export function createMonitoringTools(getClient: () => N8nClient | null, server:
   // Create alert rules
   server.addTool({
     name: 'create-alert-rule',
-    description: 'Create custom alert rules for workflow monitoring based on performance thresholds and conditions',
+    description:
+      'Create custom alert rules for workflow monitoring based on performance thresholds and conditions',
     parameters: AlertRuleSchema,
     annotations: {
       title: 'Create Alert Rule',
@@ -512,7 +566,7 @@ export function createMonitoringTools(getClient: () => N8nClient | null, server:
 
       try {
         const workflow = await client.getWorkflow(args.workflowId);
-        
+
         // Create alert rule configuration
         const alertRule = {
           id: `alert_${Date.now()}`,
@@ -527,8 +581,10 @@ export function createMonitoringTools(getClient: () => N8nClient | null, server:
 
         // Get existing alert rules or initialize empty array
         const currentSettings = workflow.settings || {};
-        const existingAlerts = Array.isArray(currentSettings.alertRules) ? currentSettings.alertRules : [];
-        
+        const existingAlerts = Array.isArray(currentSettings.alertRules)
+          ? currentSettings.alertRules
+          : [];
+
         // Add new alert rule
         const updatedAlerts = [...existingAlerts, alertRule];
 
@@ -549,21 +605,23 @@ export function createMonitoringTools(getClient: () => N8nClient | null, server:
         };
 
         const actionDescription = {
-          'email': 'send email notification',
-          'webhook': 'trigger webhook',
+          email: 'send email notification',
+          webhook: 'trigger webhook',
           'disable-workflow': 'automatically disable workflow',
           'log-only': 'log to system logs only',
         };
 
-        return `✅ Successfully created alert rule "${args.ruleName}" for workflow "${workflow.name}":\n\n` +
-               `**Alert Rule Configuration:**\n` +
-               `- Rule ID: ${alertRule.id}\n` +
-               `- Condition: When ${thresholdDescription[args.condition]}\n` +
-               `- Action: ${actionDescription[args.action]}\n` +
-               `- Status: ✅ Enabled\n\n` +
-               `**Action Configuration:**\n\`\`\`json\n${JSON.stringify(args.actionConfig || {}, null, 2)}\n\`\`\`\n\n` +
-               `**Total Alert Rules:** ${updatedAlerts.length}\n\n` +
-               `**Note:** Alert rules are stored in workflow settings. In a production environment, you would implement monitoring services to actively check these conditions and trigger the specified actions.`;
+        return (
+          `✅ Successfully created alert rule "${args.ruleName}" for workflow "${workflow.name}":\n\n` +
+          `**Alert Rule Configuration:**\n` +
+          `- Rule ID: ${alertRule.id}\n` +
+          `- Condition: When ${thresholdDescription[args.condition]}\n` +
+          `- Action: ${actionDescription[args.action]}\n` +
+          `- Status: ✅ Enabled\n\n` +
+          `**Action Configuration:**\n\`\`\`json\n${JSON.stringify(args.actionConfig || {}, null, 2)}\n\`\`\`\n\n` +
+          `**Total Alert Rules:** ${updatedAlerts.length}\n\n` +
+          `**Note:** Alert rules are stored in workflow settings. In a production environment, you would implement monitoring services to actively check these conditions and trigger the specified actions.`
+        );
       } catch (error: any) {
         throw new UserError(`Failed to create alert rule: ${error.message}`);
       }
@@ -573,7 +631,8 @@ export function createMonitoringTools(getClient: () => N8nClient | null, server:
   // Get monitoring dashboard
   server.addTool({
     name: 'get-monitoring-dashboard',
-    description: 'Get a comprehensive monitoring dashboard with real-time status of workflows, alerts, and system health',
+    description:
+      'Get a comprehensive monitoring dashboard with real-time status of workflows, alerts, and system health',
     parameters: z.object({
       includeInactive: z.boolean().optional().default(false),
       timeframe: z.enum(['hour', 'day', 'week']).optional().default('day'),
@@ -595,10 +654,8 @@ export function createMonitoringTools(getClient: () => N8nClient | null, server:
         // Get all workflows
         const workflowsResponse = await client.getWorkflows({ limit: 100 });
         const allWorkflows = workflowsResponse.data;
-        
-        const workflows = args.includeInactive ? 
-          allWorkflows : 
-          allWorkflows.filter(w => w.active);
+
+        const workflows = args.includeInactive ? allWorkflows : allWorkflows.filter(w => w.active);
 
         // Get recent executions for all workflows
         const now = new Date();
@@ -607,8 +664,10 @@ export function createMonitoringTools(getClient: () => N8nClient | null, server:
           day: 24 * 60 * 60 * 1000,
           week: 7 * 24 * 60 * 60 * 1000,
         };
-        
-        const startTime = new Date(now.getTime() - timeframeDuration[args.timeframe as keyof typeof timeframeDuration]);
+
+        const startTime = new Date(
+          now.getTime() - timeframeDuration[args.timeframe as keyof typeof timeframeDuration]
+        );
 
         let dashboard = `# 📊 n8n Monitoring Dashboard\n\n`;
         dashboard += `**Generated:** ${now.toLocaleString()}\n`;
@@ -630,14 +689,16 @@ export function createMonitoringTools(getClient: () => N8nClient | null, server:
         let totalRunning = 0;
         const workflowStatuses = [];
 
-        for (const workflow of workflows.slice(0, 10)) { // Limit to 10 workflows for dashboard
+        for (const workflow of workflows.slice(0, 10)) {
+          // Limit to 10 workflows for dashboard
           try {
             const executions = await client.getExecutions({
               limit: 50,
             });
 
-            const recentExecutions = executions.data.filter(execution => 
-              execution.workflowId === workflow.id && new Date(execution.startedAt) >= startTime
+            const recentExecutions = executions.data.filter(
+              execution =>
+                execution.workflowId === workflow.id && new Date(execution.startedAt) >= startTime
             );
 
             const successful = recentExecutions.filter(e => e.status === 'success').length;
@@ -649,12 +710,11 @@ export function createMonitoringTools(getClient: () => N8nClient | null, server:
             totalFailed += failed;
             totalRunning += running;
 
-            const successRate = recentExecutions.length > 0 ? 
-              (successful / recentExecutions.length) * 100 : 0;
+            const successRate =
+              recentExecutions.length > 0 ? (successful / recentExecutions.length) * 100 : 0;
 
-            const status = successRate >= 95 ? '🟢' : 
-                         successRate >= 90 ? '🟡' : 
-                         successRate >= 70 ? '🟠' : '🔴';
+            const status =
+              successRate >= 95 ? '🟢' : successRate >= 90 ? '🟡' : successRate >= 70 ? '🟠' : '🔴';
 
             workflowStatuses.push({
               name: workflow.name,
@@ -663,15 +723,15 @@ export function createMonitoringTools(getClient: () => N8nClient | null, server:
               successRate: successRate.toFixed(1),
               running,
             });
-          } catch (error) {
+          } catch (_error) {
             // Skip workflows that can't be analyzed
             continue;
           }
         }
 
         // Add execution summary to system overview
-        const systemSuccessRate = totalExecutions > 0 ? 
-          (totalSuccessful / totalExecutions) * 100 : 0;
+        const systemSuccessRate =
+          totalExecutions > 0 ? (totalSuccessful / totalExecutions) * 100 : 0;
 
         dashboard += `| Total Executions (${args.timeframe}) | ${totalExecutions} |\n`;
         dashboard += `| Successful Executions | ${totalSuccessful} (${systemSuccessRate.toFixed(1)}%) |\n`;
@@ -684,7 +744,7 @@ export function createMonitoringTools(getClient: () => N8nClient | null, server:
           dashboard += `## 📋 Workflow Status\n\n`;
           dashboard += `| Workflow | Status | Executions | Success Rate | Running |\n`;
           dashboard += `|----------|--------|------------|--------------|----------|\n`;
-          
+
           workflowStatuses.forEach(ws => {
             dashboard += `| ${ws.name} | ${ws.status} | ${ws.executions} | ${ws.successRate}% | ${ws.running} |\n`;
           });

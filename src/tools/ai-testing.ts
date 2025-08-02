@@ -34,7 +34,8 @@ export function createAITestingTools(getClient: () => N8nClient | null, server: 
   // Validate AI prompt structure and variables
   server.addTool({
     name: 'validate-ai-prompt',
-    description: 'Validate AI prompt structure, check for required variables, and ensure proper formatting',
+    description:
+      'Validate AI prompt structure, check for required variables, and ensure proper formatting',
     parameters: AIPromptValidationSchema,
     annotations: {
       title: 'Validate AI Prompt',
@@ -57,8 +58,8 @@ export function createAITestingTools(getClient: () => N8nClient | null, server: 
 
         // Extract variables from prompt (looking for {{variable}} and ${variable} patterns)
         const variablePatterns = [
-          /\{\{([^}]+)\}\}/g,  // n8n variables {{variable}}
-          /\$\{([^}]+)\}/g,    // JavaScript variables ${variable}
+          /\{\{([^}]+)\}\}/g, // n8n variables {{variable}}
+          /\$\{([^}]+)\}/g, // JavaScript variables ${variable}
           /\$json\.[a-zA-Z_][a-zA-Z0-9_]*/g, // n8n JSON access
           /\$node\.[a-zA-Z_][a-zA-Z0-9_]*/g, // n8n node access
         ];
@@ -85,18 +86,24 @@ export function createAITestingTools(getClient: () => N8nClient | null, server: 
           validation.issues.push('Prompt has very few words - consider adding more context');
         }
 
-        if (!args.prompt.includes('?') && !args.prompt.includes('please') && !args.prompt.includes('generate')) {
+        if (
+          !args.prompt.includes('?') &&
+          !args.prompt.includes('please') &&
+          !args.prompt.includes('generate')
+        ) {
           validation.suggestions.push('Consider adding clear instructions or questions');
         }
 
         if (validation.variables.length === 0) {
-          validation.suggestions.push('Consider using dynamic variables to make the prompt more flexible');
+          validation.suggestions.push(
+            'Consider using dynamic variables to make the prompt more flexible'
+          );
         }
 
         // Check if required variables are provided
         if (args.variables) {
-          const missingVars = args.variables.filter(v => 
-            !validation.variables.some(pv => pv.includes(v))
+          const missingVars = args.variables.filter(
+            v => !validation.variables.some(pv => pv.includes(v))
           );
           if (missingVars.length > 0) {
             validation.issues.push(`Missing required variables: ${missingVars.join(', ')}`);
@@ -104,32 +111,41 @@ export function createAITestingTools(getClient: () => N8nClient | null, server: 
         }
 
         // Calculate quality score (0-100)
-        validation.score = Math.max(0, Math.min(100, 
-          (validation.length > 10 ? 20 : 0) +
-          (validation.wordCount > 5 ? 20 : 0) +
-          (validation.variables.length > 0 ? 20 : 0) +
-          (validation.issues.length === 0 ? 30 : 0) +
-          (args.prompt.includes('?') || args.prompt.includes('please') ? 10 : 0)
-        ));
+        validation.score = Math.max(
+          0,
+          Math.min(
+            100,
+            (validation.length > 10 ? 20 : 0) +
+              (validation.wordCount > 5 ? 20 : 0) +
+              (validation.variables.length > 0 ? 20 : 0) +
+              (validation.issues.length === 0 ? 30 : 0) +
+              (args.prompt.includes('?') || args.prompt.includes('please') ? 10 : 0)
+          )
+        );
 
-        return `AI Prompt Validation Results:\n\n` +
-               `**Prompt Analysis:**\n` +
-               `- Length: ${validation.length} characters\n` +
-               `- Word Count: ${validation.wordCount} words\n` +
-               `- Quality Score: ${validation.score}/100\n\n` +
-               `**Variables Found (${validation.variables.length}):**\n` +
-               (validation.variables.length > 0 ? 
-                 validation.variables.map(v => `- ${v}`).join('\n') : 
-                 'No variables detected') + '\n\n' +
-               `**Issues (${validation.issues.length}):**\n` +
-               (validation.issues.length > 0 ? 
-                 validation.issues.map(i => `❌ ${i}`).join('\n') : 
-                 '✅ No issues found') + '\n\n' +
-               `**Suggestions (${validation.suggestions.length}):**\n` +
-               (validation.suggestions.length > 0 ? 
-                 validation.suggestions.map(s => `💡 ${s}`).join('\n') : 
-                 '✅ No suggestions') + '\n\n' +
-               `**Original Prompt:**\n\`\`\`\n${args.prompt}\n\`\`\``;
+        return (
+          `AI Prompt Validation Results:\n\n` +
+          `**Prompt Analysis:**\n` +
+          `- Length: ${validation.length} characters\n` +
+          `- Word Count: ${validation.wordCount} words\n` +
+          `- Quality Score: ${validation.score}/100\n\n` +
+          `**Variables Found (${validation.variables.length}):**\n` +
+          (validation.variables.length > 0
+            ? validation.variables.map(v => `- ${v}`).join('\n')
+            : 'No variables detected') +
+          '\n\n' +
+          `**Issues (${validation.issues.length}):**\n` +
+          (validation.issues.length > 0
+            ? validation.issues.map(i => `❌ ${i}`).join('\n')
+            : '✅ No issues found') +
+          '\n\n' +
+          `**Suggestions (${validation.suggestions.length}):**\n` +
+          (validation.suggestions.length > 0
+            ? validation.suggestions.map(s => `💡 ${s}`).join('\n')
+            : '✅ No suggestions') +
+          '\n\n' +
+          `**Original Prompt:**\n\`\`\`\n${args.prompt}\n\`\`\``
+        );
       } catch (error: any) {
         throw new UserError(`Failed to validate AI prompt: ${error.message}`);
       }
@@ -159,7 +175,9 @@ export function createAITestingTools(getClient: () => N8nClient | null, server: 
         const node = workflow.nodes?.find(n => n.id === args.nodeId);
 
         if (!node) {
-          throw new UserError(`Node with ID "${args.nodeId}" not found in workflow "${args.workflowId}"`);
+          throw new UserError(
+            `Node with ID "${args.nodeId}" not found in workflow "${args.workflowId}"`
+          );
         }
 
         const testResult = {
@@ -196,20 +214,22 @@ export function createAITestingTools(getClient: () => N8nClient | null, server: 
         }
 
         if (args.validateOnly) {
-          return `AI Node Validation Results:\n\n` +
-                 `**Node Information:**\n` +
-                 `- Node: ${testResult.nodeName} (${testResult.nodeType})\n` +
-                 `- Model: ${testResult.configuration.model || 'Not configured'}\n` +
-                 `- Temperature: ${testResult.configuration.temperature || 'Default'}\n` +
-                 `- Max Tokens: ${testResult.configuration.maxTokens || 'Default'}\n\n` +
-                 `**Validation Results:**\n` +
-                 `- Configuration Valid: ${testResult.validation.configurationValid ? '✅' : '❌'}\n` +
-                 `- Data Structure Valid: ${testResult.validation.dataStructureValid ? '✅' : '❌'}\n` +
-                 `- Parameters Valid: ${testResult.validation.parametersValid ? '✅' : '❌'}\n` +
-                 `- Credentials Valid: ${testResult.validation.credentialsValid ? '✅' : '❌'}\n\n` +
-                 `**Test Data:**\n\`\`\`json\n${JSON.stringify(args.testData, null, 2)}\n\`\`\`\n\n` +
-                 `**Estimated Cost:** $${testResult.estimatedCost.toFixed(4)}\n` +
-                 `**Estimated Tokens:** ${testResult.estimatedTokens}`;
+          return (
+            `AI Node Validation Results:\n\n` +
+            `**Node Information:**\n` +
+            `- Node: ${testResult.nodeName} (${testResult.nodeType})\n` +
+            `- Model: ${testResult.configuration.model || 'Not configured'}\n` +
+            `- Temperature: ${testResult.configuration.temperature || 'Default'}\n` +
+            `- Max Tokens: ${testResult.configuration.maxTokens || 'Default'}\n\n` +
+            `**Validation Results:**\n` +
+            `- Configuration Valid: ${testResult.validation.configurationValid ? '✅' : '❌'}\n` +
+            `- Data Structure Valid: ${testResult.validation.dataStructureValid ? '✅' : '❌'}\n` +
+            `- Parameters Valid: ${testResult.validation.parametersValid ? '✅' : '❌'}\n` +
+            `- Credentials Valid: ${testResult.validation.credentialsValid ? '✅' : '❌'}\n\n` +
+            `**Test Data:**\n\`\`\`json\n${JSON.stringify(args.testData, null, 2)}\n\`\`\`\n\n` +
+            `**Estimated Cost:** $${testResult.estimatedCost.toFixed(4)}\n` +
+            `**Estimated Tokens:** ${testResult.estimatedTokens}`
+          );
         }
 
         // Simulate actual testing (in real implementation, would execute the node)
@@ -221,19 +241,21 @@ export function createAITestingTools(getClient: () => N8nClient | null, server: 
           executionTime: Math.random() * 2000 + 500, // 500-2500ms
         };
 
-        return `AI Node Test Results:\n\n` +
-               `**Node Information:**\n` +
-               `- Node: ${testResult.nodeName} (${testResult.nodeType})\n` +
-               `- Model: ${testResult.configuration.model || 'Not configured'}\n` +
-               `- Test Time: ${testResult.timestamp}\n\n` +
-               `**Test Execution:**\n` +
-               `- Success: ${simulatedResponse.success ? '✅' : '❌'}\n` +
-               `- Execution Time: ${simulatedResponse.executionTime.toFixed(0)}ms\n` +
-               `- Tokens Used: ${simulatedResponse.tokens}\n` +
-               `- Cost: $${simulatedResponse.cost.toFixed(4)}\n\n` +
-               `**Test Output:**\n${simulatedResponse.output}\n\n` +
-               `**Test Data Used:**\n\`\`\`json\n${JSON.stringify(args.testData, null, 2)}\n\`\`\`\n\n` +
-               `**Note:** This is a test simulation. For actual AI execution, deploy the workflow and run it.`;
+        return (
+          `AI Node Test Results:\n\n` +
+          `**Node Information:**\n` +
+          `- Node: ${testResult.nodeName} (${testResult.nodeType})\n` +
+          `- Model: ${testResult.configuration.model || 'Not configured'}\n` +
+          `- Test Time: ${testResult.timestamp}\n\n` +
+          `**Test Execution:**\n` +
+          `- Success: ${simulatedResponse.success ? '✅' : '❌'}\n` +
+          `- Execution Time: ${simulatedResponse.executionTime.toFixed(0)}ms\n` +
+          `- Tokens Used: ${simulatedResponse.tokens}\n` +
+          `- Cost: $${simulatedResponse.cost.toFixed(4)}\n\n` +
+          `**Test Output:**\n${simulatedResponse.output}\n\n` +
+          `**Test Data Used:**\n\`\`\`json\n${JSON.stringify(args.testData, null, 2)}\n\`\`\`\n\n` +
+          `**Note:** This is a test simulation. For actual AI execution, deploy the workflow and run it.`
+        );
       } catch (error: any) {
         throw new UserError(`Failed to test AI node: ${error.message}`);
       }
@@ -288,12 +310,7 @@ export function createAITestingTools(getClient: () => N8nClient | null, server: 
         });
 
         // Check for AI-specific functions
-        const aiPatterns = [
-          /\$fromAI\s*\(/,
-          /\$ai\./,
-          /\$memory\./,
-          /\$context\./,
-        ];
+        const aiPatterns = [/\$fromAI\s*\(/, /\$ai\./, /\$memory\./, /\$context\./];
 
         const hasAIFunctions = aiPatterns.some(pattern => pattern.test(args.expression));
         if (hasAIFunctions && !args.context) {
@@ -318,24 +335,28 @@ export function createAITestingTools(getClient: () => N8nClient | null, server: 
           simulatedResult = null;
         }
 
-        return `AI Expression Test Results:\n\n` +
-               `**Expression:** \`${args.expression}\`\n\n` +
-               `**Validation Results:**\n` +
-               `- Syntax Valid: ${expressionTest.validation.syntaxValid ? '✅' : '❌'}\n` +
-               `- Variables Resolved: ${expressionTest.validation.variablesResolved ? '✅' : '❌'}\n` +
-               `- AI Context Available: ${expressionTest.validation.aiContextAvailable ? '✅' : '❌'}\n` +
-               `- Security Safe: ${expressionTest.validation.securitySafe ? '✅' : '❌'}\n\n` +
-               `**Warnings (${expressionTest.warnings.length}):**\n` +
-               (expressionTest.warnings.length > 0 ? 
-                 expressionTest.warnings.map(w => `⚠️ ${w}`).join('\n') : 
-                 '✅ No warnings') + '\n\n' +
-               `**Errors (${expressionTest.errors.length}):**\n` +
-               (expressionTest.errors.length > 0 ? 
-                 expressionTest.errors.map(e => `❌ ${e}`).join('\n') : 
-                 '✅ No errors') + '\n\n' +
-               `**Sample Data:**\n\`\`\`json\n${JSON.stringify(args.sampleData, null, 2)}\n\`\`\`\n\n` +
-               `**Simulated Result:**\n\`${simulatedResult}\`\n\n` +
-               `**Note:** This is a test simulation. Actual expression evaluation happens during workflow execution.`;
+        return (
+          `AI Expression Test Results:\n\n` +
+          `**Expression:** \`${args.expression}\`\n\n` +
+          `**Validation Results:**\n` +
+          `- Syntax Valid: ${expressionTest.validation.syntaxValid ? '✅' : '❌'}\n` +
+          `- Variables Resolved: ${expressionTest.validation.variablesResolved ? '✅' : '❌'}\n` +
+          `- AI Context Available: ${expressionTest.validation.aiContextAvailable ? '✅' : '❌'}\n` +
+          `- Security Safe: ${expressionTest.validation.securitySafe ? '✅' : '❌'}\n\n` +
+          `**Warnings (${expressionTest.warnings.length}):**\n` +
+          (expressionTest.warnings.length > 0
+            ? expressionTest.warnings.map(w => `⚠️ ${w}`).join('\n')
+            : '✅ No warnings') +
+          '\n\n' +
+          `**Errors (${expressionTest.errors.length}):**\n` +
+          (expressionTest.errors.length > 0
+            ? expressionTest.errors.map(e => `❌ ${e}`).join('\n')
+            : '✅ No errors') +
+          '\n\n' +
+          `**Sample Data:**\n\`\`\`json\n${JSON.stringify(args.sampleData, null, 2)}\n\`\`\`\n\n` +
+          `**Simulated Result:**\n\`${simulatedResult}\`\n\n` +
+          `**Note:** This is a test simulation. Actual expression evaluation happens during workflow execution.`
+        );
       } catch (error: any) {
         throw new UserError(`Failed to test AI expression: ${error.message}`);
       }
@@ -345,7 +366,8 @@ export function createAITestingTools(getClient: () => N8nClient | null, server: 
   // Performance test AI node
   server.addTool({
     name: 'performance-test-ai-node',
-    description: 'Run performance tests on an AI node with multiple test payloads to measure response times and consistency',
+    description:
+      'Run performance tests on an AI node with multiple test payloads to measure response times and consistency',
     parameters: AIPerformanceTestSchema,
     annotations: {
       title: 'Performance Test AI Node',
@@ -365,7 +387,9 @@ export function createAITestingTools(getClient: () => N8nClient | null, server: 
         const node = workflow.nodes?.find(n => n.id === args.nodeId);
 
         if (!node) {
-          throw new UserError(`Node with ID "${args.nodeId}" not found in workflow "${args.workflowId}"`);
+          throw new UserError(
+            `Node with ID "${args.nodeId}" not found in workflow "${args.workflowId}"`
+          );
         }
 
         const performanceResults = {
@@ -395,7 +419,7 @@ export function createAITestingTools(getClient: () => N8nClient | null, server: 
             const responseTime = Math.random() * 3000 + 200; // 200-3200ms
             const tokens = Math.floor(JSON.stringify(payload).length / 4);
             const cost = tokens * 0.00001; // Simulated cost
-            
+
             const testResult = {
               iteration: i + 1,
               payloadIndex: j + 1,
@@ -409,7 +433,7 @@ export function createAITestingTools(getClient: () => N8nClient | null, server: 
 
             performanceResults.results.push(testResult);
             performanceResults.summary.totalTests++;
-            
+
             if (testResult.success) {
               performanceResults.summary.successfulTests++;
               performanceResults.summary.totalTokens += tokens;
@@ -423,36 +447,50 @@ export function createAITestingTools(getClient: () => N8nClient | null, server: 
         // Calculate statistics
         const successfulResults = performanceResults.results.filter(r => r.success);
         const responseTimes = successfulResults.map(r => r.responseTime);
-        
-        performanceResults.summary.averageResponseTime = responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length;
+
+        performanceResults.summary.averageResponseTime =
+          responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length;
         performanceResults.summary.minResponseTime = Math.min(...responseTimes);
         performanceResults.summary.maxResponseTime = Math.max(...responseTimes);
 
-        const successRate = (performanceResults.summary.successfulTests / performanceResults.summary.totalTests) * 100;
+        const successRate =
+          (performanceResults.summary.successfulTests / performanceResults.summary.totalTests) *
+          100;
 
-        return `AI Node Performance Test Results:\n\n` +
-               `**Test Configuration:**\n` +
-               `- Node: ${performanceResults.nodeName} (${performanceResults.nodeType})\n` +
-               `- Iterations: ${performanceResults.iterations}\n` +
-               `- Test Payloads: ${performanceResults.testPayloads}\n` +
-               `- Total Tests: ${performanceResults.summary.totalTests}\n\n` +
-               `**Performance Summary:**\n` +
-               `- Success Rate: ${successRate.toFixed(1)}% (${performanceResults.summary.successfulTests}/${performanceResults.summary.totalTests})\n` +
-               `- Average Response Time: ${performanceResults.summary.averageResponseTime.toFixed(0)}ms\n` +
-               `- Min Response Time: ${performanceResults.summary.minResponseTime.toFixed(0)}ms\n` +
-               `- Max Response Time: ${performanceResults.summary.maxResponseTime.toFixed(0)}ms\n` +
-               `- Total Tokens: ${performanceResults.summary.totalTokens}\n` +
-               `- Total Cost: $${performanceResults.summary.totalCost.toFixed(4)}\n\n` +
-               `**Performance Analysis:**\n` +
-               `- Performance Rating: ${successRate > 95 && performanceResults.summary.averageResponseTime < 2000 ? '🟢 Excellent' : 
-                                     successRate > 90 && performanceResults.summary.averageResponseTime < 3000 ? '🟡 Good' : '🔴 Needs Improvement'}\n` +
-               `- Consistency: ${(performanceResults.summary.maxResponseTime - performanceResults.summary.minResponseTime) < 1000 ? '🟢 Consistent' : '🟡 Variable'}\n` +
-               `- Cost Efficiency: $${(performanceResults.summary.totalCost / performanceResults.summary.successfulTests).toFixed(6)} per successful test\n\n` +
-               `**Recommendations:**\n` +
-               (successRate < 95 ? '• Consider reviewing AI node configuration for reliability\n' : '') +
-               (performanceResults.summary.averageResponseTime > 2000 ? '• Response times are high - consider optimizing prompts or model selection\n' : '') +
-               (performanceResults.summary.totalCost > 0.1 ? '• High cost per test - consider optimizing token usage\n' : '') +
-               `\n**Note:** This is a simulated performance test. Actual results may vary in production.`;
+        return (
+          `AI Node Performance Test Results:\n\n` +
+          `**Test Configuration:**\n` +
+          `- Node: ${performanceResults.nodeName} (${performanceResults.nodeType})\n` +
+          `- Iterations: ${performanceResults.iterations}\n` +
+          `- Test Payloads: ${performanceResults.testPayloads}\n` +
+          `- Total Tests: ${performanceResults.summary.totalTests}\n\n` +
+          `**Performance Summary:**\n` +
+          `- Success Rate: ${successRate.toFixed(1)}% (${performanceResults.summary.successfulTests}/${performanceResults.summary.totalTests})\n` +
+          `- Average Response Time: ${performanceResults.summary.averageResponseTime.toFixed(0)}ms\n` +
+          `- Min Response Time: ${performanceResults.summary.minResponseTime.toFixed(0)}ms\n` +
+          `- Max Response Time: ${performanceResults.summary.maxResponseTime.toFixed(0)}ms\n` +
+          `- Total Tokens: ${performanceResults.summary.totalTokens}\n` +
+          `- Total Cost: $${performanceResults.summary.totalCost.toFixed(4)}\n\n` +
+          `**Performance Analysis:**\n` +
+          `- Performance Rating: ${
+            successRate > 95 && performanceResults.summary.averageResponseTime < 2000
+              ? '🟢 Excellent'
+              : successRate > 90 && performanceResults.summary.averageResponseTime < 3000
+                ? '🟡 Good'
+                : '🔴 Needs Improvement'
+          }\n` +
+          `- Consistency: ${performanceResults.summary.maxResponseTime - performanceResults.summary.minResponseTime < 1000 ? '🟢 Consistent' : '🟡 Variable'}\n` +
+          `- Cost Efficiency: $${(performanceResults.summary.totalCost / performanceResults.summary.successfulTests).toFixed(6)} per successful test\n\n` +
+          `**Recommendations:**\n` +
+          (successRate < 95 ? '• Consider reviewing AI node configuration for reliability\n' : '') +
+          (performanceResults.summary.averageResponseTime > 2000
+            ? '• Response times are high - consider optimizing prompts or model selection\n'
+            : '') +
+          (performanceResults.summary.totalCost > 0.1
+            ? '• High cost per test - consider optimizing token usage\n'
+            : '') +
+          `\n**Note:** This is a simulated performance test. Actual results may vary in production.`
+        );
       } catch (error: any) {
         throw new UserError(`Failed to run performance test: ${error.message}`);
       }

@@ -5,12 +5,18 @@ import { N8nClient } from '../client/n8nClient.js';
 // Zod schemas for AI model management
 const ModelSearchSchema = z.object({
   query: z.string().optional(),
-  provider: z.enum(['openai', 'anthropic', 'google', 'huggingface', 'local', 'all']).optional().default('all'),
-  capability: z.enum(['text-generation', 'chat', 'completion', 'embedding', 'classification', 'all']).optional().default('all'),
+  provider: z
+    .enum(['openai', 'anthropic', 'google', 'huggingface', 'local', 'all'])
+    .optional()
+    .default('all'),
+  capability: z
+    .enum(['text-generation', 'chat', 'completion', 'embedding', 'classification', 'all'])
+    .optional()
+    .default('all'),
   maxResults: z.number().min(1).max(100).optional().default(20),
 });
 
-const ModelConfigurationSchema = z.object({
+const _ModelConfigurationSchema = z.object({
   modelId: z.string().min(1, 'Model ID is required'),
   provider: z.string().min(1, 'Provider is required'),
   configuration: z.record(z.any()),
@@ -18,7 +24,10 @@ const ModelConfigurationSchema = z.object({
 
 const ModelComparisonSchema = z.object({
   modelIds: z.array(z.string()).min(2, 'At least 2 models required for comparison'),
-  criteria: z.array(z.enum(['cost', 'speed', 'quality', 'capabilities'])).optional().default(['cost', 'speed', 'quality']),
+  criteria: z
+    .array(z.enum(['cost', 'speed', 'quality', 'capabilities']))
+    .optional()
+    .default(['cost', 'speed', 'quality']),
 });
 
 // Model database (in a real implementation, this would be fetched from APIs or databases)
@@ -86,7 +95,7 @@ const AI_MODELS_DATABASE = {
       costPer1kTokens: { input: 0.00025, output: 0.0005 },
       speed: 'fast',
       quality: 'good',
-      description: 'Google\'s multimodal AI model',
+      description: "Google's multimodal AI model",
     },
   ],
   local: [
@@ -110,7 +119,8 @@ export function createAIModelsTools(getClient: () => N8nClient | null, server: a
   // List available AI models
   server.addTool({
     name: 'list-ai-models',
-    description: 'List available AI models with filtering by provider, capability, and search terms',
+    description:
+      'List available AI models with filtering by provider, capability, and search terms',
     parameters: ModelSearchSchema,
     annotations: {
       title: 'List AI Models',
@@ -122,7 +132,7 @@ export function createAIModelsTools(getClient: () => N8nClient | null, server: a
     execute: async (args: z.infer<typeof ModelSearchSchema>) => {
       try {
         let allModels: any[] = [];
-        
+
         // Collect models from all providers
         Object.entries(AI_MODELS_DATABASE).forEach(([provider, models]) => {
           if (args.provider === 'all' || args.provider === provider) {
@@ -132,19 +142,18 @@ export function createAIModelsTools(getClient: () => N8nClient | null, server: a
 
         // Filter by capability
         if (args.capability !== 'all') {
-          allModels = allModels.filter(model => 
-            model.capabilities.includes(args.capability)
-          );
+          allModels = allModels.filter(model => model.capabilities.includes(args.capability));
         }
 
         // Filter by search query
         if (args.query) {
           const query = args.query.toLowerCase();
-          allModels = allModels.filter(model => 
-            model.name.toLowerCase().includes(query) ||
-            model.id.toLowerCase().includes(query) ||
-            model.description.toLowerCase().includes(query) ||
-            model.provider.toLowerCase().includes(query)
+          allModels = allModels.filter(
+            model =>
+              model.name.toLowerCase().includes(query) ||
+              model.id.toLowerCase().includes(query) ||
+              model.description.toLowerCase().includes(query) ||
+              model.provider.toLowerCase().includes(query)
           );
         }
 
@@ -152,11 +161,13 @@ export function createAIModelsTools(getClient: () => N8nClient | null, server: a
         allModels = allModels.slice(0, args.maxResults);
 
         if (allModels.length === 0) {
-          return `No AI models found matching your criteria:\n` +
-                 `- Provider: ${args.provider}\n` +
-                 `- Capability: ${args.capability}\n` +
-                 `- Query: ${args.query || 'None'}\n\n` +
-                 `Try broadening your search criteria.`;
+          return (
+            `No AI models found matching your criteria:\n` +
+            `- Provider: ${args.provider}\n` +
+            `- Capability: ${args.capability}\n` +
+            `- Query: ${args.query || 'None'}\n\n` +
+            `Try broadening your search criteria.`
+          );
         }
 
         let result = `Found ${allModels.length} AI model(s):\n\n`;
@@ -164,7 +175,7 @@ export function createAIModelsTools(getClient: () => N8nClient | null, server: a
         allModels.forEach((model, index) => {
           const inputCost = model.costPer1kTokens.input;
           const outputCost = model.costPer1kTokens.output;
-          
+
           result += `**${index + 1}. ${model.name}** (${model.id})\n`;
           result += `   - Provider: ${model.provider.charAt(0).toUpperCase() + model.provider.slice(1)}\n`;
           result += `   - Type: ${model.type}\n`;
@@ -188,7 +199,8 @@ export function createAIModelsTools(getClient: () => N8nClient | null, server: a
   // Get detailed model information
   server.addTool({
     name: 'get-ai-model-info',
-    description: 'Get detailed information about a specific AI model including capabilities, pricing, and configuration options',
+    description:
+      'Get detailed information about a specific AI model including capabilities, pricing, and configuration options',
     parameters: z.object({
       modelId: z.string().min(1, 'Model ID is required'),
     }),
@@ -202,7 +214,7 @@ export function createAIModelsTools(getClient: () => N8nClient | null, server: a
     execute: async (args: { modelId: string }) => {
       try {
         let foundModel: any = null;
-        
+
         // Search for the model across all providers
         Object.entries(AI_MODELS_DATABASE).forEach(([provider, models]) => {
           const model = models.find(m => m.id === args.modelId);
@@ -212,8 +224,10 @@ export function createAIModelsTools(getClient: () => N8nClient | null, server: a
         });
 
         if (!foundModel) {
-          return `Model "${args.modelId}" not found.\n\n` +
-                 `Use the "list-ai-models" tool to see available models.`;
+          return (
+            `Model "${args.modelId}" not found.\n\n` +
+            `Use the "list-ai-models" tool to see available models.`
+          );
         }
 
         const model = foundModel;
@@ -227,36 +241,45 @@ export function createAIModelsTools(getClient: () => N8nClient | null, server: a
           largeRequest: (20000 * inputCost + 5000 * outputCost).toFixed(4),
         };
 
-        return `**${model.name}** (${model.id})\n\n` +
-               `**Basic Information:**\n` +
-               `- Provider: ${model.provider.charAt(0).toUpperCase() + model.provider.slice(1)}\n` +
-               `- Model Type: ${model.type}\n` +
-               `- Max Context: ${model.maxTokens.toLocaleString()} tokens\n` +
-               `- Speed Rating: ${model.speed}\n` +
-               `- Quality Rating: ${model.quality}\n\n` +
-               `**Capabilities:**\n` +
-               model.capabilities.map((cap: string) => `- ${cap.charAt(0).toUpperCase() + cap.slice(1).replace('-', ' ')}`).join('\n') + '\n\n' +
-               `**Pricing:**\n` +
-               `- Input: $${inputCost} per 1,000 tokens\n` +
-               `- Output: $${outputCost} per 1,000 tokens\n\n` +
-               `**Cost Examples:**\n` +
-               `- Small request (1k input, 500 output): $${exampleCosts.smallRequest}\n` +
-               `- Medium request (5k input, 2k output): $${exampleCosts.mediumRequest}\n` +
-               `- Large request (20k input, 5k output): $${exampleCosts.largeRequest}\n\n` +
-               `**Description:**\n${model.description}\n\n` +
-               `**Configuration Example for n8n:**\n\`\`\`json\n` +
-               `{\n` +
-               `  "model": "${model.id}",\n` +
-               `  "temperature": 0.7,\n` +
-               `  "maxTokens": ${Math.min(4000, model.maxTokens)},\n` +
-               `  "provider": "${model.provider}"\n` +
-               `}\n\`\`\`\n\n` +
-               `**Use Case Recommendations:**\n` +
-               (model.quality === 'excellent' ? '- Complex reasoning and analysis tasks\n' : '') +
-               (model.speed === 'very-fast' || model.speed === 'fast' ? '- Real-time applications\n' : '') +
-               (inputCost < 0.005 ? '- High-volume processing\n' : '') +
-               (model.maxTokens > 50000 ? '- Long document processing\n' : '') +
-               (model.capabilities.includes('multimodal') ? '- Image and text processing\n' : '');
+        return (
+          `**${model.name}** (${model.id})\n\n` +
+          `**Basic Information:**\n` +
+          `- Provider: ${model.provider.charAt(0).toUpperCase() + model.provider.slice(1)}\n` +
+          `- Model Type: ${model.type}\n` +
+          `- Max Context: ${model.maxTokens.toLocaleString()} tokens\n` +
+          `- Speed Rating: ${model.speed}\n` +
+          `- Quality Rating: ${model.quality}\n\n` +
+          `**Capabilities:**\n` +
+          model.capabilities
+            .map(
+              (cap: string) => `- ${cap.charAt(0).toUpperCase() + cap.slice(1).replace('-', ' ')}`
+            )
+            .join('\n') +
+          '\n\n' +
+          `**Pricing:**\n` +
+          `- Input: $${inputCost} per 1,000 tokens\n` +
+          `- Output: $${outputCost} per 1,000 tokens\n\n` +
+          `**Cost Examples:**\n` +
+          `- Small request (1k input, 500 output): $${exampleCosts.smallRequest}\n` +
+          `- Medium request (5k input, 2k output): $${exampleCosts.mediumRequest}\n` +
+          `- Large request (20k input, 5k output): $${exampleCosts.largeRequest}\n\n` +
+          `**Description:**\n${model.description}\n\n` +
+          `**Configuration Example for n8n:**\n\`\`\`json\n` +
+          `{\n` +
+          `  "model": "${model.id}",\n` +
+          `  "temperature": 0.7,\n` +
+          `  "maxTokens": ${Math.min(4000, model.maxTokens)},\n` +
+          `  "provider": "${model.provider}"\n` +
+          `}\n\`\`\`\n\n` +
+          `**Use Case Recommendations:**\n` +
+          (model.quality === 'excellent' ? '- Complex reasoning and analysis tasks\n' : '') +
+          (model.speed === 'very-fast' || model.speed === 'fast'
+            ? '- Real-time applications\n'
+            : '') +
+          (inputCost < 0.005 ? '- High-volume processing\n' : '') +
+          (model.maxTokens > 50000 ? '- Long document processing\n' : '') +
+          (model.capabilities.includes('multimodal') ? '- Image and text processing\n' : '')
+        );
       } catch (error: any) {
         throw new UserError(`Failed to get model information: ${error.message}`);
       }
@@ -266,7 +289,8 @@ export function createAIModelsTools(getClient: () => N8nClient | null, server: a
   // Compare AI models
   server.addTool({
     name: 'compare-ai-models',
-    description: 'Compare multiple AI models across different criteria like cost, speed, quality, and capabilities',
+    description:
+      'Compare multiple AI models across different criteria like cost, speed, quality, and capabilities',
     parameters: ModelComparisonSchema,
     annotations: {
       title: 'Compare AI Models',
@@ -278,7 +302,7 @@ export function createAIModelsTools(getClient: () => N8nClient | null, server: a
     execute: async (args: z.infer<typeof ModelComparisonSchema>) => {
       try {
         const models: any[] = [];
-        
+
         // Find all requested models
         args.modelIds.forEach(modelId => {
           let foundModel: any = null;
@@ -288,16 +312,18 @@ export function createAIModelsTools(getClient: () => N8nClient | null, server: a
               foundModel = model;
             }
           });
-          
+
           if (foundModel) {
             models.push(foundModel);
           }
         });
 
         if (models.length < 2) {
-          return `Found only ${models.length} model(s) out of ${args.modelIds.length} requested.\n\n` +
-                 `Missing models: ${args.modelIds.filter(id => !models.some(m => m.id === id)).join(', ')}\n\n` +
-                 `Use "list-ai-models" to see available models.`;
+          return (
+            `Found only ${models.length} model(s) out of ${args.modelIds.length} requested.\n\n` +
+            `Missing models: ${args.modelIds.filter(id => !models.some(m => m.id === id)).join(', ')}\n\n` +
+            `Use "list-ai-models" to see available models.`
+          );
         }
 
         let result = `**AI Model Comparison** (${models.length} models)\n\n`;
@@ -318,15 +344,15 @@ export function createAIModelsTools(getClient: () => N8nClient | null, server: a
             const outputCost = model.costPer1kTokens.output;
             result += `- **${model.name}**: $${inputCost} input, $${outputCost} output\n`;
           });
-          
+
           // Find most cost-effective
-          const cheapestInput = models.reduce((min, model) => 
+          const cheapestInput = models.reduce((min, model) =>
             model.costPer1kTokens.input < min.costPer1kTokens.input ? model : min
           );
-          const cheapestOutput = models.reduce((min, model) => 
+          const cheapestOutput = models.reduce((min, model) =>
             model.costPer1kTokens.output < min.costPer1kTokens.output ? model : min
           );
-          
+
           result += `\n💰 **Most Cost-Effective:**\n`;
           result += `- Input: ${cheapestInput.name} ($${cheapestInput.costPer1kTokens.input})\n`;
           result += `- Output: ${cheapestOutput.name} ($${cheapestOutput.costPer1kTokens.output})\n\n`;
@@ -336,17 +362,18 @@ export function createAIModelsTools(getClient: () => N8nClient | null, server: a
         if (args.criteria.includes('speed')) {
           const speedRanking = {
             'very-fast': 5,
-            'fast': 4,
-            'medium': 3,
-            'slow': 2,
-            'very-slow': 1
+            fast: 4,
+            medium: 3,
+            slow: 2,
+            'very-slow': 1,
           };
-          
-          const sortedBySpeed = models.sort((a, b) => 
-            (speedRanking[b.speed as keyof typeof speedRanking] || 3) - 
-            (speedRanking[a.speed as keyof typeof speedRanking] || 3)
+
+          const sortedBySpeed = models.sort(
+            (a, b) =>
+              (speedRanking[b.speed as keyof typeof speedRanking] || 3) -
+              (speedRanking[a.speed as keyof typeof speedRanking] || 3)
           );
-          
+
           result += `**Speed Ranking:**\n`;
           sortedBySpeed.forEach((model, index) => {
             result += `${index + 1}. **${model.name}**: ${model.speed}\n`;
@@ -357,18 +384,19 @@ export function createAIModelsTools(getClient: () => N8nClient | null, server: a
         // Quality comparison
         if (args.criteria.includes('quality')) {
           const qualityRanking = {
-            'excellent': 5,
+            excellent: 5,
             'very-good': 4,
-            'good': 3,
-            'fair': 2,
-            'poor': 1
+            good: 3,
+            fair: 2,
+            poor: 1,
           };
-          
-          const sortedByQuality = models.sort((a, b) => 
-            (qualityRanking[b.quality as keyof typeof qualityRanking] || 3) - 
-            (qualityRanking[a.quality as keyof typeof qualityRanking] || 3)
+
+          const sortedByQuality = models.sort(
+            (a, b) =>
+              (qualityRanking[b.quality as keyof typeof qualityRanking] || 3) -
+              (qualityRanking[a.quality as keyof typeof qualityRanking] || 3)
           );
-          
+
           result += `**Quality Ranking:**\n`;
           sortedByQuality.forEach((model, index) => {
             result += `${index + 1}. **${model.name}**: ${model.quality}\n`;
@@ -380,7 +408,7 @@ export function createAIModelsTools(getClient: () => N8nClient | null, server: a
         if (args.criteria.includes('capabilities')) {
           result += `**Capabilities Comparison:**\n`;
           const allCapabilities = [...new Set(models.flatMap(m => m.capabilities))];
-          
+
           allCapabilities.forEach(capability => {
             const modelsWithCapability = models.filter(m => m.capabilities.includes(capability));
             result += `- **${capability.charAt(0).toUpperCase() + capability.slice(1).replace('-', ' ')}**: `;
@@ -391,19 +419,25 @@ export function createAIModelsTools(getClient: () => N8nClient | null, server: a
 
         // Recommendations
         result += `**Recommendations:**\n`;
-        const cheapest = models.reduce((min, model) => 
-          (model.costPer1kTokens.input + model.costPer1kTokens.output) < 
-          (min.costPer1kTokens.input + min.costPer1kTokens.output) ? model : min
+        const cheapest = models.reduce((min, model) =>
+          model.costPer1kTokens.input + model.costPer1kTokens.output <
+          min.costPer1kTokens.input + min.costPer1kTokens.output
+            ? model
+            : min
         );
         const fastest = models.reduce((max, model) => {
-          const speedValue = { 'very-fast': 5, 'fast': 4, 'medium': 3, 'slow': 2, 'very-slow': 1 };
-          return (speedValue[model.speed as keyof typeof speedValue] || 3) > 
-                 (speedValue[max.speed as keyof typeof speedValue] || 3) ? model : max;
+          const speedValue = { 'very-fast': 5, fast: 4, medium: 3, slow: 2, 'very-slow': 1 };
+          return (speedValue[model.speed as keyof typeof speedValue] || 3) >
+            (speedValue[max.speed as keyof typeof speedValue] || 3)
+            ? model
+            : max;
         });
         const highest_quality = models.reduce((max, model) => {
-          const qualityValue = { 'excellent': 5, 'very-good': 4, 'good': 3, 'fair': 2, 'poor': 1 };
-          return (qualityValue[model.quality as keyof typeof qualityValue] || 3) > 
-                 (qualityValue[max.quality as keyof typeof qualityValue] || 3) ? model : max;
+          const qualityValue = { excellent: 5, 'very-good': 4, good: 3, fair: 2, poor: 1 };
+          return (qualityValue[model.quality as keyof typeof qualityValue] || 3) >
+            (qualityValue[max.quality as keyof typeof qualityValue] || 3)
+            ? model
+            : max;
         });
 
         result += `- **For budget-conscious projects**: ${cheapest.name}\n`;
@@ -420,11 +454,18 @@ export function createAIModelsTools(getClient: () => N8nClient | null, server: a
   // Get model recommendations
   server.addTool({
     name: 'recommend-ai-model',
-    description: 'Get AI model recommendations based on use case, budget, and performance requirements',
+    description:
+      'Get AI model recommendations based on use case, budget, and performance requirements',
     parameters: z.object({
       useCase: z.enum([
-        'chatbot', 'content-generation', 'code-generation', 'data-analysis',
-        'translation', 'summarization', 'classification', 'general-purpose'
+        'chatbot',
+        'content-generation',
+        'code-generation',
+        'data-analysis',
+        'translation',
+        'summarization',
+        'classification',
+        'general-purpose',
       ]),
       budget: z.enum(['low', 'medium', 'high', 'unlimited']).optional().default('medium'),
       priority: z.enum(['cost', 'speed', 'quality', 'balanced']).optional().default('balanced'),
@@ -437,11 +478,11 @@ export function createAIModelsTools(getClient: () => N8nClient | null, server: a
       idempotentHint: true,
       openWorldHint: false,
     },
-    execute: async (args: { 
-      useCase: string; 
-      budget?: string; 
-      priority?: string; 
-      maxTokens?: number; 
+    execute: async (args: {
+      useCase: string;
+      budget?: string;
+      priority?: string;
+      maxTokens?: number;
     }) => {
       try {
         let allModels: any[] = [];
@@ -457,21 +498,22 @@ export function createAIModelsTools(getClient: () => N8nClient | null, server: a
         // Filter by budget
         if (args.budget !== 'unlimited') {
           const budgetLimits = {
-            low: 0.005,    // max $0.005 per 1k tokens
-            medium: 0.02,  // max $0.02 per 1k tokens
-            high: 0.1,     // max $0.1 per 1k tokens
+            low: 0.005, // max $0.005 per 1k tokens
+            medium: 0.02, // max $0.02 per 1k tokens
+            high: 0.1, // max $0.1 per 1k tokens
           };
-          
+
           const limit = budgetLimits[args.budget as keyof typeof budgetLimits] || 0.02;
-          allModels = allModels.filter(model => 
-            model.costPer1kTokens.input <= limit && model.costPer1kTokens.output <= limit * 2
+          allModels = allModels.filter(
+            model =>
+              model.costPer1kTokens.input <= limit && model.costPer1kTokens.output <= limit * 2
           );
         }
 
         // Score models based on priority
         const scoredModels = allModels.map(model => {
           let score = 0;
-          
+
           // Use case specific scoring
           switch (args.useCase) {
             case 'chatbot':
@@ -496,44 +538,76 @@ export function createAIModelsTools(getClient: () => N8nClient | null, server: a
 
           // Priority-based scoring
           switch (args.priority) {
-            case 'cost':
+            case 'cost': {
               const totalCost = model.costPer1kTokens.input + model.costPer1kTokens.output;
               score += Math.max(0, 50 - totalCost * 1000); // Lower cost = higher score
               break;
-            case 'speed':
-              const speedScores = { 'very-fast': 50, 'fast': 40, 'medium': 30, 'slow': 20, 'very-slow': 10 };
+            }
+            case 'speed': {
+              const speedScores = {
+                'very-fast': 50,
+                fast: 40,
+                medium: 30,
+                slow: 20,
+                'very-slow': 10,
+              };
               score += speedScores[model.speed as keyof typeof speedScores] || 25;
               break;
-            case 'quality':
-              const qualityScores = { 'excellent': 50, 'very-good': 40, 'good': 30, 'fair': 20, 'poor': 10 };
+            }
+            case 'quality': {
+              const qualityScores = {
+                excellent: 50,
+                'very-good': 40,
+                good: 30,
+                fair: 20,
+                poor: 10,
+              };
               score += qualityScores[model.quality as keyof typeof qualityScores] || 25;
               break;
-            case 'balanced':
+            }
+            case 'balanced': {
               // Balanced scoring
-              const balancedSpeedScores = { 'very-fast': 20, 'fast': 18, 'medium': 15, 'slow': 10, 'very-slow': 5 };
-              const balancedQualityScores = { 'excellent': 20, 'very-good': 18, 'good': 15, 'fair': 10, 'poor': 5 };
-              const balancedCostScore = Math.max(0, 10 - (model.costPer1kTokens.input + model.costPer1kTokens.output) * 100);
-              score += (balancedSpeedScores[model.speed as keyof typeof balancedSpeedScores] || 10) +
-                      (balancedQualityScores[model.quality as keyof typeof balancedQualityScores] || 10) +
-                      balancedCostScore;
+              const balancedSpeedScores = {
+                'very-fast': 20,
+                fast: 18,
+                medium: 15,
+                slow: 10,
+                'very-slow': 5,
+              };
+              const balancedQualityScores = {
+                excellent: 20,
+                'very-good': 18,
+                good: 15,
+                fair: 10,
+                poor: 5,
+              };
+              const balancedCostScore = Math.max(
+                0,
+                10 - (model.costPer1kTokens.input + model.costPer1kTokens.output) * 100
+              );
+              score +=
+                (balancedSpeedScores[model.speed as keyof typeof balancedSpeedScores] || 10) +
+                (balancedQualityScores[model.quality as keyof typeof balancedQualityScores] || 10) +
+                balancedCostScore;
               break;
+            }
           }
 
           return { ...model, score };
         });
 
         // Sort by score and take top 3
-        const recommendations = scoredModels
-          .sort((a, b) => b.score - a.score)
-          .slice(0, 3);
+        const recommendations = scoredModels.sort((a, b) => b.score - a.score).slice(0, 3);
 
         if (recommendations.length === 0) {
-          return `No AI models found matching your criteria:\n` +
-                 `- Use Case: ${args.useCase}\n` +
-                 `- Budget: ${args.budget}\n` +
-                 `- Priority: ${args.priority}\n` +
-                 `- Max Tokens: ${args.maxTokens || 'No limit'}\n\n` +
-                 `Try adjusting your requirements or budget.`;
+          return (
+            `No AI models found matching your criteria:\n` +
+            `- Use Case: ${args.useCase}\n` +
+            `- Budget: ${args.budget}\n` +
+            `- Priority: ${args.priority}\n` +
+            `- Max Tokens: ${args.maxTokens || 'No limit'}\n\n` +
+            `Try adjusting your requirements or budget.`
+          );
         }
 
         let result = `**AI Model Recommendations for ${args.useCase}**\n\n`;
@@ -547,7 +621,7 @@ export function createAIModelsTools(getClient: () => N8nClient | null, server: a
           const ranking = ['🥇', '🥈', '🥉'][index] || `${index + 1}.`;
           const inputCost = model.costPer1kTokens.input;
           const outputCost = model.costPer1kTokens.output;
-          
+
           result += `${ranking} **${model.name}** (Score: ${model.score.toFixed(0)})\n`;
           result += `   - Provider: ${model.provider.charAt(0).toUpperCase() + model.provider.slice(1)}\n`;
           result += `   - Speed: ${model.speed}, Quality: ${model.quality}\n`;

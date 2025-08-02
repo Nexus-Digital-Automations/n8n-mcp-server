@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import { UserError } from 'fastmcp';
 import { N8nClient } from '../client/n8nClient.js';
-import { N8nWorkflow, N8nNode } from '../types/n8n.js';
 
 // Zod schemas for AI configuration validation
 const AINodeConfigSchema = z.object({
@@ -57,21 +56,35 @@ export function createAIConfigTools(getClient: () => N8nClient | null, server: a
 
       try {
         const aiNodeTypes = [
-          'openai', 'anthropic', 'chatgpt', 'gpt3', 'gpt4', 'claude',
-          'mistral', 'llama', 'huggingface', 'cohere', 'ai-agent',
-          'ai-memory', 'ai-tool', 'ai-chain', 'langchain'
+          'openai',
+          'anthropic',
+          'chatgpt',
+          'gpt3',
+          'gpt4',
+          'claude',
+          'mistral',
+          'llama',
+          'huggingface',
+          'cohere',
+          'ai-agent',
+          'ai-memory',
+          'ai-tool',
+          'ai-chain',
+          'langchain',
         ];
 
         if (args.workflowId) {
           // Get specific workflow and analyze its nodes
           const workflow = await client.getWorkflow(args.workflowId);
-          const aiNodes = workflow.nodes?.filter(node => 
-            aiNodeTypes.some(aiType => 
-              node.type?.toLowerCase().includes(aiType) || 
-              node.name?.toLowerCase().includes('ai') ||
-              node.parameters?.model !== undefined
-            )
-          ) || [];
+          const aiNodes =
+            workflow.nodes?.filter(node =>
+              aiNodeTypes.some(
+                aiType =>
+                  node.type?.toLowerCase().includes(aiType) ||
+                  node.name?.toLowerCase().includes('ai') ||
+                  node.parameters?.model !== undefined
+              )
+            ) || [];
 
           if (aiNodes.length === 0) {
             return `No AI nodes found in workflow "${workflow.name}" (${args.workflowId})`;
@@ -99,13 +112,15 @@ export function createAIConfigTools(getClient: () => N8nClient | null, server: a
           let result = 'AI nodes found across all workflows:\n\n';
 
           for (const workflow of workflows.data) {
-            const aiNodes = workflow.nodes?.filter(node => 
-              aiNodeTypes.some(aiType => 
-                node.type?.toLowerCase().includes(aiType) || 
-                node.name?.toLowerCase().includes('ai') ||
-                node.parameters?.model !== undefined
-              )
-            ) || [];
+            const aiNodes =
+              workflow.nodes?.filter(node =>
+                aiNodeTypes.some(
+                  aiType =>
+                    node.type?.toLowerCase().includes(aiType) ||
+                    node.name?.toLowerCase().includes('ai') ||
+                    node.parameters?.model !== undefined
+                )
+              ) || [];
 
             if (aiNodes.length > 0) {
               totalAINodes += aiNodes.length;
@@ -132,7 +147,8 @@ export function createAIConfigTools(getClient: () => N8nClient | null, server: a
   // Get AI node configuration
   server.addTool({
     name: 'get-ai-node-config',
-    description: 'Get the configuration of a specific AI node including model settings, prompts, and parameters',
+    description:
+      'Get the configuration of a specific AI node including model settings, prompts, and parameters',
     parameters: z.object({
       workflowId: z.string().min(1, 'Workflow ID is required'),
       nodeId: z.string().min(1, 'Node ID is required'),
@@ -155,7 +171,9 @@ export function createAIConfigTools(getClient: () => N8nClient | null, server: a
         const node = workflow.nodes?.find(n => n.id === args.nodeId);
 
         if (!node) {
-          throw new UserError(`Node with ID "${args.nodeId}" not found in workflow "${args.workflowId}"`);
+          throw new UserError(
+            `Node with ID "${args.nodeId}" not found in workflow "${args.workflowId}"`
+          );
         }
 
         const config = {
@@ -181,27 +199,29 @@ export function createAIConfigTools(getClient: () => N8nClient | null, server: a
             memory: config.parameters.memory || null,
             tools: config.parameters.tools || null,
             context: config.parameters.context || null,
-          }
+          },
         };
 
-        return `AI Node Configuration for "${node.name}" (${node.type}):\n\n` +
-               `**Basic Information:**\n` +
-               `- Node ID: ${aiConfig.nodeId}\n` +
-               `- Node Type: ${aiConfig.nodeType}\n` +
-               `- Type Version: ${aiConfig.typeVersion}\n` +
-               `- Disabled: ${aiConfig.disabled}\n` +
-               `- Position: (${aiConfig.position?.[0] || 0}, ${aiConfig.position?.[1] || 0})\n\n` +
-               `**AI-Specific Configuration:**\n` +
-               `- Model: ${aiConfig.aiSpecific.model || 'Not configured'}\n` +
-               `- Temperature: ${aiConfig.aiSpecific.temperature || 'Not set'}\n` +
-               `- Max Tokens: ${aiConfig.aiSpecific.maxTokens || 'Not set'}\n` +
-               `- System Prompt: ${aiConfig.aiSpecific.systemPrompt ? 'Configured' : 'Not set'}\n` +
-               `- User Prompt: ${aiConfig.aiSpecific.userPrompt ? 'Configured' : 'Not set'}\n` +
-               `- Memory: ${aiConfig.aiSpecific.memory || 'Not configured'}\n` +
-               `- Tools: ${aiConfig.aiSpecific.tools ? 'Configured' : 'Not set'}\n` +
-               `- Context: ${aiConfig.aiSpecific.context ? 'Configured' : 'Not set'}\n\n` +
-               `**Full Parameters:**\n\`\`\`json\n${JSON.stringify(config.parameters, null, 2)}\n\`\`\`\n\n` +
-               `**Credentials:**\n\`\`\`json\n${JSON.stringify(config.credentials, null, 2)}\n\`\`\``;
+        return (
+          `AI Node Configuration for "${node.name}" (${node.type}):\n\n` +
+          `**Basic Information:**\n` +
+          `- Node ID: ${aiConfig.nodeId}\n` +
+          `- Node Type: ${aiConfig.nodeType}\n` +
+          `- Type Version: ${aiConfig.typeVersion}\n` +
+          `- Disabled: ${aiConfig.disabled}\n` +
+          `- Position: (${aiConfig.position?.[0] || 0}, ${aiConfig.position?.[1] || 0})\n\n` +
+          `**AI-Specific Configuration:**\n` +
+          `- Model: ${aiConfig.aiSpecific.model || 'Not configured'}\n` +
+          `- Temperature: ${aiConfig.aiSpecific.temperature || 'Not set'}\n` +
+          `- Max Tokens: ${aiConfig.aiSpecific.maxTokens || 'Not set'}\n` +
+          `- System Prompt: ${aiConfig.aiSpecific.systemPrompt ? 'Configured' : 'Not set'}\n` +
+          `- User Prompt: ${aiConfig.aiSpecific.userPrompt ? 'Configured' : 'Not set'}\n` +
+          `- Memory: ${aiConfig.aiSpecific.memory || 'Not configured'}\n` +
+          `- Tools: ${aiConfig.aiSpecific.tools ? 'Configured' : 'Not set'}\n` +
+          `- Context: ${aiConfig.aiSpecific.context ? 'Configured' : 'Not set'}\n\n` +
+          `**Full Parameters:**\n\`\`\`json\n${JSON.stringify(config.parameters, null, 2)}\n\`\`\`\n\n` +
+          `**Credentials:**\n\`\`\`json\n${JSON.stringify(config.credentials, null, 2)}\n\`\`\``
+        );
       } catch (error: any) {
         throw new UserError(`Failed to get AI node configuration: ${error.message}`);
       }
@@ -211,7 +231,8 @@ export function createAIConfigTools(getClient: () => N8nClient | null, server: a
   // Update AI node configuration
   server.addTool({
     name: 'update-ai-node-config',
-    description: 'Update the configuration of an AI node including model settings, prompts, and parameters',
+    description:
+      'Update the configuration of an AI node including model settings, prompts, and parameters',
     parameters: AINodeConfigSchema,
     annotations: {
       title: 'Update AI Node Configuration',
@@ -231,7 +252,9 @@ export function createAIConfigTools(getClient: () => N8nClient | null, server: a
         const nodeIndex = workflow.nodes?.findIndex(n => n.id === args.nodeId);
 
         if (nodeIndex === -1 || nodeIndex === undefined) {
-          throw new UserError(`Node with ID "${args.nodeId}" not found in workflow "${args.workflowId}"`);
+          throw new UserError(
+            `Node with ID "${args.nodeId}" not found in workflow "${args.workflowId}"`
+          );
         }
 
         // Update the node configuration
@@ -248,8 +271,10 @@ export function createAIConfigTools(getClient: () => N8nClient | null, server: a
           connections: workflow.connections,
         });
 
-        return `Successfully updated AI node configuration for "${workflow.nodes?.[nodeIndex]?.name}" in workflow "${workflow.name}".\n\n` +
-               `Updated parameters:\n\`\`\`json\n${JSON.stringify(args.config, null, 2)}\n\`\`\``;
+        return (
+          `Successfully updated AI node configuration for "${workflow.nodes?.[nodeIndex]?.name}" in workflow "${workflow.name}".\n\n` +
+          `Updated parameters:\n\`\`\`json\n${JSON.stringify(args.config, null, 2)}\n\`\`\``
+        );
       } catch (error: any) {
         throw new UserError(`Failed to update AI node configuration: ${error.message}`);
       }
@@ -259,7 +284,8 @@ export function createAIConfigTools(getClient: () => N8nClient | null, server: a
   // Test AI prompt with sample data
   server.addTool({
     name: 'test-ai-prompt',
-    description: 'Test an AI node prompt with sample data to validate functionality before execution',
+    description:
+      'Test an AI node prompt with sample data to validate functionality before execution',
     parameters: AIPromptTestSchema,
     annotations: {
       title: 'Test AI Prompt',
@@ -279,7 +305,9 @@ export function createAIConfigTools(getClient: () => N8nClient | null, server: a
         const node = workflow.nodes?.find(n => n.id === args.nodeId);
 
         if (!node) {
-          throw new UserError(`Node with ID "${args.nodeId}" not found in workflow "${args.workflowId}"`);
+          throw new UserError(
+            `Node with ID "${args.nodeId}" not found in workflow "${args.workflowId}"`
+          );
         }
 
         // Simulate prompt testing (in a real implementation, this would execute the node with test data)
@@ -298,23 +326,25 @@ export function createAIConfigTools(getClient: () => N8nClient | null, server: a
             promptValid: args.prompt.length > 0,
             dataStructureValid: typeof args.sampleData === 'object',
             nodeConfigurationValid: !!node.parameters?.model,
-          }
+          },
         };
 
-        return `AI Prompt Test Results:\n\n` +
-               `**Node Information:**\n` +
-               `- Node: ${testResult.nodeName} (${testResult.nodeType})\n` +
-               `- Model: ${testResult.model}\n` +
-               `- Test Time: ${testResult.timestamp}\n\n` +
-               `**Test Input:**\n` +
-               `- Prompt: "${testResult.prompt}"\n` +
-               `- Sample Data: ${JSON.stringify(testResult.sampleData, null, 2)}\n\n` +
-               `**Validation Results:**\n` +
-               `- Prompt Valid: ${testResult.validationResults.promptValid ? '✅' : '❌'}\n` +
-               `- Data Structure Valid: ${testResult.validationResults.dataStructureValid ? '✅' : '❌'}\n` +
-               `- Node Configuration Valid: ${testResult.validationResults.nodeConfigurationValid ? '✅' : '❌'}\n\n` +
-               `**Simulated Response:**\n${testResult.simulatedResponse}\n\n` +
-               `**Note:** This is a test simulation. To execute the actual AI node, use the 'execute-workflow' tool.`;
+        return (
+          `AI Prompt Test Results:\n\n` +
+          `**Node Information:**\n` +
+          `- Node: ${testResult.nodeName} (${testResult.nodeType})\n` +
+          `- Model: ${testResult.model}\n` +
+          `- Test Time: ${testResult.timestamp}\n\n` +
+          `**Test Input:**\n` +
+          `- Prompt: "${testResult.prompt}"\n` +
+          `- Sample Data: ${JSON.stringify(testResult.sampleData, null, 2)}\n\n` +
+          `**Validation Results:**\n` +
+          `- Prompt Valid: ${testResult.validationResults.promptValid ? '✅' : '❌'}\n` +
+          `- Data Structure Valid: ${testResult.validationResults.dataStructureValid ? '✅' : '❌'}\n` +
+          `- Node Configuration Valid: ${testResult.validationResults.nodeConfigurationValid ? '✅' : '❌'}\n\n` +
+          `**Simulated Response:**\n${testResult.simulatedResponse}\n\n` +
+          `**Note:** This is a test simulation. To execute the actual AI node, use the 'execute-workflow' tool.`
+        );
       } catch (error: any) {
         throw new UserError(`Failed to test AI prompt: ${error.message}`);
       }
@@ -344,7 +374,9 @@ export function createAIConfigTools(getClient: () => N8nClient | null, server: a
         const nodeIndex = workflow.nodes?.findIndex(n => n.id === args.nodeId);
 
         if (nodeIndex === -1 || nodeIndex === undefined) {
-          throw new UserError(`Node with ID "${args.nodeId}" not found in workflow "${args.workflowId}"`);
+          throw new UserError(
+            `Node with ID "${args.nodeId}" not found in workflow "${args.workflowId}"`
+          );
         }
 
         // Update model configuration
@@ -367,12 +399,14 @@ export function createAIConfigTools(getClient: () => N8nClient | null, server: a
           connections: workflow.connections,
         });
 
-        return `Successfully configured AI model for node "${workflow.nodes?.[nodeIndex]?.name}":\n\n` +
-               `**Model Configuration:**\n` +
-               `- Model Type: ${args.modelType}\n` +
-               `- Model Name: ${args.modelName}\n` +
-               `- Additional Parameters: ${JSON.stringify(args.parameters || {}, null, 2)}\n\n` +
-               `The workflow has been updated and is ready for use with the new model configuration.`;
+        return (
+          `Successfully configured AI model for node "${workflow.nodes?.[nodeIndex]?.name}":\n\n` +
+          `**Model Configuration:**\n` +
+          `- Model Type: ${args.modelType}\n` +
+          `- Model Name: ${args.modelName}\n` +
+          `- Additional Parameters: ${JSON.stringify(args.parameters || {}, null, 2)}\n\n` +
+          `The workflow has been updated and is ready for use with the new model configuration.`
+        );
       } catch (error: any) {
         throw new UserError(`Failed to configure AI model: ${error.message}`);
       }
@@ -402,7 +436,9 @@ export function createAIConfigTools(getClient: () => N8nClient | null, server: a
         const nodeIndex = workflow.nodes?.findIndex(n => n.id === args.nodeId);
 
         if (nodeIndex === -1 || nodeIndex === undefined) {
-          throw new UserError(`Node with ID "${args.nodeId}" not found in workflow "${args.workflowId}"`);
+          throw new UserError(
+            `Node with ID "${args.nodeId}" not found in workflow "${args.workflowId}"`
+          );
         }
 
         // Configure memory settings
@@ -428,16 +464,18 @@ export function createAIConfigTools(getClient: () => N8nClient | null, server: a
           connections: workflow.connections,
         });
 
-        return `Successfully configured AI memory for node "${workflow.nodes?.[nodeIndex]?.name}":\n\n` +
-               `**Memory Configuration:**\n` +
-               `- Memory Type: ${args.memoryType}\n` +
-               `- Max Tokens: ${args.maxTokens || 'Unlimited'}\n` +
-               `- Context Enabled: ${args.context ? 'Yes' : 'No'}\n` +
-               `- $fromAI() Function: Enabled\n\n` +
-               `**Usage:**\n` +
-               `- Use \$fromAI() in expressions to access AI-generated data\n` +
-               `- Memory will be maintained across workflow executions\n` +
-               `- Context data: ${JSON.stringify(args.context || {}, null, 2)}`;
+        return (
+          `Successfully configured AI memory for node "${workflow.nodes?.[nodeIndex]?.name}":\n\n` +
+          `**Memory Configuration:**\n` +
+          `- Memory Type: ${args.memoryType}\n` +
+          `- Max Tokens: ${args.maxTokens || 'Unlimited'}\n` +
+          `- Context Enabled: ${args.context ? 'Yes' : 'No'}\n` +
+          `- $fromAI() Function: Enabled\n\n` +
+          `**Usage:**\n` +
+          `- Use $fromAI() in expressions to access AI-generated data\n` +
+          `- Memory will be maintained across workflow executions\n` +
+          `- Context data: ${JSON.stringify(args.context || {}, null, 2)}`
+        );
       } catch (error: any) {
         throw new UserError(`Failed to configure AI memory: ${error.message}`);
       }

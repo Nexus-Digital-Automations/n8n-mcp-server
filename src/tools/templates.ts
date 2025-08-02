@@ -6,7 +6,18 @@ import { N8nWorkflow } from '../types/n8n.js';
 // Zod schemas for template and pattern management
 const TemplateSearchSchema = z.object({
   query: z.string().optional(),
-  category: z.enum(['automation', 'data-processing', 'integration', 'notification', 'ai-workflow', 'e-commerce', 'all']).optional().default('all'),
+  category: z
+    .enum([
+      'automation',
+      'data-processing',
+      'integration',
+      'notification',
+      'ai-workflow',
+      'e-commerce',
+      'all',
+    ])
+    .optional()
+    .default('all'),
   complexity: z.enum(['simple', 'intermediate', 'advanced', 'all']).optional().default('all'),
   tags: z.array(z.string()).optional(),
   limit: z.number().min(1).max(50).optional().default(20),
@@ -16,7 +27,14 @@ const TemplateExportSchema = z.object({
   workflowId: z.string().min(1, 'Workflow ID is required'),
   templateName: z.string().min(1, 'Template name is required'),
   description: z.string().optional(),
-  category: z.enum(['automation', 'data-processing', 'integration', 'notification', 'ai-workflow', 'e-commerce']),
+  category: z.enum([
+    'automation',
+    'data-processing',
+    'integration',
+    'notification',
+    'ai-workflow',
+    'e-commerce',
+  ]),
   tags: z.array(z.string()).optional(),
   includeCredentials: z.boolean().optional().default(false),
   makeSensitiveDataGeneric: z.boolean().optional().default(true),
@@ -32,13 +50,26 @@ const TemplateImportSchema = z.object({
 
 const PatternAnalysisSchema = z.object({
   workflowId: z.string().optional(),
-  patternType: z.enum(['integration', 'data-transformation', 'error-handling', 'notification', 'ai-processing', 'all']).optional().default('all'),
+  patternType: z
+    .enum([
+      'integration',
+      'data-transformation',
+      'error-handling',
+      'notification',
+      'ai-processing',
+      'all',
+    ])
+    .optional()
+    .default('all'),
   includeRecommendations: z.boolean().optional().default(true),
 });
 
 const BestPracticesSchema = z.object({
   workflowId: z.string().optional(),
-  category: z.enum(['structure', 'performance', 'security', 'maintainability', 'all']).optional().default('all'),
+  category: z
+    .enum(['structure', 'performance', 'security', 'maintainability', 'all'])
+    .optional()
+    .default('all'),
   includeExamples: z.boolean().optional().default(true),
 });
 
@@ -55,10 +86,10 @@ const TEMPLATE_LIBRARY = {
       nodeCount: 8,
       estimatedSetupTime: '30 minutes',
       features: ['Email parsing', 'AI content analysis', 'Conditional responses', 'Logging'],
-      useCase: 'Customer support automation'
+      useCase: 'Customer support automation',
     },
     {
-      id: 'auto-2', 
+      id: 'auto-2',
       name: 'Social Media Post Scheduler',
       description: 'Schedule and automatically post content across multiple social media platforms',
       category: 'automation',
@@ -66,9 +97,14 @@ const TEMPLATE_LIBRARY = {
       tags: ['social-media', 'scheduling', 'content'],
       nodeCount: 6,
       estimatedSetupTime: '20 minutes',
-      features: ['Multi-platform posting', 'Content scheduling', 'Image handling', 'Analytics tracking'],
-      useCase: 'Social media management'
-    }
+      features: [
+        'Multi-platform posting',
+        'Content scheduling',
+        'Image handling',
+        'Analytics tracking',
+      ],
+      useCase: 'Social media management',
+    },
   ],
   'data-processing': [
     {
@@ -80,8 +116,14 @@ const TEMPLATE_LIBRARY = {
       tags: ['csv', 'data-transformation', 'validation', 'api'],
       nodeCount: 12,
       estimatedSetupTime: '45 minutes',
-      features: ['CSV parsing', 'Data validation', 'API enrichment', 'Error handling', 'Output formatting'],
-      useCase: 'Data migration and processing'
+      features: [
+        'CSV parsing',
+        'Data validation',
+        'API enrichment',
+        'Error handling',
+        'Output formatting',
+      ],
+      useCase: 'Data migration and processing',
     },
     {
       id: 'data-2',
@@ -92,9 +134,14 @@ const TEMPLATE_LIBRARY = {
       tags: ['real-time', 'aggregation', 'caching', 'multiple-sources'],
       nodeCount: 15,
       estimatedSetupTime: '60 minutes',
-      features: ['Multi-source integration', 'Real-time processing', 'Data caching', 'Performance optimization'],
-      useCase: 'Business intelligence dashboards'
-    }
+      features: [
+        'Multi-source integration',
+        'Real-time processing',
+        'Data caching',
+        'Performance optimization',
+      ],
+      useCase: 'Business intelligence dashboards',
+    },
   ],
   integration: [
     {
@@ -107,7 +154,7 @@ const TEMPLATE_LIBRARY = {
       nodeCount: 10,
       estimatedSetupTime: '40 minutes',
       features: ['Bidirectional sync', 'Data mapping', 'Conflict resolution', 'Audit logging'],
-      useCase: 'Sales and marketing alignment'
+      useCase: 'Sales and marketing alignment',
     },
     {
       id: 'int-2',
@@ -118,9 +165,14 @@ const TEMPLATE_LIBRARY = {
       tags: ['e-commerce', 'orders', 'inventory', 'fulfillment'],
       nodeCount: 18,
       estimatedSetupTime: '90 minutes',
-      features: ['Order validation', 'Inventory management', 'Payment processing', 'Fulfillment automation'],
-      useCase: 'E-commerce operations'
-    }
+      features: [
+        'Order validation',
+        'Inventory management',
+        'Payment processing',
+        'Fulfillment automation',
+      ],
+      useCase: 'E-commerce operations',
+    },
   ],
   notification: [
     {
@@ -133,8 +185,8 @@ const TEMPLATE_LIBRARY = {
       nodeCount: 9,
       estimatedSetupTime: '35 minutes',
       features: ['Smart routing', 'Escalation rules', 'Multiple channels', 'Alert deduplication'],
-      useCase: 'System monitoring and alerting'
-    }
+      useCase: 'System monitoring and alerting',
+    },
   ],
   'ai-workflow': [
     {
@@ -146,8 +198,13 @@ const TEMPLATE_LIBRARY = {
       tags: ['ai', 'document-processing', 'classification', 'extraction'],
       nodeCount: 14,
       estimatedSetupTime: '75 minutes',
-      features: ['AI document analysis', 'Auto-classification', 'Data extraction', 'Confidence scoring'],
-      useCase: 'Document management and processing'
+      features: [
+        'AI document analysis',
+        'Auto-classification',
+        'Data extraction',
+        'Confidence scoring',
+      ],
+      useCase: 'Document management and processing',
     },
     {
       id: 'ai-2',
@@ -158,10 +215,15 @@ const TEMPLATE_LIBRARY = {
       tags: ['ai', 'content-generation', 'optimization', 'validation'],
       nodeCount: 11,
       estimatedSetupTime: '50 minutes',
-      features: ['AI content generation', 'Quality validation', 'Multi-format output', 'Brand consistency'],
-      useCase: 'Content marketing automation'
-    }
-  ]
+      features: [
+        'AI content generation',
+        'Quality validation',
+        'Multi-format output',
+        'Brand consistency',
+      ],
+      useCase: 'Content marketing automation',
+    },
+  ],
 };
 
 // Common workflow patterns
@@ -171,29 +233,34 @@ const WORKFLOW_PATTERNS = {
     description: 'Best practices for implementing robust error handling in workflows',
     pattern: 'Try-Catch blocks with retry logic, fallback mechanisms, and error notifications',
     nodes: ['Error Trigger', 'Retry Logic', 'Fallback Action', 'Error Notification'],
-    implementation: 'Use error trigger nodes after critical operations, implement exponential backoff for retries'
+    implementation:
+      'Use error trigger nodes after critical operations, implement exponential backoff for retries',
   },
   'data-validation': {
     name: 'Data Validation Pipeline',
     description: 'Systematic approach to validating and sanitizing input data',
     pattern: 'Input validation → Data sanitization → Business rule validation → Error reporting',
     nodes: ['Validation Node', 'Set Node (cleaning)', 'IF Node (business rules)', 'Error Handler'],
-    implementation: 'Validate data types, check business rules, sanitize inputs, handle validation failures'
+    implementation:
+      'Validate data types, check business rules, sanitize inputs, handle validation failures',
   },
   'api-integration': {
     name: 'Reliable API Integration',
     description: 'Best practices for integrating with external APIs',
     pattern: 'Rate limiting → Authentication → Request → Retry logic → Response handling',
     nodes: ['Wait Node', 'HTTP Request', 'IF Node (status check)', 'Error Handler'],
-    implementation: 'Implement rate limiting, proper authentication, status code handling, and retry mechanisms'
+    implementation:
+      'Implement rate limiting, proper authentication, status code handling, and retry mechanisms',
   },
   'notification-system': {
     name: 'Multi-Channel Notification System',
     description: 'Flexible notification system with multiple channels and priorities',
-    pattern: 'Priority assessment → Channel selection → Message formatting → Delivery → Confirmation',
+    pattern:
+      'Priority assessment → Channel selection → Message formatting → Delivery → Confirmation',
     nodes: ['Switch Node (priority)', 'Multiple notification nodes', 'Webhook (confirmation)'],
-    implementation: 'Route notifications based on priority, use multiple channels, confirm delivery'
-  }
+    implementation:
+      'Route notifications based on priority, use multiple channels, confirm delivery',
+  },
 };
 
 // Tool registration function for template and pattern management tools
@@ -201,7 +268,8 @@ export function createTemplateTools(getClient: () => N8nClient | null, server: a
   // Search workflow templates
   server.addTool({
     name: 'search-workflow-templates',
-    description: 'Search and browse curated workflow templates by category, complexity, and functionality',
+    description:
+      'Search and browse curated workflow templates by category, complexity, and functionality',
     parameters: TemplateSearchSchema,
     annotations: {
       title: 'Search Workflow Templates',
@@ -213,7 +281,7 @@ export function createTemplateTools(getClient: () => N8nClient | null, server: a
     execute: async (args: z.infer<typeof TemplateSearchSchema>) => {
       try {
         let allTemplates: any[] = [];
-        
+
         // Collect templates from all categories
         Object.entries(TEMPLATE_LIBRARY).forEach(([category, templates]) => {
           if (args.category === 'all' || args.category === category) {
@@ -229,11 +297,12 @@ export function createTemplateTools(getClient: () => N8nClient | null, server: a
         // Filter by search query
         if (args.query) {
           const query = args.query.toLowerCase();
-          allTemplates = allTemplates.filter(template =>
-            template.name.toLowerCase().includes(query) ||
-            template.description.toLowerCase().includes(query) ||
-            template.tags.some((tag: string) => tag.toLowerCase().includes(query)) ||
-            template.useCase.toLowerCase().includes(query)
+          allTemplates = allTemplates.filter(
+            template =>
+              template.name.toLowerCase().includes(query) ||
+              template.description.toLowerCase().includes(query) ||
+              template.tags.some((tag: string) => tag.toLowerCase().includes(query)) ||
+              template.useCase.toLowerCase().includes(query)
           );
         }
 
@@ -248,12 +317,14 @@ export function createTemplateTools(getClient: () => N8nClient | null, server: a
         allTemplates = allTemplates.slice(0, args.limit);
 
         if (allTemplates.length === 0) {
-          return `No templates found matching your criteria:\n` +
-                 `- Category: ${args.category}\n` +
-                 `- Complexity: ${args.complexity}\n` +
-                 `- Query: ${args.query || 'None'}\n` +
-                 `- Tags: ${args.tags?.join(', ') || 'None'}\n\n` +
-                 `Try broadening your search criteria or browse all templates.`;
+          return (
+            `No templates found matching your criteria:\n` +
+            `- Category: ${args.category}\n` +
+            `- Complexity: ${args.complexity}\n` +
+            `- Query: ${args.query || 'None'}\n` +
+            `- Tags: ${args.tags?.join(', ') || 'None'}\n\n` +
+            `Try broadening your search criteria or browse all templates.`
+          );
         }
 
         let result = `# Workflow Template Search Results\n\n`;
@@ -263,9 +334,13 @@ export function createTemplateTools(getClient: () => N8nClient | null, server: a
         result += `**Complexity**: ${args.complexity}\n\n`;
 
         allTemplates.forEach((template, index) => {
-          const complexityIcon = template.complexity === 'simple' ? '🟢' :
-                                 template.complexity === 'intermediate' ? '🟡' : '🔴';
-          
+          const complexityIcon =
+            template.complexity === 'simple'
+              ? '🟢'
+              : template.complexity === 'intermediate'
+                ? '🟡'
+                : '🔴';
+
           result += `## ${index + 1}. ${template.name} ${complexityIcon}\n`;
           result += `**Category**: ${template.category.charAt(0).toUpperCase() + template.category.slice(1)}\n`;
           result += `**Complexity**: ${template.complexity.charAt(0).toUpperCase() + template.complexity.slice(1)}\n`;
@@ -274,12 +349,12 @@ export function createTemplateTools(getClient: () => N8nClient | null, server: a
           result += `**Setup Time**: ${template.estimatedSetupTime}\n`;
           result += `**Node Count**: ${template.nodeCount} nodes\n`;
           result += `**Tags**: ${template.tags.join(', ')}\n`;
-          
+
           result += `**Features**:\n`;
           template.features.forEach((feature: string) => {
             result += `- ${feature}\n`;
           });
-          
+
           result += `**Template ID**: \`${template.id}\` (use with import-workflow-template)\n\n`;
         });
 
@@ -298,7 +373,8 @@ export function createTemplateTools(getClient: () => N8nClient | null, server: a
   // Export workflow as template
   server.addTool({
     name: 'export-workflow-template',
-    description: 'Export an existing workflow as a reusable template with parameter mapping and sensitive data protection',
+    description:
+      'Export an existing workflow as a reusable template with parameter mapping and sensitive data protection',
     parameters: TemplateExportSchema,
     annotations: {
       title: 'Export Workflow Template',
@@ -315,7 +391,7 @@ export function createTemplateTools(getClient: () => N8nClient | null, server: a
 
       try {
         const workflow = await client.getWorkflow(args.workflowId);
-        
+
         // Create template structure
         const template = {
           id: `custom-${Date.now()}`,
@@ -323,11 +399,19 @@ export function createTemplateTools(getClient: () => N8nClient | null, server: a
           description: args.description || `Template created from workflow: ${workflow.name}`,
           category: args.category,
           tags: args.tags || [],
-          complexity: workflow.nodes && workflow.nodes.length > 15 ? 'advanced' :
-                      workflow.nodes && workflow.nodes.length > 8 ? 'intermediate' : 'simple',
+          complexity:
+            workflow.nodes && workflow.nodes.length > 15
+              ? 'advanced'
+              : workflow.nodes && workflow.nodes.length > 8
+                ? 'intermediate'
+                : 'simple',
           nodeCount: workflow.nodes?.length || 0,
-          estimatedSetupTime: workflow.nodes && workflow.nodes.length > 15 ? '60+ minutes' :
-                              workflow.nodes && workflow.nodes.length > 8 ? '30-45 minutes' : '15-30 minutes',
+          estimatedSetupTime:
+            workflow.nodes && workflow.nodes.length > 15
+              ? '60+ minutes'
+              : workflow.nodes && workflow.nodes.length > 8
+                ? '30-45 minutes'
+                : '15-30 minutes',
           exportDate: new Date().toISOString(),
           originalWorkflow: {
             id: workflow.id,
@@ -370,7 +454,11 @@ export function createTemplateTools(getClient: () => N8nClient | null, server: a
             externalServices.add('Email Service');
           } else if (nodeType.includes('mysql') || nodeType.includes('postgres')) {
             externalServices.add('Database');
-          } else if (nodeType.includes('ai') || nodeType.includes('openai') || nodeType.includes('anthropic')) {
+          } else if (
+            nodeType.includes('ai') ||
+            nodeType.includes('openai') ||
+            nodeType.includes('anthropic')
+          ) {
             externalServices.add('AI Services');
           }
 
@@ -391,8 +479,12 @@ export function createTemplateTools(getClient: () => N8nClient | null, server: a
                   // Long number (could be phone, ID, etc.)
                   parameterMapping[`node_${nodeIndex}_${key}`] = '1234567890';
                   sensitiveFields.push(`Node "${node.name}" - ${key} (numeric ID)`);
-                } else if (key.toLowerCase().includes('key') || key.toLowerCase().includes('token') || 
-                          key.toLowerCase().includes('secret') || key.toLowerCase().includes('password')) {
+                } else if (
+                  key.toLowerCase().includes('key') ||
+                  key.toLowerCase().includes('token') ||
+                  key.toLowerCase().includes('secret') ||
+                  key.toLowerCase().includes('password')
+                ) {
                   // API keys, tokens, secrets
                   parameterMapping[`node_${nodeIndex}_${key}`] = 'YOUR_API_KEY_HERE';
                   sensitiveFields.push(`Node "${node.name}" - ${key} (credential)`);
@@ -412,7 +504,7 @@ export function createTemplateTools(getClient: () => N8nClient | null, server: a
         if (!args.includeCredentials) {
           template.template.nodes = template.template.nodes.map(node => ({
             ...node,
-            credentials: {}
+            credentials: {},
           }));
         }
 
@@ -489,7 +581,8 @@ export function createTemplateTools(getClient: () => N8nClient | null, server: a
   // Import workflow template
   server.addTool({
     name: 'import-workflow-template',
-    description: 'Import a workflow template and create a new workflow with parameter mapping and credential configuration',
+    description:
+      'Import a workflow template and create a new workflow with parameter mapping and credential configuration',
     parameters: TemplateImportSchema,
     annotations: {
       title: 'Import Workflow Template',
@@ -506,7 +599,7 @@ export function createTemplateTools(getClient: () => N8nClient | null, server: a
 
       try {
         const templateData = args.templateData;
-        
+
         // Validate template structure
         if (!templateData.template || !templateData.template.nodes) {
           throw new UserError('Invalid template data: missing nodes structure');
@@ -514,7 +607,7 @@ export function createTemplateTools(getClient: () => N8nClient | null, server: a
 
         // Clone template data to avoid modifying original
         const workflowData = JSON.parse(JSON.stringify(templateData.template));
-        
+
         // Apply parameter mapping
         if (args.parameterMapping && Object.keys(args.parameterMapping).length > 0) {
           workflowData.nodes = workflowData.nodes.map((node: any, nodeIndex: number) => {
@@ -538,7 +631,7 @@ export function createTemplateTools(getClient: () => N8nClient | null, server: a
                 if (args.replaceCredentials![credType]) {
                   node.credentials[credType] = {
                     id: args.replaceCredentials![credType],
-                    name: args.replaceCredentials![credType]
+                    name: args.replaceCredentials![credType],
                   };
                 }
               });
@@ -630,7 +723,7 @@ export function createTemplateTools(getClient: () => N8nClient | null, server: a
         // Show requirements if available
         if (templateData.requirements) {
           const req = templateData.requirements;
-          
+
           if (req.credentials && req.credentials.length > 0) {
             result += `## ⚠️ Required Credentials\n`;
             result += `Ensure these credentials are configured:\n`;
@@ -681,7 +774,8 @@ export function createTemplateTools(getClient: () => N8nClient | null, server: a
   // Analyze workflow patterns
   server.addTool({
     name: 'analyze-workflow-patterns',
-    description: 'Analyze workflows to identify common patterns, best practices, and suggest improvements based on established patterns',
+    description:
+      'Analyze workflows to identify common patterns, best practices, and suggest improvements based on established patterns',
     parameters: PatternAnalysisSchema,
     annotations: {
       title: 'Analyze Workflow Patterns',
@@ -698,7 +792,7 @@ export function createTemplateTools(getClient: () => N8nClient | null, server: a
 
       try {
         let workflows: N8nWorkflow[] = [];
-        
+
         if (args.workflowId) {
           const workflow = await client.getWorkflow(args.workflowId);
           workflows = [workflow];
@@ -712,13 +806,17 @@ export function createTemplateTools(getClient: () => N8nClient | null, server: a
         analysis += `**Workflows Analyzed**: ${workflows.length}\n`;
         analysis += `**Pattern Type**: ${args.patternType}\n\n`;
 
-        const patternMatches: Record<string, Array<{workflow: N8nWorkflow, score: number, details: string[]}>> = {};
+        const patternMatches: Record<
+          string,
+          Array<{ workflow: N8nWorkflow; score: number; details: string[] }>
+        > = {};
 
         for (const workflow of workflows) {
           if (!workflow.nodes || workflow.nodes.length === 0) continue;
 
-          const nodeTypes = workflow.nodes.map(node => node.type.toLowerCase());
-          const hasConnections = workflow.connections && Object.keys(workflow.connections).length > 0;
+          const _nodeTypes = workflow.nodes.map(node => node.type.toLowerCase());
+          const _hasConnections =
+            workflow.connections && Object.keys(workflow.connections).length > 0;
 
           // Analyze integration patterns
           if (args.patternType === 'integration' || args.patternType === 'all') {
@@ -728,7 +826,7 @@ export function createTemplateTools(getClient: () => N8nClient | null, server: a
               patternMatches['integration'].push({
                 workflow,
                 score: integrationScore.score,
-                details: integrationScore.details
+                details: integrationScore.details,
               });
             }
           }
@@ -737,11 +835,12 @@ export function createTemplateTools(getClient: () => N8nClient | null, server: a
           if (args.patternType === 'data-transformation' || args.patternType === 'all') {
             const dataScore = analyzeDataTransformationPattern(workflow);
             if (dataScore.score > 0) {
-              if (!patternMatches['data-transformation']) patternMatches['data-transformation'] = [];
+              if (!patternMatches['data-transformation'])
+                patternMatches['data-transformation'] = [];
               patternMatches['data-transformation'].push({
                 workflow,
                 score: dataScore.score,
-                details: dataScore.details
+                details: dataScore.details,
               });
             }
           }
@@ -754,7 +853,7 @@ export function createTemplateTools(getClient: () => N8nClient | null, server: a
               patternMatches['error-handling'].push({
                 workflow,
                 score: errorScore.score,
-                details: errorScore.details
+                details: errorScore.details,
               });
             }
           }
@@ -767,7 +866,7 @@ export function createTemplateTools(getClient: () => N8nClient | null, server: a
               patternMatches['notification'].push({
                 workflow,
                 score: notificationScore.score,
-                details: notificationScore.details
+                details: notificationScore.details,
               });
             }
           }
@@ -780,7 +879,7 @@ export function createTemplateTools(getClient: () => N8nClient | null, server: a
               patternMatches['ai-processing'].push({
                 workflow,
                 score: aiScore.score,
-                details: aiScore.details
+                details: aiScore.details,
               });
             }
           }
@@ -800,7 +899,7 @@ export function createTemplateTools(getClient: () => N8nClient | null, server: a
         Object.entries(patternMatches).forEach(([patternType, matches]) => {
           matches.sort((a, b) => b.score - a.score);
           const patternInfo = WORKFLOW_PATTERNS[patternType as keyof typeof WORKFLOW_PATTERNS];
-          
+
           analysis += `## ${patternInfo?.name || patternType.charAt(0).toUpperCase() + patternType.slice(1)} Pattern\n`;
           if (patternInfo) {
             analysis += `**Description**: ${patternInfo.description}\n`;
@@ -809,10 +908,15 @@ export function createTemplateTools(getClient: () => N8nClient | null, server: a
 
           analysis += `**Workflows Using This Pattern** (${matches.length}):\n`;
           matches.forEach((match, index) => {
-            const scoreLevel = match.score >= 80 ? '🟢 Excellent' :
-                             match.score >= 60 ? '🟡 Good' :
-                             match.score >= 40 ? '🟠 Partial' : '🔴 Basic';
-            
+            const scoreLevel =
+              match.score >= 80
+                ? '🟢 Excellent'
+                : match.score >= 60
+                  ? '🟡 Good'
+                  : match.score >= 40
+                    ? '🟠 Partial'
+                    : '🔴 Basic';
+
             analysis += `${index + 1}. **${match.workflow.name}** - ${scoreLevel} (${match.score}/100)\n`;
             match.details.forEach(detail => {
               analysis += `   - ${detail}\n`;
@@ -824,36 +928,45 @@ export function createTemplateTools(getClient: () => N8nClient | null, server: a
         // Pattern recommendations
         if (args.includeRecommendations) {
           analysis += `## 💡 Pattern-Based Recommendations\n\n`;
-          
+
           const recommendations = [];
-          
+
           // Check for missing error handling
-          const workflowsWithoutErrorHandling = workflows.filter(workflow => 
-            !patternMatches['error-handling']?.some(match => match.workflow.id === workflow.id)
+          const workflowsWithoutErrorHandling = workflows.filter(
+            workflow =>
+              !patternMatches['error-handling']?.some(match => match.workflow.id === workflow.id)
           );
-          
+
           if (workflowsWithoutErrorHandling.length > 0) {
-            recommendations.push(`**Error Handling**: ${workflowsWithoutErrorHandling.length} workflow(s) could benefit from implementing error handling patterns`);
+            recommendations.push(
+              `**Error Handling**: ${workflowsWithoutErrorHandling.length} workflow(s) could benefit from implementing error handling patterns`
+            );
           }
 
           // Check for integration improvements
           const integrationWorkflows = patternMatches['integration'] || [];
           const lowScoreIntegrations = integrationWorkflows.filter(match => match.score < 60);
-          
+
           if (lowScoreIntegrations.length > 0) {
-            recommendations.push(`**Integration Patterns**: ${lowScoreIntegrations.length} workflow(s) have partial integration patterns - consider implementing complete API integration patterns`);
+            recommendations.push(
+              `**Integration Patterns**: ${lowScoreIntegrations.length} workflow(s) have partial integration patterns - consider implementing complete API integration patterns`
+            );
           }
 
           // Check for notification improvements
           const hasComplexWorkflows = workflows.some(w => (w.nodes?.length || 0) > 10);
           const hasNotificationPatterns = patternMatches['notification']?.length > 0;
-          
+
           if (hasComplexWorkflows && !hasNotificationPatterns) {
-            recommendations.push(`**Notification Patterns**: Complex workflows detected without notification patterns - consider adding monitoring and alerting`);
+            recommendations.push(
+              `**Notification Patterns**: Complex workflows detected without notification patterns - consider adding monitoring and alerting`
+            );
           }
 
           if (recommendations.length === 0) {
-            recommendations.push('Workflows demonstrate good pattern usage - continue monitoring for optimization opportunities');
+            recommendations.push(
+              'Workflows demonstrate good pattern usage - continue monitoring for optimization opportunities'
+            );
           }
 
           recommendations.forEach((rec, index) => {
@@ -883,7 +996,8 @@ export function createTemplateTools(getClient: () => N8nClient | null, server: a
   // Get best practices
   server.addTool({
     name: 'get-best-practices',
-    description: 'Get comprehensive best practices and implementation guidelines for workflow development, organized by category',
+    description:
+      'Get comprehensive best practices and implementation guidelines for workflow development, organized by category',
     parameters: BestPracticesSchema,
     annotations: {
       title: 'Get Best Practices',
@@ -901,7 +1015,7 @@ export function createTemplateTools(getClient: () => N8nClient | null, server: a
         // Structure best practices
         if (args.category === 'structure' || args.category === 'all') {
           bestPractices += `## 🏗️ Workflow Structure Best Practices\n\n`;
-          
+
           bestPractices += `### 1. Workflow Organization\n`;
           bestPractices += `- **Single Responsibility**: Each workflow should have one clear purpose\n`;
           bestPractices += `- **Logical Flow**: Organize nodes in a clear, left-to-right flow\n`;
@@ -927,7 +1041,7 @@ export function createTemplateTools(getClient: () => N8nClient | null, server: a
         // Performance best practices
         if (args.category === 'performance' || args.category === 'all') {
           bestPractices += `## ⚡ Performance Best Practices\n\n`;
-          
+
           bestPractices += `### 1. HTTP Request Optimization\n`;
           bestPractices += `- **Connection Pooling**: Enable keep-alive for HTTP requests\n`;
           bestPractices += `- **Request Batching**: Batch multiple requests when possible\n`;
@@ -967,7 +1081,7 @@ export function createTemplateTools(getClient: () => N8nClient | null, server: a
         // Security best practices
         if (args.category === 'security' || args.category === 'all') {
           bestPractices += `## 🔒 Security Best Practices\n\n`;
-          
+
           bestPractices += `### 1. Credential Management\n`;
           bestPractices += `- **No Hardcoded Secrets**: Never hardcode API keys or passwords\n`;
           bestPractices += `- **Credential Scope**: Use least-privilege principle for credentials\n`;
@@ -1001,7 +1115,7 @@ export function createTemplateTools(getClient: () => N8nClient | null, server: a
         // Maintainability best practices
         if (args.category === 'maintainability' || args.category === 'all') {
           bestPractices += `## 🔧 Maintainability Best Practices\n\n`;
-          
+
           bestPractices += `### 1. Documentation\n`;
           bestPractices += `- **Workflow Description**: Clear description of workflow purpose\n`;
           bestPractices += `- **Node Documentation**: Document complex logic and decision points\n`;
@@ -1087,47 +1201,47 @@ export function createTemplateTools(getClient: () => N8nClient | null, server: a
 }
 
 // Helper functions for pattern analysis
-function analyzeIntegrationPattern(workflow: N8nWorkflow): {score: number, details: string[]} {
+function analyzeIntegrationPattern(workflow: N8nWorkflow): { score: number; details: string[] } {
   const nodes = workflow.nodes || [];
-  const nodeTypes = nodes.map(node => node.type.toLowerCase());
+  const _nodeTypes = nodes.map(node => node.type.toLowerCase());
   const details: string[] = [];
   let score = 0;
 
   // Check for HTTP/API nodes
-  const apiNodes = nodeTypes.filter(type => 
-    type.includes('http') || type.includes('webhook') || type.includes('api')
+  const apiNodes = _nodeTypes.filter(
+    type => type.includes('http') || type.includes('webhook') || type.includes('api')
   ).length;
-  
+
   if (apiNodes > 0) {
     score += 30;
     details.push(`${apiNodes} API integration node(s) detected`);
   }
 
   // Check for data transformation
-  const transformNodes = nodeTypes.filter(type => 
-    type.includes('set') || type.includes('code') || type.includes('function')
+  const transformNodes = _nodeTypes.filter(
+    type => type.includes('set') || type.includes('code') || type.includes('function')
   ).length;
-  
+
   if (transformNodes > 0) {
     score += 20;
     details.push(`${transformNodes} data transformation node(s) found`);
   }
 
   // Check for error handling
-  const errorNodes = nodes.filter(node => 
-    node.parameters && JSON.stringify(node.parameters).toLowerCase().includes('error')
+  const errorNodes = nodes.filter(
+    node => node.parameters && JSON.stringify(node.parameters).toLowerCase().includes('error')
   ).length;
-  
+
   if (errorNodes > 0) {
     score += 25;
     details.push(`Error handling implemented with ${errorNodes} node(s)`);
   }
 
   // Check for authentication
-  const authNodes = nodes.filter(node => 
-    node.credentials && Object.keys(node.credentials).length > 0
+  const authNodes = nodes.filter(
+    node => node.credentials && Object.keys(node.credentials).length > 0
   ).length;
-  
+
   if (authNodes > 0) {
     score += 25;
     details.push(`Authentication configured for ${authNodes} node(s)`);
@@ -1136,37 +1250,40 @@ function analyzeIntegrationPattern(workflow: N8nWorkflow): {score: number, detai
   return { score, details };
 }
 
-function analyzeDataTransformationPattern(workflow: N8nWorkflow): {score: number, details: string[]} {
+function analyzeDataTransformationPattern(workflow: N8nWorkflow): {
+  score: number;
+  details: string[];
+} {
   const nodes = workflow.nodes || [];
-  const nodeTypes = nodes.map(node => node.type.toLowerCase());
+  const _nodeTypes = nodes.map(node => node.type.toLowerCase());
   const details: string[] = [];
   let score = 0;
 
   // Check for data processing nodes
-  const dataNodes = nodeTypes.filter(type => 
-    type.includes('set') || type.includes('merge') || type.includes('split')
+  const dataNodes = _nodeTypes.filter(
+    type => type.includes('set') || type.includes('merge') || type.includes('split')
   ).length;
-  
+
   if (dataNodes > 0) {
     score += 40;
     details.push(`${dataNodes} data processing node(s) identified`);
   }
 
   // Check for validation
-  const validationNodes = nodeTypes.filter(type => 
-    type.includes('if') || type.includes('switch') || type.includes('filter')
+  const validationNodes = _nodeTypes.filter(
+    type => type.includes('if') || type.includes('switch') || type.includes('filter')
   ).length;
-  
+
   if (validationNodes > 0) {
     score += 30;
     details.push(`${validationNodes} validation/filtering node(s) found`);
   }
 
   // Check for custom transformation logic
-  const codeNodes = nodeTypes.filter(type => 
-    type.includes('code') || type.includes('function')
+  const codeNodes = _nodeTypes.filter(
+    type => type.includes('code') || type.includes('function')
   ).length;
-  
+
   if (codeNodes > 0) {
     score += 30;
     details.push(`${codeNodes} custom transformation node(s) implemented`);
@@ -1175,17 +1292,18 @@ function analyzeDataTransformationPattern(workflow: N8nWorkflow): {score: number
   return { score, details };
 }
 
-function analyzeErrorHandlingPattern(workflow: N8nWorkflow): {score: number, details: string[]} {
+function analyzeErrorHandlingPattern(workflow: N8nWorkflow): { score: number; details: string[] } {
   const nodes = workflow.nodes || [];
   const details: string[] = [];
   let score = 0;
 
   // Check for error trigger nodes
-  const errorTriggers = nodes.filter(node => 
-    node.type.toLowerCase().includes('error') || 
-    (node.parameters && JSON.stringify(node.parameters).toLowerCase().includes('error'))
+  const errorTriggers = nodes.filter(
+    node =>
+      node.type.toLowerCase().includes('error') ||
+      (node.parameters && JSON.stringify(node.parameters).toLowerCase().includes('error'))
   ).length;
-  
+
   if (errorTriggers > 0) {
     score += 40;
     details.push(`${errorTriggers} error trigger/handler node(s) configured`);
@@ -1193,10 +1311,10 @@ function analyzeErrorHandlingPattern(workflow: N8nWorkflow): {score: number, det
 
   // Check for try-catch patterns in code nodes
   const codeNodes = nodes.filter(node => node.type.toLowerCase().includes('code'));
-  const tryCatchNodes = codeNodes.filter(node => 
-    node.parameters && JSON.stringify(node.parameters).includes('try')
+  const tryCatchNodes = codeNodes.filter(
+    node => node.parameters && JSON.stringify(node.parameters).includes('try')
   ).length;
-  
+
   if (tryCatchNodes > 0) {
     score += 30;
     details.push(`${tryCatchNodes} code node(s) with try-catch patterns`);
@@ -1207,7 +1325,7 @@ function analyzeErrorHandlingPattern(workflow: N8nWorkflow): {score: number, det
     const type = node.type.toLowerCase();
     return type.includes('slack') || type.includes('email') || type.includes('webhook');
   }).length;
-  
+
   if (notificationNodes > 0) {
     score += 30;
     details.push(`${notificationNodes} notification node(s) for error alerting`);
@@ -1216,38 +1334,42 @@ function analyzeErrorHandlingPattern(workflow: N8nWorkflow): {score: number, det
   return { score, details };
 }
 
-function analyzeNotificationPattern(workflow: N8nWorkflow): {score: number, details: string[]} {
+function analyzeNotificationPattern(workflow: N8nWorkflow): { score: number; details: string[] } {
   const nodes = workflow.nodes || [];
-  const nodeTypes = nodes.map(node => node.type.toLowerCase());
+  const _nodeTypes = nodes.map(node => node.type.toLowerCase());
   const details: string[] = [];
   let score = 0;
 
   // Check for notification nodes
-  const notificationNodes = nodeTypes.filter(type => 
-    type.includes('slack') || type.includes('email') || type.includes('sms') || 
-    type.includes('webhook') || type.includes('discord')
+  const notificationNodes = _nodeTypes.filter(
+    type =>
+      type.includes('slack') ||
+      type.includes('email') ||
+      type.includes('sms') ||
+      type.includes('webhook') ||
+      type.includes('discord')
   ).length;
-  
+
   if (notificationNodes > 0) {
     score += 50;
     details.push(`${notificationNodes} notification channel(s) configured`);
   }
 
   // Check for conditional notification logic
-  const conditionalNodes = nodeTypes.filter(type => 
-    type.includes('if') || type.includes('switch')
+  const conditionalNodes = _nodeTypes.filter(
+    type => type.includes('if') || type.includes('switch')
   ).length;
-  
+
   if (conditionalNodes > 0 && notificationNodes > 0) {
     score += 25;
     details.push(`Conditional notification logic with ${conditionalNodes} decision node(s)`);
   }
 
   // Check for message formatting
-  const formatNodes = nodeTypes.filter(type => 
-    type.includes('set') || type.includes('code')
+  const formatNodes = _nodeTypes.filter(
+    type => type.includes('set') || type.includes('code')
   ).length;
-  
+
   if (formatNodes > 0 && notificationNodes > 0) {
     score += 25;
     details.push(`Message formatting implemented with ${formatNodes} node(s)`);
@@ -1256,38 +1378,43 @@ function analyzeNotificationPattern(workflow: N8nWorkflow): {score: number, deta
   return { score, details };
 }
 
-function analyzeAIProcessingPattern(workflow: N8nWorkflow): {score: number, details: string[]} {
+function analyzeAIProcessingPattern(workflow: N8nWorkflow): { score: number; details: string[] } {
   const nodes = workflow.nodes || [];
-  const nodeTypes = nodes.map(node => node.type.toLowerCase());
+  const _nodeTypes = nodes.map(node => node.type.toLowerCase());
   const details: string[] = [];
   let score = 0;
 
   // Check for AI nodes
-  const aiNodes = nodeTypes.filter(type => 
-    type.includes('ai') || type.includes('openai') || type.includes('anthropic') || 
-    type.includes('claude') || type.includes('gpt') || type.includes('llama')
+  const aiNodes = _nodeTypes.filter(
+    type =>
+      type.includes('ai') ||
+      type.includes('openai') ||
+      type.includes('anthropic') ||
+      type.includes('claude') ||
+      type.includes('gpt') ||
+      type.includes('llama')
   ).length;
-  
+
   if (aiNodes > 0) {
     score += 50;
     details.push(`${aiNodes} AI processing node(s) identified`);
   }
 
   // Check for data preparation
-  const prepNodes = nodeTypes.filter(type => 
-    type.includes('set') || type.includes('code') || type.includes('split')
+  const prepNodes = _nodeTypes.filter(
+    type => type.includes('set') || type.includes('code') || type.includes('split')
   ).length;
-  
+
   if (prepNodes > 0 && aiNodes > 0) {
     score += 25;
     details.push(`Data preparation implemented with ${prepNodes} node(s)`);
   }
 
   // Check for AI result processing
-  const processNodes = nodes.filter(node => 
-    node.type.toLowerCase().includes('merge') || node.type.toLowerCase().includes('if')
+  const processNodes = nodes.filter(
+    node => node.type.toLowerCase().includes('merge') || node.type.toLowerCase().includes('if')
   ).length;
-  
+
   if (processNodes > 0 && aiNodes > 0) {
     score += 25;
     details.push(`AI result processing with ${processNodes} node(s)`);

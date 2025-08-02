@@ -1,12 +1,15 @@
 import { z } from 'zod';
 import { UserError } from 'fastmcp';
 import { N8nClient } from '../client/n8nClient.js';
-import { N8nWorkflow, N8nNode, N8nExecution } from '../types/n8n.js';
+import { N8nWorkflow } from '../types/n8n.js';
 
 // Zod schemas for workflow analytics and intelligence
 const WorkflowAnalysisSchema = z.object({
   workflowId: z.string().min(1, 'Workflow ID is required'),
-  analysisType: z.enum(['complexity', 'performance', 'optimization', 'comprehensive']).optional().default('comprehensive'),
+  analysisType: z
+    .enum(['complexity', 'performance', 'optimization', 'comprehensive'])
+    .optional()
+    .default('comprehensive'),
   includeRecommendations: z.boolean().optional().default(true),
   historicalData: z.boolean().optional().default(true),
 });
@@ -25,13 +28,19 @@ const BottleneckAnalysisSchema = z.object({
 
 const OptimizationSuggestionsSchema = z.object({
   workflowId: z.string().min(1, 'Workflow ID is required'),
-  focusAreas: z.array(z.enum(['performance', 'reliability', 'maintainability', 'cost', 'security'])).optional().default(['performance', 'reliability']),
+  focusAreas: z
+    .array(z.enum(['performance', 'reliability', 'maintainability', 'cost', 'security']))
+    .optional()
+    .default(['performance', 'reliability']),
   priority: z.enum(['critical', 'high', 'medium', 'low', 'all']).optional().default('all'),
 });
 
 const WorkflowComparisonSchema = z.object({
   workflowIds: z.array(z.string()).min(2, 'At least 2 workflows required for comparison'),
-  metrics: z.array(z.enum(['complexity', 'performance', 'reliability', 'cost', 'maintainability'])).optional().default(['complexity', 'performance', 'reliability']),
+  metrics: z
+    .array(z.enum(['complexity', 'performance', 'reliability', 'cost', 'maintainability']))
+    .optional()
+    .default(['complexity', 'performance', 'reliability']),
 });
 
 // Tool registration function for workflow analytics and intelligence tools
@@ -39,7 +48,8 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
   // Analyze workflow complexity and structure
   server.addTool({
     name: 'analyze-workflow-complexity',
-    description: 'Analyze workflow complexity, structure, and provide detailed metrics on maintainability and performance characteristics',
+    description:
+      'Analyze workflow complexity, structure, and provide detailed metrics on maintainability and performance characteristics',
     parameters: WorkflowAnalysisSchema,
     annotations: {
       title: 'Analyze Workflow Complexity',
@@ -56,7 +66,7 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
 
       try {
         const workflow = await client.getWorkflow(args.workflowId);
-        
+
         if (!workflow.nodes || workflow.nodes.length === 0) {
           return `Workflow "${workflow.name}" has no nodes to analyze.`;
         }
@@ -73,17 +83,21 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
         };
 
         // Calculate workflow depth (longest path)
-        const calculateDepth = (nodeId: string, visited: Set<string>, currentDepth: number): number => {
+        const calculateDepth = (
+          nodeId: string,
+          visited: Set<string>,
+          currentDepth: number
+        ): number => {
           if (visited.has(nodeId)) return currentDepth; // Cycle detection
           visited.add(nodeId);
-          
-          const connections = workflow.connections?.[nodeId];
-          if (!connections || Object.keys(connections).length === 0) {
+
+          const _connections = workflow.connections?.[nodeId];
+          if (!_connections || Object.keys(_connections).length === 0) {
             return currentDepth;
           }
-          
+
           let maxChildDepth = currentDepth;
-          Object.values(connections).forEach((outputConnections: any) => {
+          Object.values(_connections).forEach((outputConnections: any) => {
             if (Array.isArray(outputConnections)) {
               outputConnections.forEach((conn: any) => {
                 if (conn.node) {
@@ -93,7 +107,7 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
               });
             }
           });
-          
+
           return maxChildDepth;
         };
 
@@ -110,7 +124,7 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
         });
 
         const startingNodes = workflow.nodes.filter(node => !allTargetNodes.has(node.id));
-        
+
         // Calculate maximum depth
         startingNodes.forEach(node => {
           const depth = calculateDepth(node.id, new Set(), 1);
@@ -124,26 +138,34 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
         // Calculate cognitive complexity (based on node types and nesting)
         metrics.cognitiveComplexity = workflow.nodes.reduce((complexity, node) => {
           let nodeComplexity = 1; // Base complexity
-          
+
           // Add complexity for different node types
           const nodeType = node.type.toLowerCase();
-          if (nodeType.includes('if') || nodeType.includes('switch') || nodeType.includes('merge')) {
+          if (
+            nodeType.includes('if') ||
+            nodeType.includes('switch') ||
+            nodeType.includes('merge')
+          ) {
             nodeComplexity += 2; // Conditional logic
           } else if (nodeType.includes('loop') || nodeType.includes('split')) {
             nodeComplexity += 3; // Iteration/branching
           } else if (nodeType.includes('code') || nodeType.includes('function')) {
             nodeComplexity += 1; // Custom logic
           }
-          
+
           return complexity + nodeComplexity;
         }, 0);
 
         // Calculate maintainability index (0-100 scale)
         const averageNodeComplexity = metrics.cognitiveComplexity / metrics.nodeCount;
         const typeComplexity = metrics.uniqueNodeTypes / metrics.nodeCount;
-        metrics.maintainabilityIndex = Math.max(0, Math.min(100, 
-          100 - (averageNodeComplexity * 10) - (typeComplexity * 20) - (metrics.maxDepth * 5)
-        ));
+        metrics.maintainabilityIndex = Math.max(
+          0,
+          Math.min(
+            100,
+            100 - averageNodeComplexity * 10 - typeComplexity * 20 - metrics.maxDepth * 5
+          )
+        );
 
         // Complexity classification
         const getComplexityLevel = (score: number): string => {
@@ -154,7 +176,7 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
         };
 
         let analysis = `# Workflow Complexity Analysis: "${workflow.name}"\n\n`;
-        
+
         // Basic metrics
         analysis += `## 📊 Structure Metrics\n`;
         analysis += `- **Total Nodes**: ${metrics.nodeCount}\n`;
@@ -170,11 +192,14 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
         analysis += `- **Maintainability Index**: ${metrics.maintainabilityIndex.toFixed(1)}/100\n\n`;
 
         // Node type breakdown
-        const nodeTypeDistribution = workflow.nodes.reduce((dist, node) => {
-          const type = node.type;
-          dist[type] = (dist[type] || 0) + 1;
-          return dist;
-        }, {} as Record<string, number>);
+        const nodeTypeDistribution = workflow.nodes.reduce(
+          (dist, node) => {
+            const type = node.type;
+            dist[type] = (dist[type] || 0) + 1;
+            return dist;
+          },
+          {} as Record<string, number>
+        );
 
         analysis += `## 🔧 Node Type Distribution\n`;
         Object.entries(nodeTypeDistribution)
@@ -189,24 +214,31 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
         if (args.historicalData) {
           try {
             const executions = await client.getExecutions({ limit: 50 });
-            const workflowExecutions = executions.data.filter(exec => exec.workflowId === args.workflowId);
-            
-            if (workflowExecutions.length > 0) {
-              const avgExecutionTime = workflowExecutions
-                .filter(exec => exec.stoppedAt)
-                .reduce((sum, exec) => {
-                  const duration = new Date(exec.stoppedAt!).getTime() - new Date(exec.startedAt).getTime();
-                  return sum + duration;
-                }, 0) / workflowExecutions.length;
+            const workflowExecutions = executions.data.filter(
+              exec => exec.workflowId === args.workflowId
+            );
 
-              const successRate = (workflowExecutions.filter(exec => exec.status === 'success').length / workflowExecutions.length) * 100;
+            if (workflowExecutions.length > 0) {
+              const avgExecutionTime =
+                workflowExecutions
+                  .filter(exec => exec.stoppedAt)
+                  .reduce((sum, exec) => {
+                    const duration =
+                      new Date(exec.stoppedAt!).getTime() - new Date(exec.startedAt).getTime();
+                    return sum + duration;
+                  }, 0) / workflowExecutions.length;
+
+              const successRate =
+                (workflowExecutions.filter(exec => exec.status === 'success').length /
+                  workflowExecutions.length) *
+                100;
 
               analysis += `## ⚡ Performance Metrics\n`;
               analysis += `- **Average Execution Time**: ${(avgExecutionTime / 1000).toFixed(2)}s\n`;
               analysis += `- **Success Rate**: ${successRate.toFixed(1)}%\n`;
               analysis += `- **Recent Executions**: ${workflowExecutions.length}\n\n`;
             }
-          } catch (error) {
+          } catch (_error) {
             // Performance data not available
           }
         }
@@ -216,42 +248,60 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
           analysis += `## 💡 Analysis & Recommendations\n\n`;
 
           const recommendations = [];
-          
+
           if (metrics.nodeCount > 50) {
-            recommendations.push('**Workflow Size**: Consider breaking this workflow into smaller, more manageable sub-workflows');
+            recommendations.push(
+              '**Workflow Size**: Consider breaking this workflow into smaller, more manageable sub-workflows'
+            );
           }
-          
+
           if (metrics.maxDepth > 10) {
-            recommendations.push('**Workflow Depth**: High nesting level detected - consider flattening the workflow structure');
+            recommendations.push(
+              '**Workflow Depth**: High nesting level detected - consider flattening the workflow structure'
+            );
           }
-          
+
           if (metrics.cyclomaticComplexity > 15) {
-            recommendations.push('**Cyclomatic Complexity**: High complexity - consider simplifying conditional logic and branching');
+            recommendations.push(
+              '**Cyclomatic Complexity**: High complexity - consider simplifying conditional logic and branching'
+            );
           }
-          
+
           if (metrics.cognitiveComplexity > 25) {
-            recommendations.push('**Cognitive Complexity**: Workflow may be difficult to understand - consider adding documentation and simplifying logic');
+            recommendations.push(
+              '**Cognitive Complexity**: Workflow may be difficult to understand - consider adding documentation and simplifying logic'
+            );
           }
-          
+
           if (metrics.maintainabilityIndex < 60) {
-            recommendations.push('**Maintainability**: Low maintainability score - consider refactoring for better code organization');
+            recommendations.push(
+              '**Maintainability**: Low maintainability score - consider refactoring for better code organization'
+            );
           }
 
           if (metrics.uniqueNodeTypes / metrics.nodeCount > 0.8) {
-            recommendations.push('**Node Diversity**: High variety of node types - ensure team familiarity with all node types used');
+            recommendations.push(
+              '**Node Diversity**: High variety of node types - ensure team familiarity with all node types used'
+            );
           }
 
           // Performance-based recommendations
-          const heavyNodeTypes = Object.entries(nodeTypeDistribution).filter(([type]) => 
-            ['code', 'function', 'python', 'http-request', 'webhook'].some(heavy => type.toLowerCase().includes(heavy))
+          const heavyNodeTypes = Object.entries(nodeTypeDistribution).filter(([type]) =>
+            ['code', 'function', 'python', 'http-request', 'webhook'].some(heavy =>
+              type.toLowerCase().includes(heavy)
+            )
           );
 
           if (heavyNodeTypes.length > 0) {
-            recommendations.push('**Performance**: Resource-intensive nodes detected - monitor execution times and consider optimization');
+            recommendations.push(
+              '**Performance**: Resource-intensive nodes detected - monitor execution times and consider optimization'
+            );
           }
 
           if (recommendations.length === 0) {
-            recommendations.push('**Overall**: Workflow structure appears well-organized with reasonable complexity levels');
+            recommendations.push(
+              '**Overall**: Workflow structure appears well-organized with reasonable complexity levels'
+            );
           }
 
           recommendations.forEach((rec, index) => {
@@ -279,7 +329,8 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
   // Get complexity metrics for multiple workflows
   server.addTool({
     name: 'get-complexity-metrics',
-    description: 'Get complexity metrics for workflows, sorted by complexity level to identify the most complex workflows requiring attention',
+    description:
+      'Get complexity metrics for workflows, sorted by complexity level to identify the most complex workflows requiring attention',
     parameters: ComplexityMetricsSchema,
     annotations: {
       title: 'Get Complexity Metrics',
@@ -296,7 +347,7 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
 
       try {
         let workflows: N8nWorkflow[] = [];
-        
+
         if (args.workflowId) {
           const workflow = await client.getWorkflow(args.workflowId);
           workflows = [workflow];
@@ -307,28 +358,34 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
 
         const complexityData = workflows.map(workflow => {
           const nodeCount = workflow.nodes?.length || 0;
-          const uniqueNodeTypes = workflow.nodes ? [...new Set(workflow.nodes.map(node => node.type))].length : 0;
-          const connections = Object.keys(workflow.connections || {}).length;
-          
+          const uniqueNodeTypes = workflow.nodes
+            ? [...new Set(workflow.nodes.map(node => node.type))].length
+            : 0;
+          const _connections = Object.keys(workflow.connections || {}).length;
+
           // Calculate simplified complexity score
           const typeComplexity = nodeCount > 0 ? uniqueNodeTypes / nodeCount : 0;
-          const structuralComplexity = nodeCount + connections;
+          const _structuralComplexity = nodeCount + _connections;
           const cognitiveComplexity = (workflow.nodes || []).reduce((complexity, node) => {
             const nodeType = node.type.toLowerCase();
             let nodeComplexity = 1;
-            
-            if (nodeType.includes('if') || nodeType.includes('switch') || nodeType.includes('merge')) {
+
+            if (
+              nodeType.includes('if') ||
+              nodeType.includes('switch') ||
+              nodeType.includes('merge')
+            ) {
               nodeComplexity += 2;
             } else if (nodeType.includes('loop') || nodeType.includes('split')) {
               nodeComplexity += 3;
             } else if (nodeType.includes('code') || nodeType.includes('function')) {
               nodeComplexity += 1;
             }
-            
+
             return complexity + nodeComplexity;
           }, 0);
 
-          const overallComplexity = cognitiveComplexity + (typeComplexity * 10);
+          const overallComplexity = cognitiveComplexity + typeComplexity * 10;
 
           return {
             id: workflow.id,
@@ -336,34 +393,50 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
             active: workflow.active,
             nodeCount,
             uniqueNodeTypes,
-            connections,
+            _connections,
             cognitiveComplexity,
             overallComplexity,
-            complexityLevel: overallComplexity <= 5 ? 'low' : 
-                           overallComplexity <= 15 ? 'medium' : 
-                           overallComplexity <= 25 ? 'high' : 'very-high'
+            complexityLevel:
+              overallComplexity <= 5
+                ? 'low'
+                : overallComplexity <= 15
+                  ? 'medium'
+                  : overallComplexity <= 25
+                    ? 'high'
+                    : 'very-high',
           };
         });
 
         // Filter by threshold
-        const filteredData = args.threshold === 'all' ? complexityData : 
-          complexityData.filter(item => {
-            switch (args.threshold) {
-              case 'low': return item.complexityLevel === 'low';
-              case 'medium': return item.complexityLevel === 'medium';
-              case 'high': return item.complexityLevel === 'high' || item.complexityLevel === 'very-high';
-              default: return true;
-            }
-          });
+        const filteredData =
+          args.threshold === 'all'
+            ? complexityData
+            : complexityData.filter(item => {
+                switch (args.threshold) {
+                  case 'low':
+                    return item.complexityLevel === 'low';
+                  case 'medium':
+                    return item.complexityLevel === 'medium';
+                  case 'high':
+                    return item.complexityLevel === 'high' || item.complexityLevel === 'very-high';
+                  default:
+                    return true;
+                }
+              });
 
         // Sort by selected criteria
         filteredData.sort((a, b) => {
           switch (args.sortBy) {
-            case 'complexity': return b.overallComplexity - a.overallComplexity;
-            case 'nodes': return b.nodeCount - a.nodeCount;
-            case 'connections': return b.connections - a.connections;
-            case 'depth': return b.cognitiveComplexity - a.cognitiveComplexity;
-            default: return b.overallComplexity - a.overallComplexity;
+            case 'complexity':
+              return b.overallComplexity - a.overallComplexity;
+            case 'nodes':
+              return b.nodeCount - a.nodeCount;
+            case 'connections':
+              return b._connections - a._connections;
+            case 'depth':
+              return b.cognitiveComplexity - a.cognitiveComplexity;
+            default:
+              return b.overallComplexity - a.overallComplexity;
           }
         });
 
@@ -378,9 +451,11 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
         report += `**Complexity Filter**: ${args.threshold}\n\n`;
 
         // Summary statistics
-        const avgComplexity = filteredData.reduce((sum, item) => sum + item.overallComplexity, 0) / filteredData.length;
-        const avgNodes = filteredData.reduce((sum, item) => sum + item.nodeCount, 0) / filteredData.length;
-        
+        const avgComplexity =
+          filteredData.reduce((sum, item) => sum + item.overallComplexity, 0) / filteredData.length;
+        const avgNodes =
+          filteredData.reduce((sum, item) => sum + item.nodeCount, 0) / filteredData.length;
+
         report += `## 📊 Summary Statistics\n`;
         report += `- **Average Complexity**: ${avgComplexity.toFixed(1)}\n`;
         report += `- **Average Node Count**: ${avgNodes.toFixed(1)}\n`;
@@ -388,15 +463,19 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
         report += `- **Least Complex**: ${filteredData[filteredData.length - 1]?.name} (${filteredData[filteredData.length - 1]?.overallComplexity.toFixed(1)})\n\n`;
 
         // Complexity distribution
-        const distribution = filteredData.reduce((dist, item) => {
-          dist[item.complexityLevel] = (dist[item.complexityLevel] || 0) + 1;
-          return dist;
-        }, {} as Record<string, number>);
+        const distribution = filteredData.reduce(
+          (dist, item) => {
+            dist[item.complexityLevel] = (dist[item.complexityLevel] || 0) + 1;
+            return dist;
+          },
+          {} as Record<string, number>
+        );
 
         report += `## 📈 Complexity Distribution\n`;
         Object.entries(distribution).forEach(([level, count]) => {
           const percentage = ((count / filteredData.length) * 100).toFixed(1);
-          const indicator = level === 'low' ? '🟢' : level === 'medium' ? '🟡' : level === 'high' ? '🟠' : '🔴';
+          const indicator =
+            level === 'low' ? '🟢' : level === 'medium' ? '🟡' : level === 'high' ? '🟠' : '🔴';
           report += `- **${indicator} ${level.charAt(0).toUpperCase() + level.slice(1)}**: ${count} workflows (${percentage}%)\n`;
         });
         report += '\n';
@@ -406,13 +485,19 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
         report += `| Workflow | Status | Nodes | Types | Connections | Complexity | Level |\n`;
         report += `|----------|--------|-------|-------|-------------|------------|-------|\n`;
 
-        filteredData.slice(0, 20).forEach(item => { // Limit to top 20
+        filteredData.slice(0, 20).forEach(item => {
+          // Limit to top 20
           const statusIcon = item.active ? '🟢' : '🔴';
-          const complexityIcon = item.complexityLevel === 'low' ? '🟢' : 
-                                item.complexityLevel === 'medium' ? '🟡' : 
-                                item.complexityLevel === 'high' ? '🟠' : '🔴';
-          
-          report += `| ${item.name} | ${statusIcon} | ${item.nodeCount} | ${item.uniqueNodeTypes} | ${item.connections} | ${item.overallComplexity.toFixed(1)} | ${complexityIcon} ${item.complexityLevel} |\n`;
+          const complexityIcon =
+            item.complexityLevel === 'low'
+              ? '🟢'
+              : item.complexityLevel === 'medium'
+                ? '🟡'
+                : item.complexityLevel === 'high'
+                  ? '🟠'
+                  : '🔴';
+
+          report += `| ${item.name} | ${statusIcon} | ${item.nodeCount} | ${item.uniqueNodeTypes} | ${item._connections} | ${item.overallComplexity.toFixed(1)} | ${complexityIcon} ${item.complexityLevel} |\n`;
         });
 
         if (filteredData.length > 20) {
@@ -434,7 +519,8 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
   // Identify performance bottlenecks
   server.addTool({
     name: 'identify-bottlenecks',
-    description: 'Identify performance bottlenecks in workflows by analyzing execution patterns, slow nodes, and resource usage',
+    description:
+      'Identify performance bottlenecks in workflows by analyzing execution patterns, slow nodes, and resource usage',
     parameters: BottleneckAnalysisSchema,
     annotations: {
       title: 'Identify Bottlenecks',
@@ -458,7 +544,7 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
           week: 7 * 24 * 60 * 60 * 1000,
           month: 30 * 24 * 60 * 60 * 1000,
         };
-        
+
         const startTime = new Date(now.getTime() - timeframeDuration[args.timeframe]);
 
         let workflows: N8nWorkflow[] = [];
@@ -482,9 +568,8 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
           try {
             // Get execution data
             const executions = await client.getExecutions({ limit: 100 });
-            const workflowExecutions = executions.data.filter(exec => 
-              exec.workflowId === workflow.id && 
-              new Date(exec.startedAt) >= startTime
+            const workflowExecutions = executions.data.filter(
+              exec => exec.workflowId === workflow.id && new Date(exec.startedAt) >= startTime
             );
 
             if (workflowExecutions.length === 0) continue;
@@ -492,23 +577,28 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
             // Calculate execution metrics
             const executionTimes = workflowExecutions
               .filter(exec => exec.stoppedAt && exec.status === 'success')
-              .map(exec => new Date(exec.stoppedAt!).getTime() - new Date(exec.startedAt).getTime());
+              .map(
+                exec => new Date(exec.stoppedAt!).getTime() - new Date(exec.startedAt).getTime()
+              );
 
             if (executionTimes.length === 0) continue;
 
-            const avgExecutionTime = executionTimes.reduce((a, b) => a + b, 0) / executionTimes.length;
+            const avgExecutionTime =
+              executionTimes.reduce((a, b) => a + b, 0) / executionTimes.length;
             const maxExecutionTime = Math.max(...executionTimes);
             const minExecutionTime = Math.min(...executionTimes);
-            
+
             // Calculate percentile threshold
             const sortedTimes = executionTimes.sort((a, b) => a - b);
             const thresholdIndex = Math.floor((args.threshold / 100) * sortedTimes.length);
-            const thresholdTime = sortedTimes[thresholdIndex] || sortedTimes[sortedTimes.length - 1];
+            const thresholdTime =
+              sortedTimes[thresholdIndex] || sortedTimes[sortedTimes.length - 1];
 
             // Identify slow executions
             const slowExecutions = workflowExecutions.filter(exec => {
               if (!exec.stoppedAt) return false;
-              const duration = new Date(exec.stoppedAt).getTime() - new Date(exec.startedAt).getTime();
+              const duration =
+                new Date(exec.stoppedAt).getTime() - new Date(exec.startedAt).getTime();
               return duration >= thresholdTime;
             });
 
@@ -519,16 +609,22 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
             // Analyze workflow structure for potential bottlenecks
             const structuralIssues = [];
             const nodeCount = workflow.nodes?.length || 0;
-            
+
             if (nodeCount > 50) {
               structuralIssues.push('Large workflow size may impact performance');
             }
 
             const heavyNodes = (workflow.nodes || []).filter(node => {
               const nodeType = node.type.toLowerCase();
-              return ['http-request', 'webhook', 'code', 'function', 'python', 'mysql', 'postgres'].some(type => 
-                nodeType.includes(type)
-              );
+              return [
+                'http-request',
+                'webhook',
+                'code',
+                'function',
+                'python',
+                'mysql',
+                'postgres',
+              ].some(type => nodeType.includes(type));
             });
 
             if (heavyNodes.length > nodeCount * 0.3) {
@@ -536,17 +632,25 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
             }
 
             // Identify potential node bottlenecks
-            const problematicNodeTypes = (workflow.nodes || []).reduce((types, node) => {
-              const nodeType = node.type;
-              types[nodeType] = (types[nodeType] || 0) + 1;
-              return types;
-            }, {} as Record<string, number>);
+            const problematicNodeTypes = (workflow.nodes || []).reduce(
+              (types, node) => {
+                const nodeType = node.type;
+                types[nodeType] = (types[nodeType] || 0) + 1;
+                return types;
+              },
+              {} as Record<string, number>
+            );
 
             const nodeBottlenecks = Object.entries(problematicNodeTypes)
               .filter(([type, count]) => {
                 const lowercaseType = type.toLowerCase();
-                return (lowercaseType.includes('http') || lowercaseType.includes('webhook') || 
-                        lowercaseType.includes('code') || lowercaseType.includes('function')) && count > 5;
+                return (
+                  (lowercaseType.includes('http') ||
+                    lowercaseType.includes('webhook') ||
+                    lowercaseType.includes('code') ||
+                    lowercaseType.includes('function')) &&
+                  count > 5
+                );
               })
               .map(([type, count]) => `${count}x ${type} nodes`);
 
@@ -565,10 +669,9 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
                 structural: structuralIssues,
                 nodeBottlenecks,
                 heavyNodeCount: heavyNodes.length,
-              }
+              },
             });
-
-          } catch (error) {
+          } catch (_error) {
             // Skip workflows that can't be analyzed
             continue;
           }
@@ -576,8 +679,14 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
 
         // Sort by potential bottleneck severity
         bottleneckData.sort((a, b) => {
-          const scoreA = (a.metrics.avgExecutionTime / 1000) + (a.metrics.failureRate * 100) + (a.issues.heavyNodeCount * 10);
-          const scoreB = (b.metrics.avgExecutionTime / 1000) + (b.metrics.failureRate * 100) + (b.issues.heavyNodeCount * 10);
+          const scoreA =
+            a.metrics.avgExecutionTime / 1000 +
+            a.metrics.failureRate * 100 +
+            a.issues.heavyNodeCount * 10;
+          const scoreB =
+            b.metrics.avgExecutionTime / 1000 +
+            b.metrics.failureRate * 100 +
+            b.issues.heavyNodeCount * 10;
           return scoreB - scoreA;
         });
 
@@ -591,26 +700,43 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
         }
 
         // Summary statistics
-        const totalExecutions = bottleneckData.reduce((sum, data) => sum + data.metrics.executionCount, 0);
-        const avgFailureRate = bottleneckData.reduce((sum, data) => sum + data.metrics.failureRate, 0) / bottleneckData.length;
-        const overallAvgTime = bottleneckData.reduce((sum, data) => sum + data.metrics.avgExecutionTime, 0) / bottleneckData.length;
+        const totalExecutions = bottleneckData.reduce(
+          (sum, data) => sum + data.metrics.executionCount,
+          0
+        );
+        const avgFailureRate =
+          bottleneckData.reduce((sum, data) => sum + data.metrics.failureRate, 0) /
+          bottleneckData.length;
+        const overallAvgTime =
+          bottleneckData.reduce((sum, data) => sum + data.metrics.avgExecutionTime, 0) /
+          bottleneckData.length;
 
         report += `## 📊 Performance Summary\n`;
         report += `- **Total Executions**: ${totalExecutions}\n`;
         report += `- **Average Execution Time**: ${(overallAvgTime / 1000).toFixed(2)}s\n`;
         report += `- **Average Failure Rate**: ${avgFailureRate.toFixed(2)}%\n`;
-        report += `- **Workflows with Issues**: ${bottleneckData.filter(data => 
-          data.metrics.avgExecutionTime > 30000 || data.metrics.failureRate > 5 || data.issues.structural.length > 0
-        ).length}\n\n`;
+        report += `- **Workflows with Issues**: ${
+          bottleneckData.filter(
+            data =>
+              data.metrics.avgExecutionTime > 30000 ||
+              data.metrics.failureRate > 5 ||
+              data.issues.structural.length > 0
+          ).length
+        }\n\n`;
 
         // Top bottlenecks
         report += `## 🚨 Performance Bottlenecks\n\n`;
-        
+
         const topBottlenecks = bottleneckData.slice(0, 10);
         topBottlenecks.forEach((data, index) => {
-          const severity = data.metrics.avgExecutionTime > 60000 || data.metrics.failureRate > 10 ? '🔴 Critical' :
-                          data.metrics.avgExecutionTime > 30000 || data.metrics.failureRate > 5 ? '🟠 High' :
-                          data.metrics.avgExecutionTime > 15000 || data.metrics.failureRate > 2 ? '🟡 Medium' : '🟢 Low';
+          const severity =
+            data.metrics.avgExecutionTime > 60000 || data.metrics.failureRate > 10
+              ? '🔴 Critical'
+              : data.metrics.avgExecutionTime > 30000 || data.metrics.failureRate > 5
+                ? '🟠 High'
+                : data.metrics.avgExecutionTime > 15000 || data.metrics.failureRate > 2
+                  ? '🟡 Medium'
+                  : '🟢 Low';
 
           report += `### ${index + 1}. ${data.workflow.name} (${severity})\n`;
           report += `**Performance Metrics:**\n`;
@@ -631,9 +757,11 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
 
           report += `**Recommendations:**\n`;
           const recommendations = [];
-          
+
           if (data.metrics.avgExecutionTime > 30000) {
-            recommendations.push('Optimize long-running operations and consider workflow splitting');
+            recommendations.push(
+              'Optimize long-running operations and consider workflow splitting'
+            );
           }
           if (data.metrics.failureRate > 5) {
             recommendations.push('Investigate and improve error handling for reliability');
@@ -677,7 +805,8 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
   // Get optimization suggestions
   server.addTool({
     name: 'get-optimization-suggestions',
-    description: 'Get specific optimization suggestions for workflows based on structure analysis, performance data, and best practices',
+    description:
+      'Get specific optimization suggestions for workflows based on structure analysis, performance data, and best practices',
     parameters: OptimizationSuggestionsSchema,
     annotations: {
       title: 'Get Optimization Suggestions',
@@ -694,7 +823,7 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
 
       try {
         const workflow = await client.getWorkflow(args.workflowId);
-        
+
         if (!workflow.nodes || workflow.nodes.length === 0) {
           return `Workflow "${workflow.name}" has no nodes to optimize.`;
         }
@@ -716,18 +845,22 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
 
         // Analyze workflow structure
         const nodeCount = workflow.nodes.length;
-        const nodeTypes = workflow.nodes.reduce((types, node) => {
-          types[node.type] = (types[node.type] || 0) + 1;
-          return types;
-        }, {} as Record<string, number>);
+        const nodeTypes = workflow.nodes.reduce(
+          (types, node) => {
+            types[node.type] = (types[node.type] || 0) + 1;
+            return types;
+          },
+          {} as Record<string, number>
+        );
 
-        const connections = Object.keys(workflow.connections || {}).length;
+        const _connections = Object.keys(workflow.connections || {}).length;
 
         // Performance optimizations
         if (args.focusAreas.includes('performance')) {
           // Check for HTTP request optimization
-          const httpNodes = Object.entries(nodeTypes).filter(([type]) => 
-            type.toLowerCase().includes('http') || type.toLowerCase().includes('webhook')
+          const httpNodes = Object.entries(nodeTypes).filter(
+            ([type]) =>
+              type.toLowerCase().includes('http') || type.toLowerCase().includes('webhook')
           );
 
           if (httpNodes.length > 0) {
@@ -745,15 +878,16 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
                   'Implement parallel execution for independent requests',
                   'Add request caching for frequently accessed data',
                   'Use HTTP request node pooling settings',
-                  'Consider using bulk API endpoints'
-                ]
+                  'Consider using bulk API endpoints',
+                ],
               });
             }
           }
 
           // Check for code node optimization
-          const codeNodes = Object.entries(nodeTypes).filter(([type]) => 
-            type.toLowerCase().includes('code') || type.toLowerCase().includes('function')
+          const codeNodes = Object.entries(nodeTypes).filter(
+            ([type]) =>
+              type.toLowerCase().includes('code') || type.toLowerCase().includes('function')
           );
 
           if (codeNodes.length > 0) {
@@ -761,7 +895,8 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
               category: 'Performance',
               priority: 'medium',
               title: 'Code Node Performance Review',
-              description: 'Custom code nodes can be performance bottlenecks if not optimized properly.',
+              description:
+                'Custom code nodes can be performance bottlenecks if not optimized properly.',
               impact: 'Medium - Can improve execution speed by 20-40%',
               effort: 'Low - Code review and optimization',
               implementation: [
@@ -769,8 +904,8 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
                 'Minimize external library usage in code nodes',
                 'Use built-in n8n nodes instead of custom code where possible',
                 'Implement proper error handling in code nodes',
-                'Consider moving complex logic to external services'
-              ]
+                'Consider moving complex logic to external services',
+              ],
             });
           }
 
@@ -788,8 +923,8 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
                 'Use workflow triggers to chain related processes',
                 'Implement modular design patterns',
                 'Consider using n8n sub-workflow nodes',
-                'Document workflow dependencies and data flow'
-              ]
+                'Document workflow dependencies and data flow',
+              ],
             });
           }
         }
@@ -797,8 +932,9 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
         // Reliability optimizations
         if (args.focusAreas.includes('reliability')) {
           // Check for error handling
-          const errorHandlingNodes = workflow.nodes.filter(node => 
-            node.parameters && JSON.stringify(node.parameters).toLowerCase().includes('error')
+          const errorHandlingNodes = workflow.nodes.filter(
+            node =>
+              node.parameters && JSON.stringify(node.parameters).toLowerCase().includes('error')
           );
 
           if (errorHandlingNodes.length < Math.ceil(nodeCount * 0.1)) {
@@ -806,7 +942,8 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
               category: 'Reliability',
               priority: 'high',
               title: 'Implement Comprehensive Error Handling',
-              description: 'Insufficient error handling detected. Robust error handling is crucial for workflow reliability.',
+              description:
+                'Insufficient error handling detected. Robust error handling is crucial for workflow reliability.',
               impact: 'High - Significantly improves workflow reliability',
               effort: 'Medium - Add error handling nodes and logic',
               implementation: [
@@ -814,15 +951,18 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
                 'Implement retry logic for transient failures',
                 'Set up error notification workflows',
                 'Use try-catch patterns in code nodes',
-                'Configure proper timeout values for external requests'
-              ]
+                'Configure proper timeout values for external requests',
+              ],
             });
           }
 
           // Check for monitoring and logging
-          const monitoringNodes = workflow.nodes.filter(node => 
-            node.type.toLowerCase().includes('webhook') || node.type.toLowerCase().includes('slack') || 
-            node.type.toLowerCase().includes('email') || node.type.toLowerCase().includes('log')
+          const monitoringNodes = workflow.nodes.filter(
+            node =>
+              node.type.toLowerCase().includes('webhook') ||
+              node.type.toLowerCase().includes('slack') ||
+              node.type.toLowerCase().includes('email') ||
+              node.type.toLowerCase().includes('log')
           );
 
           if (monitoringNodes.length === 0) {
@@ -830,7 +970,8 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
               category: 'Reliability',
               priority: 'medium',
               title: 'Add Monitoring and Alerting',
-              description: 'No monitoring or alerting nodes detected. Proper monitoring is essential for production workflows.',
+              description:
+                'No monitoring or alerting nodes detected. Proper monitoring is essential for production workflows.',
               impact: 'Medium - Improves issue detection and resolution',
               effort: 'Low - Add monitoring nodes',
               implementation: [
@@ -838,8 +979,8 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
                 'Implement health check endpoints',
                 'Set up workflow execution logging',
                 'Create dashboards for workflow performance monitoring',
-                'Configure alerting thresholds'
-              ]
+                'Configure alerting thresholds',
+              ],
             });
           }
         }
@@ -847,7 +988,9 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
         // Maintainability optimizations
         if (args.focusAreas.includes('maintainability')) {
           // Check for documentation
-          const documentedNodes = workflow.nodes.filter(node => node.notes && node.notes.trim().length > 0);
+          const documentedNodes = workflow.nodes.filter(
+            node => node.notes && node.notes.trim().length > 0
+          );
           const documentationRatio = documentedNodes.length / nodeCount;
 
           if (documentationRatio < 0.3) {
@@ -863,14 +1006,16 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
                 'Document input/output data structures',
                 'Create workflow overview documentation',
                 'Use descriptive node names',
-                'Document any special configuration requirements'
-              ]
+                'Document any special configuration requirements',
+              ],
             });
           }
 
           // Check for node naming conventions
-          const defaultNamedNodes = workflow.nodes.filter(node => 
-            node.name === node.type || node.name.startsWith(node.type) && node.name.length < node.type.length + 5
+          const defaultNamedNodes = workflow.nodes.filter(
+            node =>
+              node.name === node.type ||
+              (node.name.startsWith(node.type) && node.name.length < node.type.length + 5)
           );
 
           if (defaultNamedNodes.length > nodeCount * 0.5) {
@@ -878,7 +1023,8 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
               category: 'Maintainability',
               priority: 'low',
               title: 'Improve Node Naming Conventions',
-              description: 'Many nodes are using default names, which makes the workflow harder to understand.',
+              description:
+                'Many nodes are using default names, which makes the workflow harder to understand.',
               impact: 'Low - Improves workflow readability',
               effort: 'Low - Rename nodes with descriptive names',
               implementation: [
@@ -886,8 +1032,8 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
                 'Follow consistent naming conventions',
                 'Include the purpose or data being processed in names',
                 'Avoid technical jargon in node names',
-                'Use action-oriented naming (e.g., "Send Welcome Email")'
-              ]
+                'Use action-oriented naming (e.g., "Send Welcome Email")',
+              ],
             });
           }
         }
@@ -897,8 +1043,13 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
           // Check for inefficient operations
           const expensiveOperations = workflow.nodes.filter(node => {
             const type = node.type.toLowerCase();
-            return type.includes('http') || type.includes('webhook') || type.includes('ai') || 
-                   type.includes('openai') || type.includes('anthropic');
+            return (
+              type.includes('http') ||
+              type.includes('webhook') ||
+              type.includes('ai') ||
+              type.includes('openai') ||
+              type.includes('anthropic')
+            );
           });
 
           if (expensiveOperations.length > 0) {
@@ -914,8 +1065,8 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
                 'Batch API requests to reduce call volume',
                 'Use webhook endpoints instead of polling where possible',
                 'Optimize AI prompts to reduce token usage',
-                'Consider using less expensive alternative services'
-              ]
+                'Consider using less expensive alternative services',
+              ],
             });
           }
         }
@@ -923,13 +1074,13 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
         // Security optimizations
         if (args.focusAreas.includes('security')) {
           // Check for credential usage
-          const nodesWithCredentials = workflow.nodes.filter(node => 
-            node.credentials && Object.keys(node.credentials).length > 0
+          const nodesWithCredentials = workflow.nodes.filter(
+            node => node.credentials && Object.keys(node.credentials).length > 0
           );
 
-          const credentialTypes = [...new Set(
-            nodesWithCredentials.flatMap(node => Object.keys(node.credentials || {}))
-          )];
+          const credentialTypes = [
+            ...new Set(nodesWithCredentials.flatMap(node => Object.keys(node.credentials || {}))),
+          ];
 
           if (credentialTypes.length > 3) {
             optimizations.push({
@@ -944,15 +1095,20 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
                 'Use least-privilege principle for API access',
                 'Regularly rotate credentials used in workflows',
                 'Consider using service accounts instead of user credentials',
-                'Implement credential usage monitoring'
-              ]
+                'Implement credential usage monitoring',
+              ],
             });
           }
 
           // Check for data handling
           const dataProcessingNodes = workflow.nodes.filter(node => {
             const type = node.type.toLowerCase();
-            return type.includes('set') || type.includes('code') || type.includes('function') || type.includes('merge');
+            return (
+              type.includes('set') ||
+              type.includes('code') ||
+              type.includes('function') ||
+              type.includes('merge')
+            );
           });
 
           if (dataProcessingNodes.length > 0) {
@@ -960,7 +1116,8 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
               category: 'Security',
               priority: 'medium',
               title: 'Review Data Processing Security',
-              description: 'Workflow processes data through multiple nodes. Ensure sensitive data is handled securely.',
+              description:
+                'Workflow processes data through multiple nodes. Ensure sensitive data is handled securely.',
               impact: 'Medium - Improves data security compliance',
               effort: 'Medium - Review and secure data processing',
               implementation: [
@@ -968,15 +1125,17 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
                 'Implement data encryption for sensitive information',
                 'Add data validation and sanitization',
                 'Review data retention and deletion policies',
-                'Ensure compliance with data protection regulations'
-              ]
+                'Ensure compliance with data protection regulations',
+              ],
             });
           }
         }
 
         // Filter by priority
-        const filteredOptimizations = args.priority === 'all' ? optimizations :
-          optimizations.filter(opt => opt.priority === args.priority);
+        const filteredOptimizations =
+          args.priority === 'all'
+            ? optimizations
+            : optimizations.filter(opt => opt.priority === args.priority);
 
         if (filteredOptimizations.length === 0) {
           suggestions += `No optimization suggestions found for the specified criteria.\n`;
@@ -989,21 +1148,29 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
         filteredOptimizations.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
 
         // Group by category
-        const categorizedSuggestions = filteredOptimizations.reduce((groups, opt) => {
-          if (!groups[opt.category]) groups[opt.category] = [];
-          groups[opt.category].push(opt);
-          return groups;
-        }, {} as Record<string, typeof optimizations>);
+        const categorizedSuggestions = filteredOptimizations.reduce(
+          (groups, opt) => {
+            if (!groups[opt.category]) groups[opt.category] = [];
+            groups[opt.category].push(opt);
+            return groups;
+          },
+          {} as Record<string, typeof optimizations>
+        );
 
         // Generate suggestions by category
         Object.entries(categorizedSuggestions).forEach(([category, categoryOptimizations]) => {
           suggestions += `## ${category} Optimizations\n\n`;
-          
+
           categoryOptimizations.forEach((opt, index) => {
-            const priorityIcon = opt.priority === 'critical' ? '🔴' : 
-                                opt.priority === 'high' ? '🟠' : 
-                                opt.priority === 'medium' ? '🟡' : '🟢';
-            
+            const priorityIcon =
+              opt.priority === 'critical'
+                ? '🔴'
+                : opt.priority === 'high'
+                  ? '🟠'
+                  : opt.priority === 'medium'
+                    ? '🟡'
+                    : '🟢';
+
             suggestions += `### ${index + 1}. ${opt.title} ${priorityIcon}\n`;
             suggestions += `**Priority**: ${opt.priority.charAt(0).toUpperCase() + opt.priority.slice(1)}\n`;
             suggestions += `**Description**: ${opt.description}\n`;
@@ -1026,7 +1193,9 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
         suggestions += `- **Low Priority**: ${filteredOptimizations.filter(opt => opt.priority === 'low').length}\n\n`;
 
         suggestions += `## 🎯 Recommended Action Plan\n`;
-        const criticalAndHigh = filteredOptimizations.filter(opt => opt.priority === 'critical' || opt.priority === 'high');
+        const criticalAndHigh = filteredOptimizations.filter(
+          opt => opt.priority === 'critical' || opt.priority === 'high'
+        );
         if (criticalAndHigh.length > 0) {
           suggestions += `1. **Immediate Action**: Address ${criticalAndHigh.length} critical/high priority optimization(s)\n`;
           suggestions += `2. **Short Term**: Plan implementation of medium priority optimizations\n`;
@@ -1051,7 +1220,8 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
   // Compare workflows
   server.addTool({
     name: 'compare-workflows',
-    description: 'Compare multiple workflows across various metrics to identify patterns, best practices, and optimization opportunities',
+    description:
+      'Compare multiple workflows across various metrics to identify patterns, best practices, and optimization opportunities',
     parameters: WorkflowComparisonSchema,
     annotations: {
       title: 'Compare Workflows',
@@ -1089,7 +1259,7 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
           try {
             const workflow = await client.getWorkflow(workflowId);
             workflows.push(workflow);
-          } catch (error) {
+          } catch (_error) {
             throw new UserError(`Workflow with ID "${workflowId}" not found`);
           }
         }
@@ -1097,47 +1267,61 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
         // Calculate metrics for each workflow
         for (const workflow of workflows) {
           const nodeCount = workflow.nodes?.length || 0;
-          const uniqueNodeTypes = workflow.nodes ? [...new Set(workflow.nodes.map(node => node.type))].length : 0;
-          const connections = Object.keys(workflow.connections || {}).length;
+          const uniqueNodeTypes = workflow.nodes
+            ? [...new Set(workflow.nodes.map(node => node.type))].length
+            : 0;
+          const _connections = Object.keys(workflow.connections || {}).length;
 
           // Calculate complexity
           const cognitiveComplexity = (workflow.nodes || []).reduce((complexity, node) => {
             const nodeType = node.type.toLowerCase();
             let nodeComplexity = 1;
-            
-            if (nodeType.includes('if') || nodeType.includes('switch') || nodeType.includes('merge')) {
+
+            if (
+              nodeType.includes('if') ||
+              nodeType.includes('switch') ||
+              nodeType.includes('merge')
+            ) {
               nodeComplexity += 2;
             } else if (nodeType.includes('loop') || nodeType.includes('split')) {
               nodeComplexity += 3;
             } else if (nodeType.includes('code') || nodeType.includes('function')) {
               nodeComplexity += 1;
             }
-            
+
             return complexity + nodeComplexity;
           }, 0);
 
           // Calculate maintainability index
           const typeComplexity = nodeCount > 0 ? uniqueNodeTypes / nodeCount : 0;
           const avgNodeComplexity = nodeCount > 0 ? cognitiveComplexity / nodeCount : 0;
-          const maintainabilityIndex = Math.max(0, Math.min(100, 
-            100 - (avgNodeComplexity * 10) - (typeComplexity * 20) - (connections * 2)
-          ));
+          const maintainabilityIndex = Math.max(
+            0,
+            Math.min(100, 100 - avgNodeComplexity * 10 - typeComplexity * 20 - _connections * 2)
+          );
 
           let performanceMetrics;
-          
+
           // Try to get performance data
           if (args.metrics.includes('performance')) {
             try {
               const executions = await client.getExecutions({ limit: 100 });
-              const workflowExecutions = executions.data.filter(exec => exec.workflowId === workflow.id);
-              
+              const workflowExecutions = executions.data.filter(
+                exec => exec.workflowId === workflow.id
+              );
+
               if (workflowExecutions.length > 0) {
-                const successfulExecutions = workflowExecutions.filter(exec => exec.status === 'success' && exec.stoppedAt);
-                const avgExecutionTime = successfulExecutions.length > 0 ?
-                  successfulExecutions.reduce((sum, exec) => {
-                    const duration = new Date(exec.stoppedAt!).getTime() - new Date(exec.startedAt).getTime();
-                    return sum + duration;
-                  }, 0) / successfulExecutions.length : 0;
+                const successfulExecutions = workflowExecutions.filter(
+                  exec => exec.status === 'success' && exec.stoppedAt
+                );
+                const avgExecutionTime =
+                  successfulExecutions.length > 0
+                    ? successfulExecutions.reduce((sum, exec) => {
+                        const duration =
+                          new Date(exec.stoppedAt!).getTime() - new Date(exec.startedAt).getTime();
+                        return sum + duration;
+                      }, 0) / successfulExecutions.length
+                    : 0;
 
                 const successRate = (successfulExecutions.length / workflowExecutions.length) * 100;
 
@@ -1147,7 +1331,7 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
                   executionCount: workflowExecutions.length,
                 };
               }
-            } catch (error) {
+            } catch (_error) {
               // Performance data not available
             }
           }
@@ -1157,7 +1341,7 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
             metrics: {
               complexity: cognitiveComplexity,
               nodeCount,
-              connections,
+              connections: _connections,
               uniqueNodeTypes,
               maintainabilityIndex,
               performance: performanceMetrics,
@@ -1174,7 +1358,7 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
         comparison += `## 📊 Overview Comparison\n\n`;
         comparison += `| Workflow | Status | Nodes | Types | Connections | Complexity |\n`;
         comparison += `|----------|--------|-------|-------|-------------|------------|\n`;
-        
+
         workflowData.forEach(data => {
           const statusIcon = data.workflow.active ? '🟢' : '🔴';
           comparison += `| ${data.workflow.name} | ${statusIcon} | ${data.metrics.nodeCount} | ${data.metrics.uniqueNodeTypes} | ${data.metrics.connections} | ${data.metrics.complexity} |\n`;
@@ -1184,9 +1368,11 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
         // Detailed metrics comparison
         if (args.metrics.includes('complexity')) {
           comparison += `## 🧮 Complexity Analysis\n\n`;
-          
+
           const complexityStats = {
-            avg: workflowData.reduce((sum, data) => sum + data.metrics.complexity, 0) / workflowData.length,
+            avg:
+              workflowData.reduce((sum, data) => sum + data.metrics.complexity, 0) /
+              workflowData.length,
             min: Math.min(...workflowData.map(data => data.metrics.complexity)),
             max: Math.max(...workflowData.map(data => data.metrics.complexity)),
           };
@@ -1196,23 +1382,33 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
           comparison += `- Range: ${complexityStats.min} - ${complexityStats.max}\n\n`;
 
           workflowData.forEach(data => {
-            const complexityLevel = data.metrics.complexity <= 5 ? '🟢 Low' :
-                                  data.metrics.complexity <= 15 ? '🟡 Medium' :
-                                  data.metrics.complexity <= 25 ? '🟠 High' : '🔴 Very High';
-            
+            const complexityLevel =
+              data.metrics.complexity <= 5
+                ? '🟢 Low'
+                : data.metrics.complexity <= 15
+                  ? '🟡 Medium'
+                  : data.metrics.complexity <= 25
+                    ? '🟠 High'
+                    : '🔴 Very High';
+
             comparison += `**${data.workflow.name}**: ${data.metrics.complexity} (${complexityLevel})\n`;
             comparison += `- Maintainability Index: ${data.metrics.maintainabilityIndex.toFixed(1)}/100\n`;
-            comparison += `- Node Type Diversity: ${(data.metrics.uniqueNodeTypes / data.metrics.nodeCount * 100).toFixed(1)}%\n\n`;
+            comparison += `- Node Type Diversity: ${((data.metrics.uniqueNodeTypes / data.metrics.nodeCount) * 100).toFixed(1)}%\n\n`;
           });
         }
 
-        if (args.metrics.includes('performance') && workflowData.some(data => data.metrics.performance)) {
+        if (
+          args.metrics.includes('performance') &&
+          workflowData.some(data => data.metrics.performance)
+        ) {
           comparison += `## ⚡ Performance Comparison\n\n`;
-          
+
           const performanceData = workflowData.filter(data => data.metrics.performance);
-          
+
           if (performanceData.length > 0) {
-            const avgExecutionTimes = performanceData.map(data => data.metrics.performance!.avgExecutionTime);
+            const avgExecutionTimes = performanceData.map(
+              data => data.metrics.performance!.avgExecutionTime
+            );
             const successRates = performanceData.map(data => data.metrics.performance!.successRate);
 
             comparison += `**Performance Statistics:**\n`;
@@ -1221,9 +1417,14 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
 
             performanceData.forEach(data => {
               const perf = data.metrics.performance!;
-              const perfRating = perf.avgExecutionTime < 5000 && perf.successRate > 95 ? '🟢 Excellent' :
-                               perf.avgExecutionTime < 15000 && perf.successRate > 90 ? '🟡 Good' :
-                               perf.avgExecutionTime < 30000 && perf.successRate > 80 ? '🟠 Fair' : '🔴 Poor';
+              const perfRating =
+                perf.avgExecutionTime < 5000 && perf.successRate > 95
+                  ? '🟢 Excellent'
+                  : perf.avgExecutionTime < 15000 && perf.successRate > 90
+                    ? '🟡 Good'
+                    : perf.avgExecutionTime < 30000 && perf.successRate > 80
+                      ? '🟠 Fair'
+                      : '🔴 Poor';
 
               comparison += `**${data.workflow.name}**: ${perfRating}\n`;
               comparison += `- Avg Execution Time: ${(perf.avgExecutionTime / 1000).toFixed(2)}s\n`;
@@ -1237,24 +1438,33 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
 
         if (args.metrics.includes('reliability')) {
           comparison += `## 🛡️ Reliability Analysis\n\n`;
-          
+
           workflowData.forEach(data => {
-            const errorHandling = (data.workflow.nodes || []).filter(node =>
-              node.parameters && JSON.stringify(node.parameters).toLowerCase().includes('error')
+            const errorHandling = (data.workflow.nodes || []).filter(
+              node =>
+                node.parameters && JSON.stringify(node.parameters).toLowerCase().includes('error')
             ).length;
 
-            const monitoringNodes = (data.workflow.nodes || []).filter(node =>
-              node.type.toLowerCase().includes('webhook') || 
-              node.type.toLowerCase().includes('slack') ||
-              node.type.toLowerCase().includes('email')
+            const monitoringNodes = (data.workflow.nodes || []).filter(
+              node =>
+                node.type.toLowerCase().includes('webhook') ||
+                node.type.toLowerCase().includes('slack') ||
+                node.type.toLowerCase().includes('email')
             ).length;
 
-            const reliabilityScore = (errorHandling * 20) + (monitoringNodes * 15) + 
-                                   (data.metrics.performance?.successRate || 50);
+            const reliabilityScore =
+              errorHandling * 20 +
+              monitoringNodes * 15 +
+              (data.metrics.performance?.successRate || 50);
 
-            const reliabilityLevel = reliabilityScore >= 90 ? '🟢 High' :
-                                   reliabilityScore >= 70 ? '🟡 Medium' :
-                                   reliabilityScore >= 50 ? '🟠 Low' : '🔴 Very Low';
+            const reliabilityLevel =
+              reliabilityScore >= 90
+                ? '🟢 High'
+                : reliabilityScore >= 70
+                  ? '🟡 Medium'
+                  : reliabilityScore >= 50
+                    ? '🟠 Low'
+                    : '🔴 Very Low';
 
             comparison += `**${data.workflow.name}**: ${reliabilityLevel} (${reliabilityScore.toFixed(0)}/100)\n`;
             comparison += `- Error Handling Nodes: ${errorHandling}\n`;
@@ -1268,18 +1478,23 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
 
         if (args.metrics.includes('maintainability')) {
           comparison += `## 🔧 Maintainability Comparison\n\n`;
-          
-          workflowData.forEach(data => {
-            const documentedNodes = (data.workflow.nodes || []).filter(node => 
-              node.notes && node.notes.trim().length > 0
-            ).length;
-            
-            const documentationRatio = data.metrics.nodeCount > 0 ? 
-              (documentedNodes / data.metrics.nodeCount) * 100 : 0;
 
-            const maintainabilityLevel = data.metrics.maintainabilityIndex >= 80 ? '🟢 High' :
-                                       data.metrics.maintainabilityIndex >= 60 ? '🟡 Medium' :
-                                       data.metrics.maintainabilityIndex >= 40 ? '🟠 Low' : '🔴 Very Low';
+          workflowData.forEach(data => {
+            const documentedNodes = (data.workflow.nodes || []).filter(
+              node => node.notes && node.notes.trim().length > 0
+            ).length;
+
+            const documentationRatio =
+              data.metrics.nodeCount > 0 ? (documentedNodes / data.metrics.nodeCount) * 100 : 0;
+
+            const maintainabilityLevel =
+              data.metrics.maintainabilityIndex >= 80
+                ? '🟢 High'
+                : data.metrics.maintainabilityIndex >= 60
+                  ? '🟡 Medium'
+                  : data.metrics.maintainabilityIndex >= 40
+                    ? '🟠 Low'
+                    : '🔴 Very Low';
 
             comparison += `**${data.workflow.name}**: ${maintainabilityLevel}\n`;
             comparison += `- Maintainability Index: ${data.metrics.maintainabilityIndex.toFixed(1)}/100\n`;
@@ -1290,25 +1505,37 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
 
         if (args.metrics.includes('cost')) {
           comparison += `## 💰 Cost Analysis\n\n`;
-          
+
           workflowData.forEach(data => {
             const expensiveNodes = (data.workflow.nodes || []).filter(node => {
               const type = node.type.toLowerCase();
-              return type.includes('http') || type.includes('webhook') || type.includes('ai') ||
-                     type.includes('openai') || type.includes('anthropic') || type.includes('mysql') ||
-                     type.includes('postgres');
+              return (
+                type.includes('http') ||
+                type.includes('webhook') ||
+                type.includes('ai') ||
+                type.includes('openai') ||
+                type.includes('anthropic') ||
+                type.includes('mysql') ||
+                type.includes('postgres')
+              );
             }).length;
 
             const costRisk = expensiveNodes / data.metrics.nodeCount;
-            const costLevel = costRisk < 0.2 ? '🟢 Low' :
-                            costRisk < 0.4 ? '🟡 Medium' :
-                            costRisk < 0.6 ? '🟠 High' : '🔴 Very High';
+            const costLevel =
+              costRisk < 0.2
+                ? '🟢 Low'
+                : costRisk < 0.4
+                  ? '🟡 Medium'
+                  : costRisk < 0.6
+                    ? '🟠 High'
+                    : '🔴 Very High';
 
             comparison += `**${data.workflow.name}**: ${costLevel} Cost Risk\n`;
             comparison += `- External Service Nodes: ${expensiveNodes}/${data.metrics.nodeCount}\n`;
             comparison += `- Cost Risk Ratio: ${(costRisk * 100).toFixed(1)}%\n`;
             if (data.metrics.performance) {
-              const estimatedMonthlyCost = (expensiveNodes * data.metrics.performance.executionCount * 0.01 * 30);
+              const estimatedMonthlyCost =
+                expensiveNodes * data.metrics.performance.executionCount * 0.01 * 30;
               comparison += `- Estimated Monthly Cost: $${estimatedMonthlyCost.toFixed(2)}\n`;
             }
             comparison += '\n';
@@ -1317,12 +1544,12 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
 
         // Best practices identification
         comparison += `## 🏆 Best Practices Identified\n\n`;
-        
-        const bestComplexity = workflowData.reduce((best, current) => 
+
+        const bestComplexity = workflowData.reduce((best, current) =>
           current.metrics.complexity < best.metrics.complexity ? current : best
         );
-        
-        const bestMaintainability = workflowData.reduce((best, current) => 
+
+        const bestMaintainability = workflowData.reduce((best, current) =>
           current.metrics.maintainabilityIndex > best.metrics.maintainabilityIndex ? current : best
         );
 
@@ -1332,37 +1559,53 @@ export function createAnalyticsTools(getClient: () => N8nClient | null, server: 
         if (workflowData.some(data => data.metrics.performance)) {
           const bestPerformance = workflowData
             .filter(data => data.metrics.performance)
-            .reduce((best, current) => 
-              current.metrics.performance!.successRate > (best.metrics.performance?.successRate || 0) ? current : best
+            .reduce((best, current) =>
+              current.metrics.performance!.successRate >
+              (best.metrics.performance?.successRate || 0)
+                ? current
+                : best
             );
-          
+
           comparison += `**Best Performance**: ${bestPerformance.workflow.name} (${bestPerformance.metrics.performance!.successRate.toFixed(1)}% success rate)\n`;
         }
 
         // Recommendations
         comparison += `\n## 💡 Recommendations\n\n`;
-        
+
         const recommendations = [];
-        
+
         const highComplexityWorkflows = workflowData.filter(data => data.metrics.complexity > 20);
         if (highComplexityWorkflows.length > 0) {
-          recommendations.push(`**Complexity Reduction**: ${highComplexityWorkflows.map(d => d.workflow.name).join(', ')} have high complexity and should be reviewed for simplification`);
+          recommendations.push(
+            `**Complexity Reduction**: ${highComplexityWorkflows.map(d => d.workflow.name).join(', ')} have high complexity and should be reviewed for simplification`
+          );
         }
 
-        const lowMaintainabilityWorkflows = workflowData.filter(data => data.metrics.maintainabilityIndex < 60);
+        const lowMaintainabilityWorkflows = workflowData.filter(
+          data => data.metrics.maintainabilityIndex < 60
+        );
         if (lowMaintainabilityWorkflows.length > 0) {
-          recommendations.push(`**Maintainability Improvement**: ${lowMaintainabilityWorkflows.map(d => d.workflow.name).join(', ')} need better documentation and structure`);
+          recommendations.push(
+            `**Maintainability Improvement**: ${lowMaintainabilityWorkflows.map(d => d.workflow.name).join(', ')} need better documentation and structure`
+          );
         }
 
-        const poorPerformanceWorkflows = workflowData.filter(data => 
-          data.metrics.performance && (data.metrics.performance.successRate < 90 || data.metrics.performance.avgExecutionTime > 30000)
+        const poorPerformanceWorkflows = workflowData.filter(
+          data =>
+            data.metrics.performance &&
+            (data.metrics.performance.successRate < 90 ||
+              data.metrics.performance.avgExecutionTime > 30000)
         );
         if (poorPerformanceWorkflows.length > 0) {
-          recommendations.push(`**Performance Optimization**: ${poorPerformanceWorkflows.map(d => d.workflow.name).join(', ')} need performance improvements`);
+          recommendations.push(
+            `**Performance Optimization**: ${poorPerformanceWorkflows.map(d => d.workflow.name).join(', ')} need performance improvements`
+          );
         }
 
         if (recommendations.length === 0) {
-          recommendations.push('All workflows appear to be well-structured and performing adequately');
+          recommendations.push(
+            'All workflows appear to be well-structured and performing adequately'
+          );
         }
 
         recommendations.forEach((rec, index) => {
