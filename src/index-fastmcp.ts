@@ -11,6 +11,12 @@ import { createExecutionTools } from './tools/executions.js';
 import { createTagTools } from './tools/tags.js';
 import { createCredentialTools } from './tools/credentials.js';
 import { createAuditTools } from './tools/audit.js';
+import { createAIConfigTools } from './tools/ai-config.js';
+import { createAITestingTools } from './tools/ai-testing.js';
+import { createAIModelsTools } from './tools/ai-models.js';
+import { createMonitoringTools } from './tools/monitoring.js';
+import { createAnalyticsTools } from './tools/analytics.js';
+import { createTemplateTools } from './tools/templates.js';
 import {
   detectTransportConfig,
   validateTransportConfig,
@@ -26,7 +32,7 @@ const server = new FastMCP({
   name: 'n8n-mcp-server',
   version: '2.0.0',
   instructions: `
-This server provides comprehensive access to n8n workflows, executions, users, projects, credentials, and more through the Model Context Protocol.
+This server provides comprehensive access to n8n workflows, executions, users, projects, credentials, and AI capabilities through the Model Context Protocol.
 
 Key Features:
 - Complete workflow management (create, read, update, delete, activate/deactivate)
@@ -35,11 +41,24 @@ Key Features:
 - Credential and variable management
 - Tag system for organization
 - Audit and security reporting
+- AI-centric features for AI node configuration and testing
+- AI model management and recommendations
+- AI prompt validation and testing tools
+- Advanced monitoring and alerting system
+- Workflow performance tracking and health checks
+- Error notification and alert rule management
+- Workflow intelligence and complexity analysis
+- Performance bottleneck identification and optimization suggestions
+- Workflow comparison and best practice identification
+- Template and pattern management with curated library
+- Workflow template search, import/export, and pattern analysis
 
 Getting Started:
 1. Initialize connection: Use 'init-n8n' with your n8n instance URL and API key
 2. Explore workflows: Use 'list-workflows' to see available workflows
 3. Manage workflows: Create, update, activate/deactivate workflows as needed
+4. Explore AI features: Use 'list-ai-models' to see available AI models and 'list-ai-nodes' to find AI nodes in workflows
+5. Monitor system health: Use 'get-monitoring-dashboard' for real-time system overview and 'check-workflow-health' for detailed analysis
 
 The server supports both Community and Enterprise n8n features. Enterprise features (projects, variables) will return appropriate errors if not available in your n8n instance.
 
@@ -64,6 +83,20 @@ createExecutionTools(getClient, server);
 createTagTools(getClient, server);
 createCredentialTools(getClient, server);
 createAuditTools(getClient, server);
+
+// Register AI-centric tools (Phase 3)
+createAIConfigTools(getClient, server);
+createAITestingTools(getClient, server);
+createAIModelsTools(getClient, server);
+
+// Register advanced monitoring tools (Phase 3)
+createMonitoringTools(getClient, server);
+
+// Register workflow analytics and intelligence tools (Phase 3)
+createAnalyticsTools(getClient, server);
+
+// Register template and pattern management tools (Phase 3)
+createTemplateTools(getClient, server);
 
 // Override the init-n8n tool to properly set the global client
 server.addTool({

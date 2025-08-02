@@ -74,7 +74,7 @@ export function createWorkflowTools(getClient: () => N8nClient | null, server: a
           result += `${index + 1}. **${workflow.name}**\n`;
           result += `   - ID: ${workflow.id}\n`;
           result += `   - Status: ${workflow.active ? '🟢 Active' : '🔴 Inactive'}\n`;
-          result += `   - Nodes: ${workflow.nodes.length}\n`;
+          result += `   - Nodes: ${workflow.nodes?.length || 0}\n`;
           if (workflow.tags && workflow.tags.length > 0) {
             result += `   - Tags: ${workflow.tags.join(', ')}\n`;
           }
@@ -122,7 +122,7 @@ export function createWorkflowTools(getClient: () => N8nClient | null, server: a
         let result = `# Workflow: ${workflow.name}\n\n`;
         result += `**ID:** ${workflow.id}\n`;
         result += `**Status:** ${workflow.active ? '🟢 Active' : '🔴 Inactive'}\n`;
-        result += `**Nodes:** ${workflow.nodes.length}\n`;
+        result += `**Nodes:** ${workflow.nodes?.length || 0}\n`;
 
         if (workflow.tags && workflow.tags.length > 0) {
           result += `**Tags:** ${workflow.tags.join(', ')}\n`;
@@ -137,11 +137,10 @@ export function createWorkflowTools(getClient: () => N8nClient | null, server: a
         }
 
         // List nodes
-        if (workflow.nodes.length > 0) {
+        if (workflow.nodes && workflow.nodes.length > 0) {
           result += '\n## Nodes:\n';
           workflow.nodes.forEach((node, index) => {
-            const nodeData = node as Record<string, unknown>;
-            result += `${index + 1}. **${nodeData.name || 'Unnamed Node'}** (${nodeData.type || 'Unknown Type'})\n`;
+            result += `${index + 1}. **${node.name || 'Unnamed Node'}** (${node.type || 'Unknown Type'})\n`;
           });
         }
 
@@ -188,7 +187,7 @@ export function createWorkflowTools(getClient: () => N8nClient | null, server: a
         return (
           `✅ Successfully created workflow "${workflow.name}" with ID: ${workflow.id}\n` +
           `Status: ${workflow.active ? '🟢 Active' : '🔴 Inactive'}\n` +
-          `Nodes: ${workflow.nodes.length}`
+          `Nodes: ${workflow.nodes?.length || 0}`
         );
       } catch (error) {
         if (error instanceof Error) {
@@ -226,7 +225,7 @@ export function createWorkflowTools(getClient: () => N8nClient | null, server: a
         return (
           `✅ Successfully updated workflow "${workflow.name}" (ID: ${workflow.id})\n` +
           `Status: ${workflow.active ? '🟢 Active' : '🔴 Inactive'}\n` +
-          `Nodes: ${workflow.nodes.length}`
+          `Nodes: ${workflow.nodes?.length || 0}`
         );
       } catch (error) {
         if (error instanceof Error) {

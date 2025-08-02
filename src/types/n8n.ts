@@ -26,11 +26,25 @@ export interface N8nUser {
   mfaEnabled?: boolean;
 }
 
+export interface N8nNode {
+  id: string;
+  name: string;
+  type: string;
+  typeVersion: number;
+  position: [number, number];
+  parameters?: Record<string, any>;
+  credentials?: Record<string, any>;
+  disabled?: boolean;
+  notes?: string;
+  webhookId?: string;
+  [key: string]: unknown; // Add index signature to make it compatible with Record<string, unknown>
+}
+
 export interface N8nWorkflow {
   id: string;
   name: string;
   active: boolean;
-  nodes: Array<Record<string, unknown>>;
+  nodes?: N8nNode[];
   connections: Record<string, unknown>;
   settings?: Record<string, unknown>;
   staticData?: Record<string, unknown>;

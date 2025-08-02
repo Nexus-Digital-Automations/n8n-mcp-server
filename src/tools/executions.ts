@@ -150,7 +150,7 @@ export function createExecutionTools(getClient: () => N8nClient | null, server: 
           result += `\n## Workflow Information:\n`;
           result += `**Name:** ${execution.workflowData.name}\n`;
           result += `**Active:** ${execution.workflowData.active ? 'Yes' : 'No'}\n`;
-          result += `**Nodes:** ${execution.workflowData.nodes.length}\n`;
+          result += `**Nodes:** ${execution.workflowData.nodes?.length || 0}\n`;
         }
 
         return result;
