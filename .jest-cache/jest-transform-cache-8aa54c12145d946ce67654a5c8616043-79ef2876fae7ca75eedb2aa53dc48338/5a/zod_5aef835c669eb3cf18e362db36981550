@@ -1,0 +1,53 @@
+63319782b74ae2d7fcc0da932db1530c
+// Mock for Zod to fix Jest ES module import issues
+const createMockSchema = () => ({
+  parse: (data) => data,
+  safeParse: (data) => ({ success: true, data }),
+  optional: () => createMockSchema(),
+  min: () => createMockSchema(),
+  max: () => createMockSchema(),
+  email: () => createMockSchema(),
+  url: () => createMockSchema(),
+  default: () => createMockSchema(),
+});
+
+const mockZod = {
+  z: {
+    string: () => createMockSchema(),
+    number: () => createMockSchema(),
+    boolean: () => createMockSchema(),
+    any: () => createMockSchema(),
+    unknown: () => createMockSchema(),
+    object: (shape) => ({
+      shape,
+      parse: (data) => data,
+      safeParse: (data) => ({ success: true, data }),
+      optional: () => createMockSchema(),
+    }),
+    array: (item) => ({
+      item,
+      parse: (data) => data,
+      safeParse: (data) => ({ success: true, data }),
+      optional: () => createMockSchema(),
+      min: () => createMockSchema(),
+      max: () => createMockSchema(),
+    }),
+    record: (value) => ({
+      value,
+      parse: (data) => data,
+      safeParse: (data) => ({ success: true, data }),
+      optional: () => createMockSchema(),
+    }),
+    enum: (values) => ({
+      values,
+      parse: (data) => data,
+      safeParse: (data) => ({ success: true, data }),
+      optional: () => createMockSchema(),
+    }),
+    infer: (schema) => schema,
+  },
+};
+
+module.exports = mockZod;
+module.exports.z = mockZod.z;
+module.exports.default = mockZod;

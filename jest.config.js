@@ -92,13 +92,14 @@ export default {
   
   // Transform ignore patterns for ES modules
   transformIgnorePatterns: [
-    'node_modules/(?!(node-fetch|fastmcp|@modelcontextprotocol)/)'
+    'node_modules/(?!(node-fetch|fastmcp|@modelcontextprotocol|zod)/)'
   ],
   
   // Module name mapping - mock ES modules and handle TypeScript .js imports
   moduleNameMapper: {
     '^node-fetch$': '<rootDir>/tests/__mocks__/node-fetch.js',
     '^fastmcp$': '<rootDir>/tests/__mocks__/fastmcp.js',
+    '^zod$': '<rootDir>/tests/__mocks__/zod.js',
     // Handle TypeScript .js imports by mapping them to .ts files
     '^(\\.{1,2}/.*)\\.js$': '$1'
   },

@@ -10,19 +10,7 @@ jest.mock('fastmcp', () => ({
   })),
 }));
 
-jest.mock('zod', () => ({
-  z: {
-    object: jest.fn(() => ({ min: jest.fn(() => 'mocked-object') })),
-    string: jest.fn(() => ({
-      min: jest.fn(() => 'mocked-string'),
-      url: jest.fn(() => 'mocked-url-string'),
-    })),
-    number: jest.fn(() => ({ optional: jest.fn(() => 'mocked-number') })),
-    boolean: jest.fn(() => ({ optional: jest.fn(() => 'mocked-boolean') })),
-    array: jest.fn(() => ({ optional: jest.fn(() => 'mocked-array') })),
-    enum: jest.fn(() => ({ optional: jest.fn(() => 'mocked-enum') })),
-  },
-}));
+// Using global Zod mock from tests/__mocks__/zod.js
 
 jest.mock('../../src/client/n8nClient.js', () => ({
   N8nClient: jest.fn(),
@@ -587,11 +575,19 @@ describe('src/index-fastmcp.ts - FastMCP Server Entry Point', () => {
     it('should use Zod for tool parameter validation', async () => {
       const z = require('zod').z;
 
+      // Create spies for the Zod methods
+      const objectSpy = jest.spyOn(z, 'object');
+      const stringSpy = jest.spyOn(z, 'string');
+
       await import('../../src/index-fastmcp.js');
 
       // Verify that z.object was called for parameter validation
-      expect(z.object).toHaveBeenCalled();
-      expect(z.string).toHaveBeenCalled();
+      expect(objectSpy).toHaveBeenCalled();
+      expect(stringSpy).toHaveBeenCalled();
+
+      // Clean up spies
+      objectSpy.mockRestore();
+      stringSpy.mockRestore();
     });
   });
 });

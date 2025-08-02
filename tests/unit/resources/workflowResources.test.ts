@@ -29,9 +29,21 @@ describe('WorkflowResourceManager', () => {
     createdAt: '2023-01-01T10:00:00Z',
     updatedAt: '2023-01-01T12:00:00Z',
     nodes: [
-      { id: 'node1', type: 'n8n-nodes-base.httpRequest', name: 'HTTP Request' },
-      { id: 'node2', type: 'n8n-nodes-base.code', name: 'Code' },
-    ] as Array<Record<string, unknown>>,
+      {
+        id: 'node1',
+        name: 'HTTP Request',
+        type: 'n8n-nodes-base.httpRequest',
+        typeVersion: 1,
+        position: [100, 200] as [number, number],
+      },
+      {
+        id: 'node2',
+        name: 'Code',
+        type: 'n8n-nodes-base.code',
+        typeVersion: 1,
+        position: [300, 200] as [number, number],
+      },
+    ],
     connections: {
       'HTTP Request': {
         main: [
@@ -238,7 +250,7 @@ describe('WorkflowResourceManager', () => {
     it('should handle workflow with no nodes or connections', async () => {
       const emptyWorkflow = {
         ...mockWorkflow,
-        nodes: [] as Array<Record<string, unknown>>,
+        nodes: [],
         connections: {},
       };
       mockClient.getWorkflow.mockResolvedValue(emptyWorkflow);
@@ -891,7 +903,7 @@ describe('WorkflowResourceManager', () => {
         // Missing required fields
         name: undefined,
         active: undefined,
-        nodes: [] as Array<Record<string, unknown>>,
+        nodes: [],
         connections: {},
       };
       mockClient.getWorkflow.mockResolvedValue(malformedWorkflow as any);

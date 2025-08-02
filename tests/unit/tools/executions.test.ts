@@ -282,8 +282,20 @@ describe('Execution Tools', () => {
           name: 'Test Workflow',
           active: true,
           nodes: [
-            { id: 'node1', type: 'Start', position: [100, 200] },
-            { id: 'node2', type: 'End', position: [300, 200] },
+            {
+              id: 'node1',
+              name: 'Start Node',
+              type: 'Start',
+              typeVersion: 1,
+              position: [100, 200] as [number, number],
+            },
+            {
+              id: 'node2',
+              name: 'End Node',
+              type: 'End',
+              typeVersion: 1,
+              position: [300, 200] as [number, number],
+            },
           ],
           connections: {},
           settings: {},

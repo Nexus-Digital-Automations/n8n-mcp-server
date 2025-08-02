@@ -1,0 +1,53 @@
+d586e41cb964c4db0797ef4f56fc3882
+// Mock for Zod to fix Jest ES module import issues
+const mockZod = {
+  z: {
+    string: () => ({
+      min: () => mockZod.z.string(),
+      max: () => mockZod.z.string(),
+      email: () => mockZod.z.string(),
+      url: () => mockZod.z.string(),
+      optional: () => mockZod.z.string(),
+    }),
+    number: () => ({
+      min: () => mockZod.z.number(),
+      max: () => mockZod.z.number(),
+      optional: () => mockZod.z.number(),
+    }),
+    boolean: () => ({
+      optional: () => mockZod.z.boolean(),
+      default: () => mockZod.z.boolean(),
+    }),
+    any: () => mockZod.z.any(),
+    unknown: () => mockZod.z.unknown(),
+    object: (shape) => ({
+      shape,
+      parse: (data) => data,
+      safeParse: (data) => ({ success: true, data }),
+      optional: () => mockZod.z.object(shape),
+    }),
+    array: (item) => ({
+      item,
+      min: () => mockZod.z.array(item),
+      max: () => mockZod.z.array(item),
+      optional: () => mockZod.z.array(item),
+    }),
+    record: (value) => ({
+      value,
+      parse: (data) => data,
+      safeParse: (data) => ({ success: true, data }),
+      optional: () => mockZod.z.record(value),
+    }),
+    enum: (values) => ({
+      values,
+      parse: (data) => data,
+      safeParse: (data) => ({ success: true, data }),
+      optional: () => mockZod.z.enum(values),
+    }),
+    infer: (schema) => schema,
+  },
+};
+
+module.exports = mockZod;
+module.exports.z = mockZod.z;
+module.exports.default = mockZod;
