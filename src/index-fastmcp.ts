@@ -17,6 +17,7 @@ import { createAIModelsTools } from './tools/ai-models.js';
 import { createMonitoringTools } from './tools/monitoring.js';
 import { createAnalyticsTools } from './tools/analytics.js';
 import { createTemplateTools } from './tools/templates.js';
+import { createSourceControlTools } from './tools/source-control.js';
 import {
   detectTransportConfig,
   validateTransportConfig,
@@ -83,6 +84,9 @@ createExecutionTools(getClient, server);
 createTagTools(getClient, server);
 createCredentialTools(getClient, server);
 createAuditTools(getClient, server);
+
+// Register source control integration tools (Phase 1)
+createSourceControlTools(getClient, server);
 
 // Register AI-centric tools (Phase 3)
 createAIConfigTools(getClient, server);
@@ -168,8 +172,12 @@ async function startServer() {
     const transportConfig = detectTransportConfig();
     const validatedConfig = validateTransportConfig(transportConfig);
 
-    console.log(`🚀 Starting n8n MCP Server...`);
-    console.log(`📡 Transport type: ${validatedConfig.type}`);
+    // Only log to stderr for stdio transport to avoid corrupting JSON-RPC communication
+    const isStdioTransport = validatedConfig.type === 'stdio';
+    const log = isStdioTransport ? console.error : console.log;
+
+    log(`🚀 Starting n8n MCP Server...`);
+    log(`📡 Transport type: ${validatedConfig.type}`);
 
     if (validatedConfig.type === 'sse') {
       // Validate SSE configuration
@@ -185,17 +193,17 @@ async function startServer() {
       // Log connection URL
       const serverUrl = getServerUrl(validatedConfig);
       if (serverUrl) {
-        console.log(`🌐 Server URL: ${serverUrl}`);
+        log(`🌐 Server URL: ${serverUrl}`);
       }
     } else {
       // Start with stdio transport (default)
       await server.start({
         transportType: 'stdio',
       });
-      console.log('📟 Server started with stdio transport');
+      log('📟 Server started with stdio transport');
     }
 
-    console.log('✅ n8n MCP Server is ready!');
+    log('✅ n8n MCP Server is ready!');
   } catch (error) {
     console.error('❌ Failed to start server:', error);
     process.exit(1);

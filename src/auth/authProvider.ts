@@ -5,7 +5,7 @@
  * client requests and control access to n8n tools and resources.
  */
 
-/* eslint-disable no-unused-vars */
+ 
 
 /**
  * Request context containing client information and request metadata

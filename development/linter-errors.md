@@ -1,15 +1,15 @@
 # Linter Errors Report
 
-**Generated:** 2025-07-31T19:16:00.000Z
-**Total Issues:** 0 (0 errors, 0 warnings)
-**Files:** 0
+**Generated:** 2025-08-02T23:41:58.273Z
+**Total Issues:** 1 (1 errors, 0 warnings)
+**Files:** 1
 
-## ✅ All linter issues resolved
+## source-control.ts (eslint)
 
-Previously reported issues in `jest.config.js` have been automatically resolved by the ESLint auto-fix system.
+**File Path:** `/Users/jeremyparker/Desktop/Claude Coding Projects/n8n-mcp-server/src/tools/source-control.ts`
+**Issues:** 1
 
-**Previous Issues (RESOLVED):**
-- 6 'process' is not defined errors in jest.config.js - Fixed by ESLint configuration
+❌ **Line 5:10** - 'createGitClient' is defined but never used. Allowed unused vars must match /^_/u. `[@typescript-eslint/no-unused-vars]`
 
 ---
 
