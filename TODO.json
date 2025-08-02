@@ -22,6 +22,31 @@
       "created_at": "2025-08-02T19:59:00.507Z"
     },
     {
+      "id": "linter_task_active",
+      "title": "Fix Linter Errors - IMMEDIATE",
+      "description": "Fix 0 errors and 0 warnings found in recently edited files: package.json",
+      "mode": "DEVELOPMENT",
+      "priority": "high",
+      "status": "pending",
+      "important_files": [
+        "development/linter-errors.md",
+        "package.json"
+      ],
+      "success_criteria": [
+        "All linter errors in edited files resolved",
+        "development/linter-errors.md shows no issues for edited files",
+        "Code passes linting without warnings or errors"
+      ],
+      "created_at": "2025-08-02T21:01:03.968Z",
+      "is_linter_task": true,
+      "linter_summary": {
+        "total_violations": 0,
+        "errors": 0,
+        "warnings": 0,
+        "files_affected": 1
+      }
+    },
+    {
       "id": "fix-remaining-test-failures",
       "title": "Fix 13 Remaining Test Failures",
       "description": "Fix the 13 failing tests that are preventing 100% test success rate, primarily focused on specific module test suites",
@@ -113,31 +138,6 @@
       ],
       "estimate": "4-6 hours",
       "created_at": "2025-07-31T17:56:57.210Z"
-    },
-    {
-      "id": "linter_task_active",
-      "title": "Fix Linter Errors - IMMEDIATE",
-      "description": "Fix 0 errors and 0 warnings found in recently edited files: General.json",
-      "mode": "DEVELOPMENT",
-      "priority": "high",
-      "status": "completed",
-      "important_files": [
-        "development/linter-errors.md",
-        "../../../Documents/File Storage/JSONS/Configs/General.json"
-      ],
-      "success_criteria": [
-        "All linter errors in edited files resolved",
-        "development/linter-errors.md shows no issues for edited files",
-        "Code passes linting without warnings or errors"
-      ],
-      "created_at": "2025-08-02T06:26:38.525Z",
-      "is_linter_task": true,
-      "linter_summary": {
-        "total_violations": 0,
-        "errors": 0,
-        "warnings": 0,
-        "files_affected": 1
-      }
     },
     {
       "id": "fix-jest-config-linting",
@@ -4064,10 +4064,10 @@
   "strikes_completed_last_run": false,
   "current_task_index": 0,
   "last_mode": "DEVELOPMENT",
-  "execution_count": 290,
-  "last_hook_activation": 1754167857192,
+  "execution_count": 293,
+  "last_hook_activation": 1754168463968,
   "__removedLinterTasks": {
     "removedCount": 1,
-    "finalTaskCount": 95
+    "finalTaskCount": 108
   }
 }

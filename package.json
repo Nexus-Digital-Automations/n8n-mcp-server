@@ -4,8 +4,7 @@
   "version": "1.0.0",
   "type": "module",
   "bin": {
-    "n8n-mcp-server": "build/index.js",
-    "n8n-mcp-server-fastmcp": "build/index-fastmcp.js"
+    "n8n-mcp-server": "build/index-fastmcp.js"
   },
   "files": [
     "build",
@@ -39,8 +38,8 @@
     "modelcontextprotocol"
   ],
   "scripts": {
-    "build": "tsc --project tsconfig.build.json && chmod +x build/index.js && chmod +x build/index-fastmcp.js",
-    "start": "node build/index.js",
+    "build": "tsc --project tsconfig.build.json && chmod +x build/index-fastmcp.js",
+    "start": "node build/index-fastmcp.js",
     "start:fastmcp": "node build/index-fastmcp.js",
     "dev:fastmcp": "npx fastmcp dev src/index-fastmcp.ts",
     "test": "jest",
