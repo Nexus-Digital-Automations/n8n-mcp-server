@@ -146,6 +146,7 @@ export interface ApiResponse<T> {
 export interface PaginationOptions {
   limit?: number;
   cursor?: string;
+  projectId?: string;
 }
 
 export interface CreateUserRequest {

@@ -18,6 +18,7 @@ import { createMonitoringTools } from './tools/monitoring.js';
 import { createAnalyticsTools } from './tools/analytics.js';
 import { createTemplateTools } from './tools/templates.js';
 import { createSourceControlTools } from './tools/source-control.js';
+import { createResourceTransferTools } from './tools/resource-transfer.js';
 import {
   detectTransportConfig,
   validateTransportConfig,
@@ -53,6 +54,9 @@ Key Features:
 - Workflow comparison and best practice identification
 - Template and pattern management with curated library
 - Workflow template search, import/export, and pattern analysis
+- Resource portability with comprehensive export/import tools
+- Cross-instance workflow, credential, and configuration transfer
+- Batch resource operations and project migration tools
 
 Getting Started:
 1. Initialize connection: Use 'init-n8n' with your n8n instance URL and API key
@@ -87,6 +91,9 @@ createAuditTools(getClient, server);
 
 // Register source control integration tools (Phase 1)
 createSourceControlTools(getClient, server);
+
+// Register resource transfer tools (Phase 1)
+createResourceTransferTools(getClient, server);
 
 // Register AI-centric tools (Phase 3)
 createAIConfigTools(getClient, server);

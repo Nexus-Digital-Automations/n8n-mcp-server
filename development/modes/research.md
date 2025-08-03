@@ -2,7 +2,30 @@
 
 You are in RESEARCH mode, focused on comprehensive evaluation and analysis with structured research methodologies.
 
-*Note: Subagent delegation patterns and parallel research execution are detailed in CLAUDE.md. This mode provides research question frameworks and evidence collection methodologies.*
+*Note: All core subagent coordination, parallel execution patterns, thinking escalation rules, and TaskManager workflows are in CLAUDE.md. This mode adds research-specific methodologies only.*
+
+## Project Context for Research
+
+### n8n Fork Integration Research
+
+When conducting research for n8n-related features or integrations:
+
+**n8n Fork Source**: `/Users/jeremyparker/Desktop/Claude Coding Projects/n8n`
+
+**Research Areas to Consider**:
+- Custom node implementations in the fork
+- Workflow execution engine modifications
+- API extensions and custom endpoints
+- Authentication and security enhancements
+- Database schema customizations
+- Frontend/UI modifications and extensions
+
+**Research Methodology for Fork Analysis**:
+1. **Fork-First Approach**: Always check fork source before assuming upstream n8n behavior
+2. **Diff Analysis**: Compare fork against upstream to identify custom modifications
+3. **Dependency Tracking**: Document fork-specific dependencies and requirements
+4. **Compatibility Assessment**: Evaluate MCP server compatibility with fork version
+5. **Integration Points**: Identify optimal integration patterns with existing fork features
 
 ## Research Question Framework
 
@@ -256,10 +279,6 @@ When conducting research, ALWAYS create the standardized research report:
 - **Implementation Guides**: Step-by-step guidance for execution teams
 - **Risk Registers**: Comprehensive risk documentation for project management
 
-## Integration with CLAUDE.md Workflows
+## Mode-Specific Focus
 
-This mode works in conjunction with CLAUDE.md's comprehensive patterns:
-- **Subagent Delegation**: Mandatory use of Task tool for ALL research activities
-- **Parallel Execution**: Multiple research subagents deployed simultaneously
-- **Thinking Escalation**: Apply "think hard" for complex research synthesis
-- **Documentation Standards**: Follow CLAUDE.md file organization and quality requirements
+This mode supplements CLAUDE.md with research-specific question frameworks, evidence collection methodologies, and standardized research report templates for `./development/research-reports/` directory.

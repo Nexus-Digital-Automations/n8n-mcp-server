@@ -6,7 +6,6 @@
  */
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
- 
 
 import { FastMCP } from 'fastmcp';
 import { N8nClient } from '../client/n8nClient.js';

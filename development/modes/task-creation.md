@@ -1,8 +1,37 @@
 # TASK-CREATION Mode Instructions
 
-You are in TASK-CREATION mode, specialized in analyzing projects and creating structured, actionable tasks with comprehensive quality frameworks.
+You are in TASK-CREATION mode, specialized in autonomous analysis using maximum subagent deployment and creating structured, actionable tasks with comprehensive quality frameworks.
+
+*Note: All core subagent coordination, parallel execution patterns, thinking escalation rules, and TaskManager workflows are in CLAUDE.md. This mode adds task creation-specific frameworks only.*
+
+## Project Context for Task Creation
+
+### n8n Fork Integration Considerations
+
+When creating tasks related to n8n integration:
+
+**n8n Fork Source**: `/Users/jeremyparker/Desktop/Claude Coding Projects/n8n`
+
+**Task Creation Guidelines for n8n Work**:
+- **Fork-Specific Analysis**: Create tasks to analyze fork modifications before implementation
+- **Compatibility Validation**: Include tasks for testing MCP server compatibility with fork version
+- **Custom Node Integration**: Create specific tasks for integrating with fork's custom nodes
+- **API Alignment**: Ensure tasks account for any custom API endpoints in the fork
+- **Version Tracking**: Include tasks for documenting fork version dependencies
+
+**Common n8n Integration Task Types**:
+- Research tasks: "Analyze [specific n8n component] in fork vs upstream"
+- Implementation tasks: "Implement MCP tool for [fork-specific feature]"
+- Testing tasks: "Validate MCP compatibility with fork version X.Y.Z"
+- Documentation tasks: "Document fork-specific dependencies for [feature]"
 
 ## Decision Framework: When to Create Tasks
+
+### 🚨 CRITICAL: CREATE TASKS ONLY FOR SPECIFIC, ACTIONABLE WORK
+
+**Core Principle**: Tasks must have **CONCRETE PURPOSE** and **MEASURABLE OUTCOMES**. Never create vague tasks that lack clear deliverables or success criteria.
+
+**🚫 ABSOLUTE PROHIBITION**: Agents must NEVER follow or create vague tasks. Vague tasks should be SKIPPED entirely and replaced with specific, actionable alternatives or rejected outright.
 
 ### CREATE TASKS FOR:
 - **Multi-step work** (3+ distinct operations with clear deliverables)
@@ -12,6 +41,15 @@ You are in TASK-CREATION mode, specialized in analyzing projects and creating st
 - **Integration work** (external systems, API changes with defined scope)
 - **Complex problem solving** (issues requiring analysis and experimentation)
 
+**Task Creation Filter**: Ask "What specific problem does this solve?" and "What concrete deliverable will be produced?" If answers are vague, DON'T create the task.
+
+**🚨 MANDATORY VAGUE TASK REJECTION PROTOCOL**:
+1. **IDENTIFY** vague tasks immediately upon encountering them
+2. **REJECT** vague tasks - do not attempt to follow or execute them
+3. **SKIP** to next actionable task with specific deliverables
+4. **REPLACE** vague tasks with specific alternatives when possible
+5. **NEVER CREATE** placeholder or generic improvement tasks
+
 ### CREATE SUBTASKS FOR:
 - **Task complexity** > 4 hours estimated work
 - **Clear sequential dependencies** between work items
@@ -19,7 +57,7 @@ You are in TASK-CREATION mode, specialized in analyzing projects and creating st
 - **Risk isolation** (separate high-risk from low-risk work)
 - **Independent deliverables** (components that can be validated separately)
 
-### SKIP TASK CREATION FOR:
+### 🚨 SKIP TASK CREATION FOR (MANDATORY AVOIDANCE):
 - **Single-file edits** < 30 minutes
 - **Simple configuration changes**
 - **Obvious bug fixes** with known solutions
@@ -27,28 +65,100 @@ You are in TASK-CREATION mode, specialized in analyzing projects and creating st
 - **Vague improvement tasks** without specific problems or solutions
 - **Generic quality tasks** without measurable outcomes
 - **Tasks created just to meet arbitrary numbers**
+- **Open-ended directives** ("improve X", "review Y", "enhance Z")
+- **Maintenance tasks** without identified specific issues
+- **Placeholder tasks** created for task count rather than value
 
-## Balanced Task Creation Principles
+**🚫 ANTI-PATTERNS - NEVER CREATE THESE TASKS:**
+- "Review codebase for improvements"
+- "Enhance system performance"
+- "Improve code quality"
+- "Update documentation"
+- "Optimize user experience"
+- "Clean up technical debt"
 
-### Value-Driven Task Creation
-- **Create tasks when they add organizational value**, not administrative overhead
-- **Focus on actionable work** with clear deliverables and success criteria
-- **Avoid task proliferation** - combine related small tasks when it makes sense
-- **Quality over quantity** - fewer, well-defined tasks are better than many vague ones
+**Instead, create specific tasks like:**
+- "Fix memory leak in user session handler"
+- "Add JSDoc comments to authentication module"
+- "Reduce login API response time from 3s to <1s"
 
-### When NOT to Create Tasks
-- **Avoid "review everything" tasks** - create specific review tasks for known issues
-- **Skip "improve quality" tasks** - instead, create tasks for specific quality problems
-- **Don't create tasks for routine maintenance** unless there are specific issues
-- **Avoid placeholder tasks** - only create tasks when work is ready to begin
-- **Skip meta-tasks** like "create more tasks" or "organize project"
+## 🚨 MANDATORY: Balanced Task Creation Principles
 
-### Task Creation Red Flags
-- Tasks with vague titles like "Review X" or "Improve Y" without specific goals
-- Tasks that don't have clear success criteria or deliverables
-- Tasks created primarily to increase task count rather than organize work
-- Tasks that duplicate existing TODO items or project management elsewhere
-- Tasks with overlapping scope that could be combined into one focused task
+### Value-Driven Task Creation (STRICT ENFORCEMENT)
+- **Create tasks ONLY when they add organizational value**, never for administrative overhead
+- **Focus exclusively on actionable work** with clear deliverables and success criteria
+- **Aggressively avoid task proliferation** - combine related small tasks when it makes sense
+- **Quality over quantity** - fewer, well-defined tasks are infinitely better than many vague ones
+- **Specific purpose requirement** - every task must solve a concrete problem or deliver specific value
+
+### 🚫 VAGUE TASK PREVENTION PROTOCOL
+- **Question every task**: "What specific problem does this solve?"
+- **Demand concrete outcomes**: "What exact deliverable will be produced?"
+- **Reject improvement language**: Replace "improve" with specific metrics and targets
+- **Require success criteria**: Every task must have measurable completion conditions
+- **Enforce problem-solution fit**: Tasks must address identified issues, not create work
+
+### 🚫 WHEN NOT TO CREATE TASKS (STRICT AVOIDANCE RULES)
+
+**MANDATORY TASK REJECTION CRITERIA:**
+- **"Review everything" tasks** - create specific review tasks for known issues only
+- **"Improve quality" tasks** - instead, create tasks for specific quality problems
+- **Routine maintenance** unless there are specific identified issues
+- **Placeholder tasks** - only create tasks when work is ready to begin
+- **Meta-tasks** like "create more tasks" or "organize project"
+- **Exploration without direction** - require specific research questions
+- **Performance tasks without metrics** - must have measurable targets
+- **Documentation tasks without gaps** - only for identified missing information
+
+**VAGUE TASK EXAMPLES TO NEVER CREATE:**
+- ❌ "Review authentication system"
+- ❌ "Improve error handling"
+- ❌ "Optimize database queries"
+- ❌ "Clean up code structure"
+- ❌ "Enhance user interface"
+- ❌ "Update project documentation"
+- ❌ "Refactor legacy components"
+
+**SPECIFIC ALTERNATIVES TO CREATE INSTEAD:**
+- ✅ "Fix JWT token validation bug in login endpoint"
+- ✅ "Add try-catch blocks to payment processing functions"
+- ✅ "Reduce user search query response time from 5s to <2s"
+- ✅ "Extract duplicate validation logic into shared utility functions"
+- ✅ "Add loading states to dashboard data tables"
+- ✅ "Document API rate limiting configuration in README"
+- ✅ "Migrate user model from class-based to functional component"
+
+### 🚨 TASK CREATION RED FLAGS (IMMEDIATE REJECTION CRITERIA)
+
+**REJECT TASKS IMMEDIATELY IF:**
+- **Vague titles** like "Review X" or "Improve Y" without specific goals
+- **No clear success criteria** or measurable deliverables
+- **Created for task count** rather than organizing actual work
+- **Duplicate existing work** covered by TODO items or project management
+- **Overlapping scope** that could be combined into one focused task
+- **Generic improvement language** without identified specific problems
+- **Open-ended exploration** without defined research questions
+- **Maintenance directives** without specific issues or failure points
+
+**VAGUE TASK DETECTION PATTERNS:**
+- Contains words: "improve", "enhance", "review", "optimize", "clean", "update" without specifics
+- No concrete deliverable mentioned
+- Success criteria are subjective or unmeasurable
+- Title could apply to any project or codebase
+- No clear problem statement or user value
+
+**QUALITY TEST**: If a task could be copy-pasted to any project and still make sense, it's too vague and must be REJECTED immediately.
+
+### 🚨 CRITICAL: Vague Task Execution Prohibition
+
+**ABSOLUTE RULE**: Agents must NEVER attempt to follow or execute vague tasks. When encountering vague tasks:
+
+1. **IMMEDIATE IDENTIFICATION**: Recognize vague language patterns ("improve", "review", "enhance", "optimize" without specifics)
+2. **MANDATORY REJECTION**: Skip vague tasks entirely - do not attempt execution
+3. **SPECIFIC ALTERNATIVE CREATION**: If the underlying need is valid, create a specific task with concrete deliverables
+4. **DOCUMENTATION**: Note why vague tasks were rejected in task management system
+
+**ENFORCEMENT**: Attempting to follow vague tasks is considered a critical workflow failure and must be corrected immediately.
 
 ## Task Quality Templates
 
@@ -173,28 +283,15 @@ Tackle unknowns and high-risk components early to reduce project uncertainty.
 
 ## Task Creation Workflow
 
-### 1. Analysis Phase
-- **Project State Assessment**: Current codebase, infrastructure, team capacity
-- **Requirement Clarification**: User stories, acceptance criteria, business constraints
-- **Technical Discovery**: Architecture review, dependency analysis, risk assessment
-- **Research Report Integration**: Check for existing research reports at `./development/research-reports/research-report-{related_task_id}.md`
+**🚨 CRITICAL**: Follow all CLAUDE.md thinking escalation and subagent coordination requirements throughout task creation.
 
-### 2. Decomposition Phase
-- **Work Breakdown Structure**: Hierarchical task organization
-- **Effort Estimation**: Story points or hour-based estimates with confidence intervals
-- **Dependency Mapping**: Task relationships and coordination needs
-- **Research Report Planning**: For research tasks, automatically include `./development/research-reports/research-report-{task_id}.md` in important_files
+### Task Creation Process
 
-### 3. Prioritization Phase
-- **Business Value Scoring**: User impact and revenue considerations
-- **Technical Risk Assessment**: Implementation complexity and unknown factors
-- **Resource Optimization**: Team skills alignment and parallel work opportunities
-
-### 4. Validation Phase
-- **SMART Criteria Check**: Specific, Measurable, Achievable, Relevant, Time-bound
-- **Acceptance Criteria Review**: Testable and complete success conditions
-- **Definition of Done Alignment**: Quality standards and completion requirements
-- **Research Integration Validation**: Ensure research tasks include standardized report creation and consumption
+**Follow CLAUDE.md patterns for:**
+- Thinking escalation based on complexity
+- Subagent deployment and coordination 
+- Quality assurance validation
+- Documentation and research integration
 
 ## Quality Assurance Integration
 
@@ -210,9 +307,9 @@ Tackle unknowns and high-risk components early to reduce project uncertainty.
 - **Quality Metrics**: Defect rates, code coverage, performance benchmarks
 - **Team Velocity**: Sprint capacity and throughput trends
 
-## TaskManager API Integration
+## Mode-Specific Focus
 
-Reference CLAUDE.md for complete TaskManager API and CLI usage patterns.
+This mode supplements CLAUDE.md with task creation decision frameworks, vague task rejection protocols, quality templates, and priority matrices specifically for structured task decomposition and validation.
 
 ### Automatic Research Report Integration
 

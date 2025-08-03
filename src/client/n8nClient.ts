@@ -111,6 +111,7 @@ export class N8nClient {
     const params = new URLSearchParams();
     if (options.limit) params.append('limit', options.limit.toString());
     if (options.cursor) params.append('cursor', options.cursor);
+    if (options.projectId) params.append('projectId', options.projectId);
 
     const query = params.toString() ? `?${params.toString()}` : '';
     return this.makeRequest<ApiResponse<N8nWorkflow[]>>(`/workflows${query}`);
@@ -177,6 +178,7 @@ export class N8nClient {
     const params = new URLSearchParams();
     if (options.limit) params.append('limit', options.limit.toString());
     if (options.cursor) params.append('cursor', options.cursor);
+    if (options.projectId) params.append('projectId', options.projectId);
 
     const query = params.toString() ? `?${params.toString()}` : '';
     return this.makeRequest<ApiResponse<N8nCredential[]>>(`/credentials${query}`);
@@ -211,6 +213,10 @@ export class N8nClient {
 
     const query = params.toString() ? `?${params.toString()}` : '';
     return this.makeRequest<ApiResponse<N8nProject[]>>(`/projects${query}`);
+  }
+
+  async getProject(id: string): Promise<N8nProject> {
+    return this.makeRequest<N8nProject>(`/projects/${id}`);
   }
 
   async createProject(projectData: CreateProjectRequest): Promise<N8nProject> {

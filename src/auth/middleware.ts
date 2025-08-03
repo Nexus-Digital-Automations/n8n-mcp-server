@@ -5,8 +5,6 @@
  * Handles authentication checking and access control for tools and resources.
  */
 
- 
-
 import { FastMCP } from 'fastmcp';
 import { AuthProvider, RequestContext } from './authProvider.js';
 

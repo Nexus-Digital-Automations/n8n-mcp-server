@@ -52,7 +52,6 @@ const ListRepositoryContentsSchema = z.object({
   password: z.string().optional(),
 });
 
-
 interface SyncResult {
   workflowsImported: number;
   workflowsUpdated: number;
@@ -97,7 +96,9 @@ export function createSourceControlTools(getClient: () => N8nClient | null, serv
         try {
           workflowData = JSON.parse(workflowContent);
         } catch (parseError) {
-          throw new UserError(`Invalid workflow JSON format: ${parseError instanceof Error ? parseError.message : 'Unknown parsing error'}`);
+          throw new UserError(
+            `Invalid workflow JSON format: ${parseError instanceof Error ? parseError.message : 'Unknown parsing error'}`
+          );
         }
 
         // Validate workflow structure
@@ -122,12 +123,14 @@ export function createSourceControlTools(getClient: () => N8nClient | null, serv
           await client.activateWorkflow(result.id);
         }
 
-        return `✅ Successfully imported workflow "${workflowData.name}" from Git repository\n` +
-               `📋 Workflow ID: ${result.id}\n` +
-               `🌐 Repository: ${args.repositoryUrl}\n` +
-               `📁 Path: ${args.workflowPath}\n` +
-               `🌿 Branch: ${args.branch}\n` +
-               `⚡ Status: ${args.activate ? 'Active' : 'Inactive'}`;
+        return (
+          `✅ Successfully imported workflow "${workflowData.name}" from Git repository\n` +
+          `📋 Workflow ID: ${result.id}\n` +
+          `🌐 Repository: ${args.repositoryUrl}\n` +
+          `📁 Path: ${args.workflowPath}\n` +
+          `🌿 Branch: ${args.branch}\n` +
+          `⚡ Status: ${args.activate ? 'Active' : 'Inactive'}`
+        );
       } catch (error) {
         if (error instanceof UserError) {
           throw error;
@@ -160,7 +163,7 @@ export function createSourceControlTools(getClient: () => N8nClient | null, serv
       try {
         // Get workflow from n8n
         const workflow = await client.getWorkflow(args.workflowId);
-        
+
         // Prepare export data (remove runtime fields)
         const exportData = {
           name: workflow.name,
@@ -191,12 +194,14 @@ export function createSourceControlTools(getClient: () => N8nClient | null, serv
           }
         );
 
-        return `✅ Successfully exported workflow "${workflow.name}" to Git repository\n` +
-               `📋 Workflow ID: ${args.workflowId}\n` +
-               `🌐 Repository: ${args.repositoryUrl}\n` +
-               `📁 File Path: ${args.filePath}\n` +
-               `🌿 Branch: ${args.branch}\n` +
-               `💬 Commit: ${args.commitMessage}`;
+        return (
+          `✅ Successfully exported workflow "${workflow.name}" to Git repository\n` +
+          `📋 Workflow ID: ${args.workflowId}\n` +
+          `🌐 Repository: ${args.repositoryUrl}\n` +
+          `📁 File Path: ${args.filePath}\n` +
+          `🌿 Branch: ${args.branch}\n` +
+          `💬 Commit: ${args.commitMessage}`
+        );
       } catch (error) {
         if (error instanceof UserError) {
           throw error;
@@ -243,7 +248,9 @@ export function createSourceControlTools(getClient: () => N8nClient | null, serv
         try {
           config = JSON.parse(configContent);
         } catch (parseError) {
-          throw new UserError(`Invalid configuration JSON format: ${parseError instanceof Error ? parseError.message : 'Unknown parsing error'}`);
+          throw new UserError(
+            `Invalid configuration JSON format: ${parseError instanceof Error ? parseError.message : 'Unknown parsing error'}`
+          );
         }
 
         const result: SyncResult = {
@@ -255,12 +262,14 @@ export function createSourceControlTools(getClient: () => N8nClient | null, serv
         };
 
         if (args.dryRun) {
-          return `🔍 Dry run completed for repository sync\n` +
-                 `📂 Config found: ${args.configPath}\n` +
-                 `📋 Workflows to sync: ${config.workflows?.length || 0}\n` +
-                 `🔑 Credentials to sync: ${config.credentials?.length || 0}\n` +
-                 `📝 Variables to sync: ${config.variables?.length || 0}\n` +
-                 `⚠️ Use dryRun: false to perform actual sync`;
+          return (
+            `🔍 Dry run completed for repository sync\n` +
+            `📂 Config found: ${args.configPath}\n` +
+            `📋 Workflows to sync: ${config.workflows?.length || 0}\n` +
+            `🔑 Credentials to sync: ${config.credentials?.length || 0}\n` +
+            `📝 Variables to sync: ${config.variables?.length || 0}\n` +
+            `⚠️ Use dryRun: false to perform actual sync`
+          );
         }
 
         // Sync workflows
@@ -279,10 +288,12 @@ export function createSourceControlTools(getClient: () => N8nClient | null, serv
               );
 
               const workflowData = JSON.parse(workflowContent);
-              
+
               // Check if workflow exists
               const existingWorkflows = await client.getWorkflows({ limit: 100 });
-              const existingWorkflow = existingWorkflows.data.find((w: N8nWorkflow) => w.name === workflowData.name);
+              const existingWorkflow = existingWorkflows.data.find(
+                (w: N8nWorkflow) => w.name === workflowData.name
+              );
 
               if (existingWorkflow) {
                 // Update existing workflow
@@ -294,7 +305,9 @@ export function createSourceControlTools(getClient: () => N8nClient | null, serv
                 result.workflowsImported++;
               }
             } catch (error) {
-              result.errors.push(`Workflow ${workflowPath}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+              result.errors.push(
+                `Workflow ${workflowPath}: ${error instanceof Error ? error.message : 'Unknown error'}`
+              );
             }
           }
         }
@@ -307,18 +320,24 @@ export function createSourceControlTools(getClient: () => N8nClient | null, serv
               // This is a placeholder for the implementation
               result.credentialsImported++;
             } catch (error) {
-              result.errors.push(`Credential ${credentialConfig.name}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+              result.errors.push(
+                `Credential ${credentialConfig.name}: ${error instanceof Error ? error.message : 'Unknown error'}`
+              );
             }
           }
         }
 
-        return `✅ Repository sync completed\n` +
-               `📋 Workflows imported: ${result.workflowsImported}\n` +
-               `📝 Workflows updated: ${result.workflowsUpdated}\n` +
-               `🔑 Credentials imported: ${result.credentialsImported}\n` +
-               `📊 Variables imported: ${result.variablesImported}\n` +
-               `❌ Errors: ${result.errors.length}\n` +
-               (result.errors.length > 0 ? `\nErrors:\n${result.errors.map(e => `• ${e}`).join('\n')}` : '');
+        return (
+          `✅ Repository sync completed\n` +
+          `📋 Workflows imported: ${result.workflowsImported}\n` +
+          `📝 Workflows updated: ${result.workflowsUpdated}\n` +
+          `🔑 Credentials imported: ${result.credentialsImported}\n` +
+          `📊 Variables imported: ${result.variablesImported}\n` +
+          `❌ Errors: ${result.errors.length}\n` +
+          (result.errors.length > 0
+            ? `\nErrors:\n${result.errors.map(e => `• ${e}`).join('\n')}`
+            : '')
+        );
       } catch (error) {
         if (error instanceof UserError) {
           throw error;
@@ -344,29 +363,27 @@ export function createSourceControlTools(getClient: () => N8nClient | null, serv
     },
     execute: async (args: z.infer<typeof ListRepositoryContentsSchema>) => {
       try {
-        const contents = await listRepositoryContents(
-          args.repositoryUrl,
-          args.path,
-          args.branch,
-          {
-            token: args.token,
-            username: args.username,
-            password: args.password,
-          }
-        );
+        const contents = await listRepositoryContents(args.repositoryUrl, args.path, args.branch, {
+          token: args.token,
+          username: args.username,
+          password: args.password,
+        });
 
         if (contents.length === 0) {
-          return `📂 Repository directory "${args.path}" is empty\n` +
-                 `🌐 Repository: ${args.repositoryUrl}\n` +
-                 `🌿 Branch: ${args.branch}`;
+          return (
+            `📂 Repository directory "${args.path}" is empty\n` +
+            `🌐 Repository: ${args.repositoryUrl}\n` +
+            `🌿 Branch: ${args.branch}`
+          );
         }
 
         const directories = contents.filter(item => item.type === 'directory');
         const files = contents.filter(item => item.type === 'file');
 
-        let result = `📂 Repository contents for "${args.path}"\n` +
-                    `🌐 Repository: ${args.repositoryUrl}\n` +
-                    `🌿 Branch: ${args.branch}\n\n`;
+        let result =
+          `📂 Repository contents for "${args.path}"\n` +
+          `🌐 Repository: ${args.repositoryUrl}\n` +
+          `🌿 Branch: ${args.branch}\n\n`;
 
         if (directories.length > 0) {
           result += `📁 Directories (${directories.length}):\n`;
@@ -408,33 +425,31 @@ export function createSourceControlTools(getClient: () => N8nClient | null, serv
     execute: async (args: z.infer<typeof GitRepositorySchema>) => {
       try {
         // Test repository access
-        const contents = await listRepositoryContents(
-          args.url,
-          '',
-          args.branch,
-          {
-            token: args.token,
-            username: args.username,
-            password: args.password,
-          }
-        );
+        const contents = await listRepositoryContents(args.url, '', args.branch, {
+          token: args.token,
+          username: args.username,
+          password: args.password,
+        });
 
         // Check for n8n configuration files
-        const configFiles = contents.filter(item => 
-          item.type === 'file' && 
-          (item.name.includes('n8n') || item.name.endsWith('.json') || item.name.endsWith('.yml'))
+        const configFiles = contents.filter(
+          item =>
+            item.type === 'file' &&
+            (item.name.includes('n8n') || item.name.endsWith('.json') || item.name.endsWith('.yml'))
         );
 
-        const workflowFiles = contents.filter(item =>
-          item.type === 'file' &&
-          item.name.endsWith('.json') &&
-          item.name.toLowerCase().includes('workflow')
+        const workflowFiles = contents.filter(
+          item =>
+            item.type === 'file' &&
+            item.name.endsWith('.json') &&
+            item.name.toLowerCase().includes('workflow')
         );
 
-        let result = `✅ Git repository validation successful\n` +
-                    `🌐 Repository: ${args.url}\n` +
-                    `🌿 Branch: ${args.branch}\n` +
-                    `📁 Total items: ${contents.length}\n\n`;
+        let result =
+          `✅ Git repository validation successful\n` +
+          `🌐 Repository: ${args.url}\n` +
+          `🌿 Branch: ${args.branch}\n` +
+          `📁 Total items: ${contents.length}\n\n`;
 
         if (configFiles.length > 0) {
           result += `⚙️ Configuration files found (${configFiles.length}):\n`;
@@ -466,7 +481,7 @@ export function createSourceControlTools(getClient: () => N8nClient | null, serv
 }
 
 // Helper functions for Git operations
- 
+
 async function fetchFileFromRepository(
   repositoryUrl: string,
   filePath: string,
@@ -477,7 +492,6 @@ async function fetchFileFromRepository(
   return await gitClient.getFileContent(repositoryUrl, filePath, branch);
 }
 
- 
 async function pushFileToRepository(
   repositoryUrl: string,
   filePath: string,
@@ -496,7 +510,6 @@ async function pushFileToRepository(
   );
 }
 
- 
 async function listRepositoryContents(
   repositoryUrl: string,
   path: string,

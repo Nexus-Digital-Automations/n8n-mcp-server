@@ -5,8 +5,6 @@
  * client requests and control access to n8n tools and resources.
  */
 
- 
-
 /**
  * Request context containing client information and request metadata
  */

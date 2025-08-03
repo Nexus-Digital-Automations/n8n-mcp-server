@@ -1,6 +1,6 @@
 /**
  * Git Integration Client for n8n MCP Server
- * 
+ *
  * Provides integration with Git hosting services (GitHub, GitLab, Bitbucket)
  * for workflow and configuration management operations.
  */
@@ -40,7 +40,7 @@ export interface GitProvider {
 
 /**
  * Git Integration Client
- * 
+ *
  * Handles operations with various Git hosting providers.
  * Currently supports GitHub API with plans for GitLab and Bitbucket.
  */
@@ -58,7 +58,7 @@ export class GitIntegrationClient {
    */
   private detectProvider(repositoryUrl: string): GitProvider {
     const url = new globalThis.URL(repositoryUrl);
-    
+
     if (url.hostname === 'github.com') {
       return {
         name: 'github',
@@ -66,7 +66,7 @@ export class GitIntegrationClient {
         apiPath: '/repos',
       };
     }
-    
+
     if (url.hostname === 'gitlab.com') {
       return {
         name: 'gitlab',
@@ -74,7 +74,7 @@ export class GitIntegrationClient {
         apiPath: '/projects',
       };
     }
-    
+
     if (url.hostname.includes('bitbucket')) {
       return {
         name: 'bitbucket',
@@ -82,8 +82,10 @@ export class GitIntegrationClient {
         apiPath: '/repositories',
       };
     }
-    
-    throw new UserError(`Unsupported Git provider: ${url.hostname}. Currently supports GitHub, GitLab, and Bitbucket.`);
+
+    throw new UserError(
+      `Unsupported Git provider: ${url.hostname}. Currently supports GitHub, GitLab, and Bitbucket.`
+    );
   }
 
   /**
@@ -92,14 +94,14 @@ export class GitIntegrationClient {
   private parseRepositoryUrl(repositoryUrl: string): { owner: string; repo: string } {
     const url = new globalThis.URL(repositoryUrl);
     const pathParts = url.pathname.split('/').filter(Boolean);
-    
+
     if (pathParts.length < 2) {
       throw new UserError('Invalid repository URL format. Expected: https://host/owner/repo');
     }
-    
+
     const owner = pathParts[0];
     const repo = pathParts[1].replace(/\.git$/, ''); // Remove .git suffix if present
-    
+
     return { owner, repo };
   }
 
@@ -108,7 +110,7 @@ export class GitIntegrationClient {
    */
   private async makeRequest<T>(endpoint: string, options: globalThis.RequestInit = {}): Promise<T> {
     const headers: Record<string, string> = {
-      'Accept': 'application/json',
+      Accept: 'application/json',
       'Content-Type': 'application/json',
       'User-Agent': 'n8n-mcp-server/1.0.0',
     };
@@ -128,7 +130,7 @@ export class GitIntegrationClient {
     }
 
     const url = `${this.provider.baseUrl}${endpoint}`;
-    
+
     try {
       const response = await globalThis.fetch(url, {
         ...options,
@@ -137,10 +139,12 @@ export class GitIntegrationClient {
 
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`${this.provider.name.toUpperCase()} API error: ${response.status} - ${errorText}`);
+        throw new Error(
+          `${this.provider.name.toUpperCase()} API error: ${response.status} - ${errorText}`
+        );
       }
 
-      return await response.json() as T;
+      return (await response.json()) as T;
     } catch (error) {
       if (error instanceof Error) {
         throw new UserError(`Git API request failed: ${error.message}`);
@@ -180,7 +184,7 @@ export class GitIntegrationClient {
     }
 
     const response = await this.makeRequest<GitHubContent[]>(endpoint);
-    
+
     return response.map(item => ({
       name: item.name,
       path: item.path,
@@ -216,7 +220,7 @@ export class GitIntegrationClient {
     }
 
     const response = await this.makeRequest<GitHubFileContent>(endpoint);
-    
+
     if (response.type !== 'file') {
       throw new UserError(`Path ${filePath} is not a file`);
     }
@@ -224,7 +228,7 @@ export class GitIntegrationClient {
     if (response.encoding === 'base64') {
       return globalThis.atob(response.content.replace(/\s/g, ''));
     }
-    
+
     return response.content;
   }
 
@@ -239,7 +243,7 @@ export class GitIntegrationClient {
     branch: string = 'main'
   ): Promise<void> {
     const { owner, repo } = this.parseRepositoryUrl(repositoryUrl);
-    
+
     if (this.provider.name !== 'github') {
       throw new UserError(`Provider ${this.provider.name} not yet implemented`);
     }
@@ -261,11 +265,11 @@ export class GitIntegrationClient {
       content: globalThis.btoa(content), // GitHub expects base64 encoded content
       branch: branch,
       ...(currentSha && { sha: currentSha }), // Include SHA for updates
-      ...(commitOptions.author && { 
+      ...(commitOptions.author && {
         author: {
           name: commitOptions.author.name,
           email: commitOptions.author.email,
-        }
+        },
       }),
     };
 
@@ -301,13 +305,13 @@ export class GitIntegrationClient {
    */
   async getRepositoryInfo(repositoryUrl: string) {
     const { owner, repo } = this.parseRepositoryUrl(repositoryUrl);
-    
+
     if (this.provider.name !== 'github') {
       throw new UserError(`Provider ${this.provider.name} not yet implemented`);
     }
 
     const endpoint = `${this.provider.apiPath}/${owner}/${repo}`;
-    
+
     interface GitHubRepo {
       name: string;
       full_name: string;
@@ -319,7 +323,7 @@ export class GitIntegrationClient {
     }
 
     const response = await this.makeRequest<GitHubRepo>(endpoint);
-    
+
     return {
       name: response.name,
       fullName: response.full_name,
@@ -335,6 +339,9 @@ export class GitIntegrationClient {
 /**
  * Helper function to create Git integration client
  */
-export function createGitClient(repositoryUrl: string, auth: GitAuthOptions = {}): GitIntegrationClient {
+export function createGitClient(
+  repositoryUrl: string,
+  auth: GitAuthOptions = {}
+): GitIntegrationClient {
   return new GitIntegrationClient(repositoryUrl, auth);
 }
