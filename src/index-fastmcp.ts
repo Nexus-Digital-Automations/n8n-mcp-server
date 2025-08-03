@@ -20,6 +20,7 @@ import { createTemplateTools } from './tools/templates.js';
 import { createSourceControlTools } from './tools/source-control.js';
 import { createResourceTransferTools } from './tools/resource-transfer.js';
 import { createDataManagementTools } from './tools/data-management.js';
+import { createCredentialTestingTools } from './tools/credential-testing.js';
 import {
   detectTransportConfig,
   validateTransportConfig,
@@ -61,6 +62,10 @@ Key Features:
 - Binary data management with upload/download capabilities
 - Large file handling with progress tracking and validation
 - Static workflow file storage and organization tools
+- Enhanced authentication with OAuth2 callback mechanisms
+- Credential validity testing and security validation
+- Multi-factor authentication and session management
+- Advanced security monitoring and audit capabilities
 
 Getting Started:
 1. Initialize connection: Use 'init-n8n' with your n8n instance URL and API key
@@ -101,6 +106,9 @@ createResourceTransferTools(getClient, server);
 
 // Register data management tools (Phase 1)
 createDataManagementTools(getClient, server);
+
+// Register credential testing tools (Phase 1)
+createCredentialTestingTools(getClient, server);
 
 // Register AI-centric tools (Phase 3)
 createAIConfigTools(getClient, server);
