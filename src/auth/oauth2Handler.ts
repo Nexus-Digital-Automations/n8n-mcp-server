@@ -5,16 +5,14 @@
  * for enhanced security and integration with OAuth2-enabled services.
  */
 
+/* eslint-disable no-undef */
+declare const fetch: typeof globalThis.fetch;
+
 import * as crypto from 'crypto';
 import { EventEmitter } from 'events';
+import { setInterval } from 'timers';
 import { N8nClient } from '../client/n8nClient.js';
-import {
-  AuthProvider,
-  BaseAuthProvider,
-  RequestContext,
-  AuthResult,
-  AuthenticatedUser,
-} from './authProvider.js';
+import { BaseAuthProvider, RequestContext, AuthResult, AuthenticatedUser } from './authProvider.js';
 
 /**
  * OAuth2 configuration for different providers
@@ -212,11 +210,14 @@ export class OAuth2Handler extends EventEmitter {
   /**
    * Generate OAuth2 authorization URL
    */
-  generateAuthUrl(provider: string, options: {
-    sessionId?: string;
-    extraParams?: Record<string, string>;
-    metadata?: Record<string, unknown>;
-  } = {}): { url: string; session: OAuth2Session } {
+  generateAuthUrl(
+    provider: string,
+    options: {
+      sessionId?: string;
+      extraParams?: Record<string, string>;
+      metadata?: Record<string, unknown>;
+    } = {}
+  ): { url: string; session: OAuth2Session } {
     const config = this.configs.get(provider);
     if (!config) {
       throw new Error(`OAuth2 provider '${provider}' not configured`);
@@ -230,7 +231,7 @@ export class OAuth2Handler extends EventEmitter {
       provider,
       state,
       createdAt: Date.now(),
-      expiresAt: Date.now() + (15 * 60 * 1000), // 15 minutes
+      expiresAt: Date.now() + 15 * 60 * 1000, // 15 minutes
       metadata: options.metadata,
     };
 
@@ -386,7 +387,7 @@ export class OAuth2Handler extends EventEmitter {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
-          'Accept': 'application/json',
+          Accept: 'application/json',
         },
         body: params.toString(),
       });
@@ -400,7 +401,7 @@ export class OAuth2Handler extends EventEmitter {
         accessToken: tokenData.access_token,
         refreshToken: tokenData.refresh_token || currentTokens.refreshToken,
         tokenType: tokenData.token_type || 'Bearer',
-        expiresAt: tokenData.expires_in ? Date.now() + (tokenData.expires_in * 1000) : undefined,
+        expiresAt: tokenData.expires_in ? Date.now() + tokenData.expires_in * 1000 : undefined,
         scopes: tokenData.scope ? tokenData.scope.split(' ') : currentTokens.scopes,
         metadata: { ...currentTokens.metadata, refreshedAt: Date.now() },
       };
@@ -435,7 +436,7 @@ export class OAuth2Handler extends EventEmitter {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
-                'Authorization': `Bearer ${tokens.accessToken}`,
+                Authorization: `Bearer ${tokens.accessToken}`,
               },
               body: `token=${tokens.accessToken}`,
             });
@@ -465,7 +466,7 @@ export class OAuth2Handler extends EventEmitter {
     if (tokens.expiresAt) {
       const now = Date.now();
       const bufferMs = bufferSeconds * 1000;
-      return tokens.expiresAt > (now + bufferMs);
+      return tokens.expiresAt > now + bufferMs;
     }
 
     // If no expiry time, assume valid
@@ -513,7 +514,8 @@ export class OAuth2Handler extends EventEmitter {
         if (timeToExpiry <= 0) {
           // Token expired, remove it
           this.tokens.delete(tokenKey);
-        } else if (timeToExpiry <= 300000) { // 5 minutes
+        } else if (timeToExpiry <= 300000) {
+          // 5 minutes
           // Token expiring soon, emit warning
           this.emit('tokenExpiring', provider, userId, Math.floor(timeToExpiry / 1000));
         }
@@ -546,14 +548,16 @@ export class OAuth2Handler extends EventEmitter {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        'Accept': 'application/json',
+        Accept: 'application/json',
       },
       body: params.toString(),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Token exchange failed: ${response.status} ${response.statusText} - ${errorText}`);
+      throw new Error(
+        `Token exchange failed: ${response.status} ${response.statusText} - ${errorText}`
+      );
     }
 
     const tokenData = await response.json();
@@ -566,7 +570,7 @@ export class OAuth2Handler extends EventEmitter {
       accessToken: tokenData.access_token,
       refreshToken: tokenData.refresh_token,
       tokenType: tokenData.token_type || 'Bearer',
-      expiresAt: tokenData.expires_in ? Date.now() + (tokenData.expires_in * 1000) : undefined,
+      expiresAt: tokenData.expires_in ? Date.now() + tokenData.expires_in * 1000 : undefined,
       scopes: tokenData.scope ? tokenData.scope.split(' ') : config.scopes,
       metadata: { acquiredAt: Date.now() },
     };
@@ -586,8 +590,8 @@ export class OAuth2Handler extends EventEmitter {
 
     const response = await fetch(config.userInfoUrl, {
       headers: {
-        'Authorization': `${tokens.tokenType} ${tokens.accessToken}`,
-        'Accept': 'application/json',
+        Authorization: `${tokens.tokenType} ${tokens.accessToken}`,
+        Accept: 'application/json',
       },
     });
 
@@ -677,7 +681,7 @@ export class OAuth2Handler extends EventEmitter {
 
       if (config?.refreshSettings?.autoRefresh && tokens.refreshToken) {
         const bufferSeconds = config.refreshSettings.refreshBuffer || 300;
-        
+
         if (!this.areTokensValid(tokens, bufferSeconds)) {
           try {
             await this.refreshTokens(provider, userId);
@@ -753,7 +757,7 @@ export class OAuth2AuthProvider extends BaseAuthProvider {
    */
   private extractTokensFromContext(context: RequestContext): OAuth2Token | null {
     const headers = context.headers || {};
-    
+
     // Look for Bearer token in Authorization header
     const authHeader = headers.authorization || headers.Authorization;
     if (authHeader?.startsWith('Bearer ')) {
@@ -771,7 +775,7 @@ export class OAuth2AuthProvider extends BaseAuthProvider {
   /**
    * Create authenticated user from OAuth2 tokens
    */
-  private createUserFromTokens(tokens: OAuth2Token, context: RequestContext): AuthenticatedUser {
+  private createUserFromTokens(tokens: OAuth2Token, _context: RequestContext): AuthenticatedUser {
     return {
       id: `oauth2_${crypto.createHash('sha256').update(tokens.accessToken).digest('hex').substring(0, 16)}`,
       name: 'OAuth2 User',
@@ -789,11 +793,11 @@ export function createOAuth2Handler(): OAuth2Handler {
 
   // Add common OAuth2 providers (can be configured via environment variables)
   const providers = ['google', 'github', 'microsoft', 'discord'];
-  
+
   for (const provider of providers) {
     const clientId = process.env[`OAUTH2_${provider.toUpperCase()}_CLIENT_ID`];
     const clientSecret = process.env[`OAUTH2_${provider.toUpperCase()}_CLIENT_SECRET`];
-    
+
     if (clientId && clientSecret) {
       const config = getProviderConfig(provider, clientId, clientSecret);
       if (config) {
@@ -808,9 +812,13 @@ export function createOAuth2Handler(): OAuth2Handler {
 /**
  * Get OAuth2 configuration for common providers
  */
-function getProviderConfig(provider: string, clientId: string, clientSecret: string): OAuth2Config | null {
+function getProviderConfig(
+  provider: string,
+  clientId: string,
+  clientSecret: string
+): OAuth2Config | null {
   const baseUrl = process.env.OAUTH2_REDIRECT_BASE_URL || 'http://localhost:3000';
-  
+
   const configs: Record<string, Omit<OAuth2Config, 'clientId' | 'clientSecret'>> = {
     google: {
       provider: 'google',

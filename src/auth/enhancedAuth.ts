@@ -7,15 +7,9 @@
 
 import * as crypto from 'crypto';
 import { EventEmitter } from 'events';
-import { N8nClient } from '../client/n8nClient.js';
-import {
-  AuthProvider,
-  BaseAuthProvider,
-  RequestContext,
-  AuthResult,
-  AuthenticatedUser,
-} from './authProvider.js';
-import { OAuth2Handler, OAuth2Token } from './oauth2Handler.js';
+import { setInterval } from 'timers';
+import { AuthProvider, RequestContext, AuthResult, AuthenticatedUser } from './authProvider.js';
+import { OAuth2Handler } from './oauth2Handler.js';
 
 /**
  * Enhanced authentication configuration
@@ -237,7 +231,10 @@ export class EnhancedAuthProvider extends EventEmitter implements AuthProvider {
   private sessions = new Map<string, AuthSession>();
   private mfaChallenges = new Map<string, MfaChallenge>();
   private securityEvents: SecurityEvent[] = [];
-  private failedAttempts = new Map<string, { count: number; lastAttempt: number; lockedUntil?: number }>();
+  private failedAttempts = new Map<
+    string,
+    { count: number; lastAttempt: number; lockedUntil?: number }
+  >();
   private rateLimits = new Map<string, RateLimit>();
   private baseAuthProvider: AuthProvider;
   private oauth2Handler?: OAuth2Handler;
@@ -436,7 +433,10 @@ export class EnhancedAuthProvider extends EventEmitter implements AuthProvider {
 
       this.logSecurityEvent({
         type: 'login',
-        details: { success: false, error: error instanceof Error ? error.message : 'Unknown error' },
+        details: {
+          success: false,
+          error: error instanceof Error ? error.message : 'Unknown error',
+        },
         severity: 'medium',
         suspicious: true,
       });
@@ -521,7 +521,7 @@ export class EnhancedAuthProvider extends EventEmitter implements AuthProvider {
       userId,
       type,
       createdAt: Date.now(),
-      expiresAt: Date.now() + (5 * 60 * 1000), // 5 minutes
+      expiresAt: Date.now() + 5 * 60 * 1000, // 5 minutes
       attempts: 0,
       maxAttempts: 3,
     };
@@ -640,7 +640,12 @@ export class EnhancedAuthProvider extends EventEmitter implements AuthProvider {
       type: 'mfa',
       userId: challenge.userId,
       sessionId,
-      details: { action: 'challenge-failed', type: challenge.type, challengeId, attempts: challenge.attempts },
+      details: {
+        action: 'challenge-failed',
+        type: challenge.type,
+        challengeId,
+        attempts: challenge.attempts,
+      },
       severity: 'low',
       suspicious: challenge.attempts > 1,
     });
@@ -755,7 +760,11 @@ export class EnhancedAuthProvider extends EventEmitter implements AuthProvider {
   /**
    * Get account lockout status
    */
-  getLockoutStatus(identifier: string): { locked: boolean; lockedUntil?: number; attempts: number } {
+  getLockoutStatus(identifier: string): {
+    locked: boolean;
+    lockedUntil?: number;
+    attempts: number;
+  } {
     const failedAttempt = this.failedAttempts.get(identifier);
     if (!failedAttempt) {
       return { locked: false, attempts: 0 };
@@ -781,7 +790,10 @@ export class EnhancedAuthProvider extends EventEmitter implements AuthProvider {
   /**
    * Create authentication session
    */
-  private async createSession(user: AuthenticatedUser, context: RequestContext): Promise<AuthSession> {
+  private async createSession(
+    user: AuthenticatedUser,
+    context: RequestContext
+  ): Promise<AuthSession> {
     const sessionId = this.generateSessionId();
     const now = Date.now();
 
@@ -938,11 +950,12 @@ export class EnhancedAuthProvider extends EventEmitter implements AuthProvider {
       return;
     }
 
-    const shouldLog = 
+    const shouldLog =
       (event.type === 'login' && (this.config.audit.logSuccess || this.config.audit.logFailures)) ||
       (event.type === 'logout' && this.config.audit.logSessions) ||
       (event.type === 'mfa' && this.config.audit.logSecurity) ||
-      (event.severity === 'high' || event.severity === 'critical');
+      event.severity === 'high' ||
+      event.severity === 'critical';
 
     if (!shouldLog) {
       return;
@@ -970,19 +983,23 @@ export class EnhancedAuthProvider extends EventEmitter implements AuthProvider {
    * Extract session ID from context
    */
   private extractSessionId(context: RequestContext): string | null {
-    return context.headers?.['x-session-id'] || 
-           context.headers?.['authorization']?.replace(/^Session\s+/, '') ||
-           null;
+    return (
+      context.headers?.['x-session-id'] ||
+      context.headers?.['authorization']?.replace(/^Session\s+/, '') ||
+      null
+    );
   }
 
   /**
    * Get client identifier for rate limiting
    */
   private getClientIdentifier(context: RequestContext): string {
-    return context.headers?.['x-forwarded-for'] || 
-           context.headers?.['x-real-ip'] || 
-           context.clientId || 
-           'unknown';
+    return (
+      context.headers?.['x-forwarded-for'] ||
+      context.headers?.['x-real-ip'] ||
+      context.clientId ||
+      'unknown'
+    );
   }
 
   /**
@@ -1029,7 +1046,7 @@ export class EnhancedAuthProvider extends EventEmitter implements AuthProvider {
   /**
    * Verify TOTP code (placeholder implementation)
    */
-  private async verifyTotpCode(userId: string, code: string): Promise<boolean> {
+  private async verifyTotpCode(_userId: string, _code: string): Promise<boolean> {
     // This would integrate with a TOTP library like speakeasy
     // For now, return false as we don't have TOTP secrets stored
     return false;
@@ -1038,7 +1055,7 @@ export class EnhancedAuthProvider extends EventEmitter implements AuthProvider {
   /**
    * Verify backup code (placeholder implementation)
    */
-  private async verifyBackupCode(userId: string, code: string): Promise<boolean> {
+  private async verifyBackupCode(_userId: string, _code: string): Promise<boolean> {
     // This would check against stored backup codes
     // For now, return false as we don't have backup codes stored
     return false;
@@ -1144,8 +1161,8 @@ export function parseEnhancedAuthConfigFromEnv(): Partial<EnhancedAuthConfig> {
   return {
     mfaEnabled: process.env[ENHANCED_AUTH_ENV_CONFIG.MFA_ENABLED] === 'true',
     session: {
-      timeout: process.env[ENHANCED_AUTH_ENV_CONFIG.SESSION_TIMEOUT] 
-        ? parseInt(process.env[ENHANCED_AUTH_ENV_CONFIG.SESSION_TIMEOUT]!) * 1000 
+      timeout: process.env[ENHANCED_AUTH_ENV_CONFIG.SESSION_TIMEOUT]
+        ? parseInt(process.env[ENHANCED_AUTH_ENV_CONFIG.SESSION_TIMEOUT]!) * 1000
         : 24 * 60 * 60 * 1000,
       sliding: process.env[ENHANCED_AUTH_ENV_CONFIG.SESSION_SLIDING] !== 'false',
       maxConcurrent: process.env[ENHANCED_AUTH_ENV_CONFIG.MAX_CONCURRENT_SESSIONS]

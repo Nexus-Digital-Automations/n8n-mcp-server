@@ -21,6 +21,7 @@ import { createSourceControlTools } from './tools/source-control.js';
 import { createResourceTransferTools } from './tools/resource-transfer.js';
 import { createDataManagementTools } from './tools/data-management.js';
 import { createCredentialTestingTools } from './tools/credential-testing.js';
+import { createExecutionControlTools } from './tools/execution-control.js';
 import {
   detectTransportConfig,
   validateTransportConfig,
@@ -42,6 +43,7 @@ Key Features:
 - Complete workflow management (create, read, update, delete, activate/deactivate)
 - User and project management (Enterprise features)
 - Execution monitoring and management
+- Sophisticated execution control (cancel, retry, partial execution with checkpoints)
 - Credential and variable management
 - Tag system for organization
 - Audit and security reporting
@@ -109,6 +111,9 @@ createDataManagementTools(getClient, server);
 
 // Register credential testing tools (Phase 1)
 createCredentialTestingTools(getClient, server);
+
+// Register execution control tools (Phase 1)
+createExecutionControlTools(getClient, server);
 
 // Register AI-centric tools (Phase 3)
 createAIConfigTools(getClient, server);

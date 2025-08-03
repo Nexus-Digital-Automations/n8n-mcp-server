@@ -5,8 +5,14 @@
  * and authentication flow validation.
  */
 
+/* eslint-disable no-undef */
+declare const fetch: typeof globalThis.fetch;
+declare const AbortController: typeof globalThis.AbortController;
+declare const AbortSignal: typeof globalThis.AbortSignal;
+
 import { z } from 'zod';
 import { UserError } from 'fastmcp';
+import { setTimeout, clearTimeout } from 'timers';
 import { N8nClient } from '../client/n8nClient.js';
 import { OAuth2Handler, OAuth2Config, OAuth2CallbackResult } from '../auth/oauth2Handler.js';
 import { N8nAuthProvider } from '../auth/n8nAuth.js';
@@ -71,27 +77,33 @@ const OAuth2RevokeSchema = z.object({
 });
 
 const BatchCredentialTestSchema = z.object({
-  credentials: z.array(z.object({
-    id: z.string(),
-    type: z.string(),
-    data: z.record(z.string(), z.any()),
-    testEndpoint: z.string().url().optional(),
-  })).min(1).max(10), // Limit batch size
+  credentials: z
+    .array(
+      z.object({
+        id: z.string(),
+        type: z.string(),
+        data: z.record(z.string(), z.any()),
+        testEndpoint: z.string().url().optional(),
+      })
+    )
+    .min(1)
+    .max(10), // Limit batch size
   timeout: z.number().min(1000).max(30000).optional().default(10000),
   parallel: z.boolean().optional().default(false),
 });
 
-const CredentialSecurityAuditSchema = z.object({
-  credentialId: z.string().min(1, 'Credential ID is required'),
-  checks: z.array(z.enum([
-    'encryption',
-    'expiry',
-    'permissions',
-    'usage',
-    'sharing',
-    'rotation'
-  ])).optional().default(['encryption', 'expiry', 'permissions']),
-});
+// Note: Security audit schema reserved for future implementation
+// const CredentialSecurityAuditSchema = z.object({
+//   credentialId: z.string().min(1, 'Credential ID is required'),
+//   checks: z.array(z.enum([
+//     'encryption',
+//     'expiry',
+//     'permissions',
+//     'usage',
+//     'sharing',
+//     'rotation'
+//   ])).optional().default(['encryption', 'expiry', 'permissions']),
+// });
 
 // Global OAuth2 handler instance
 let oauth2Handler: OAuth2Handler | null = null;
@@ -129,7 +141,7 @@ export function createCredentialTestingTools(getClient: () => N8nClient | null, 
     execute: async (args: z.infer<typeof TestN8nApiKeySchema>) => {
       try {
         const authProvider = getN8nAuthProvider();
-        
+
         // Create test context
         const context = {
           headers: {
@@ -140,7 +152,7 @@ export function createCredentialTestingTools(getClient: () => N8nClient | null, 
 
         // Test authentication
         const authResult = await authProvider.authenticate(context);
-        
+
         if (!authResult.success) {
           return (
             `❌ **n8n API Key Test Failed**\n\n` +
@@ -164,37 +176,39 @@ export function createCredentialTestingTools(getClient: () => N8nClient | null, 
                 permissions.workflows = true;
                 results.push('✅ Can access workflows');
                 break;
-              
+
               case 'executions':
                 await testClient.getExecutions({ limit: 1 });
                 permissions.executions = true;
                 results.push('✅ Can access executions');
                 break;
-              
+
               case 'credentials':
                 await testClient.getCredentials({ limit: 1 });
                 permissions.credentials = true;
                 results.push('✅ Can access credentials');
                 break;
-              
+
               case 'users':
                 await testClient.getUsers({ limit: 1 });
                 permissions.users = true;
                 results.push('✅ Can access users (Enterprise)');
                 break;
-              
+
               case 'projects':
                 await testClient.getProjects({ limit: 1 });
                 permissions.projects = true;
                 results.push('✅ Can access projects (Enterprise)');
                 break;
-              
+
               default:
                 results.push(`⚠️ Unknown operation: ${operation}`);
             }
           } catch (error) {
             permissions[operation] = false;
-            results.push(`❌ Cannot access ${operation}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+            results.push(
+              `❌ Cannot access ${operation}: ${error instanceof Error ? error.message : 'Unknown error'}`
+            );
           }
         }
 
@@ -209,7 +223,8 @@ export function createCredentialTestingTools(getClient: () => N8nClient | null, 
           `- **User Type:** ${hasEnterpriseFeatures ? 'Enterprise' : 'Community'}\n` +
           `- **Roles:** ${user.roles.join(', ')}\n\n` +
           `**Permission Test Results:**\n` +
-          results.join('\n') + '\n\n' +
+          results.join('\n') +
+          '\n\n' +
           `**Available Features:**\n` +
           `- Community Features: ${user.permissions.community ? '✅' : '❌'}\n` +
           `- Enterprise Features: ${user.permissions.enterprise ? '✅' : '❌'}\n` +
@@ -242,7 +257,7 @@ export function createCredentialTestingTools(getClient: () => N8nClient | null, 
     execute: async (args: z.infer<typeof OAuth2InitSchema>) => {
       try {
         const handler = getOAuth2Handler();
-        
+
         const config: OAuth2Config = {
           provider: args.provider,
           clientId: args.clientId,
@@ -297,7 +312,7 @@ export function createCredentialTestingTools(getClient: () => N8nClient | null, 
     execute: async (args: z.infer<typeof OAuth2AuthorizeSchema>) => {
       try {
         const handler = getOAuth2Handler();
-        
+
         const { url, session } = handler.generateAuthUrl(args.provider, {
           sessionId: args.sessionId,
           extraParams: args.extraParams,
@@ -339,7 +354,7 @@ export function createCredentialTestingTools(getClient: () => N8nClient | null, 
     execute: async (args: z.infer<typeof OAuth2CallbackSchema>) => {
       try {
         const handler = getOAuth2Handler();
-        
+
         const result: OAuth2CallbackResult = await handler.handleCallback(args.provider, {
           code: args.code,
           state: args.state,
@@ -353,10 +368,11 @@ export function createCredentialTestingTools(getClient: () => N8nClient | null, 
             `❌ **OAuth2 Callback Failed**\n\n` +
             `- **Provider:** ${args.provider}\n` +
             `- **Error:** ${result.error}\n` +
-            (result.errorDetails ? 
-              `- **Error Code:** ${result.errorDetails.code}\n` +
-              `- **Description:** ${result.errorDetails.description}\n` +
-              (result.errorDetails.uri ? `- **More Info:** ${result.errorDetails.uri}\n` : '') : '') +
+            (result.errorDetails
+              ? `- **Error Code:** ${result.errorDetails.code}\n` +
+                `- **Description:** ${result.errorDetails.description}\n` +
+                (result.errorDetails.uri ? `- **More Info:** ${result.errorDetails.uri}\n` : '')
+              : '') +
             `\nThe OAuth2 authentication flow was not completed successfully.`
           );
         }
@@ -401,9 +417,9 @@ export function createCredentialTestingTools(getClient: () => N8nClient | null, 
     execute: async (args: z.infer<typeof OAuth2RefreshSchema>) => {
       try {
         const handler = getOAuth2Handler();
-        
+
         const newTokens = await handler.refreshTokens(args.provider, args.userId);
-        
+
         if (!newTokens) {
           return (
             `❌ **Token Refresh Failed**\n\n` +
@@ -451,9 +467,9 @@ export function createCredentialTestingTools(getClient: () => N8nClient | null, 
     execute: async (args: z.infer<typeof OAuth2TokenValidationSchema>) => {
       try {
         const handler = getOAuth2Handler();
-        
+
         const tokens = handler.getTokens(args.provider, args.userId);
-        
+
         if (!tokens) {
           return (
             `❌ **No Tokens Found**\n\n` +
@@ -475,14 +491,14 @@ export function createCredentialTestingTools(getClient: () => N8nClient | null, 
           `- **Scopes:** ${tokens.scopes.join(', ')}\n` +
           `- **Has Refresh Token:** ${tokens.refreshToken ? 'Yes' : 'No'}\n` +
           `- **Valid:** ${isValid ? 'Yes' : 'No'}\n` +
-          (tokens.expiresAt ? 
-            `- **Expires:** ${new Date(tokens.expiresAt).toLocaleString()}\n` +
-            `- **Time to Expiry:** ${timeToExpiry ? Math.floor(timeToExpiry / 1000) + ' seconds' : 'Expired'}\n` : 
-            `- **Expires:** Never\n`) +
+          (tokens.expiresAt
+            ? `- **Expires:** ${new Date(tokens.expiresAt).toLocaleString()}\n` +
+              `- **Time to Expiry:** ${timeToExpiry ? Math.floor(timeToExpiry / 1000) + ' seconds' : 'Expired'}\n`
+            : `- **Expires:** Never\n`) +
           `- **Buffer Time:** ${args.bufferSeconds} seconds\n\n` +
-          (isValid ? 
-            `✅ Tokens are valid and can be used for authentication.` :
-            `❌ Tokens are invalid or expired. ${tokens.refreshToken ? 'Consider refreshing tokens.' : 'Re-authentication required.'}`)
+          (isValid
+            ? `✅ Tokens are valid and can be used for authentication.`
+            : `❌ Tokens are invalid or expired. ${tokens.refreshToken ? 'Consider refreshing tokens.' : 'Re-authentication required.'}`)
         );
       } catch (error) {
         throw new UserError(
@@ -507,16 +523,16 @@ export function createCredentialTestingTools(getClient: () => N8nClient | null, 
     execute: async (args: z.infer<typeof OAuth2RevokeSchema>) => {
       try {
         const handler = getOAuth2Handler();
-        
+
         const success = await handler.revokeTokens(args.provider, args.userId);
-        
+
         return (
           `${success ? '✅' : '⚠️'} **Token Revocation ${success ? 'Successful' : 'Completed'}**\n\n` +
           `- **Provider:** ${args.provider}\n` +
           `- **User ID:** ${args.userId}\n\n` +
-          (success ? 
-            `Tokens have been revoked with the provider and removed from local storage.` :
-            `Tokens have been removed from local storage. Provider revocation may have failed.`) +
+          (success
+            ? `Tokens have been revoked with the provider and removed from local storage.`
+            : `Tokens have been removed from local storage. Provider revocation may have failed.`) +
           `\n\n🔒 User will need to re-authenticate to access OAuth2-protected resources.`
         );
       } catch (error) {
@@ -600,7 +616,7 @@ export function createCredentialTestingTools(getClient: () => N8nClient | null, 
         // Prepare request based on credential type
         const headers: Record<string, string> = {
           'User-Agent': 'n8n-mcp-server/2.0.0',
-          'Accept': 'application/json',
+          Accept: 'application/json',
         };
 
         // Add authentication based on credential type
@@ -611,7 +627,9 @@ export function createCredentialTestingTools(getClient: () => N8nClient | null, 
             headers['X-API-Key'] = args.credentialData.key;
           }
         } else if (args.credentialType === 'basic-auth') {
-          const credentials = Buffer.from(`${args.credentialData.username}:${args.credentialData.password}`).toString('base64');
+          const credentials = Buffer.from(
+            `${args.credentialData.username}:${args.credentialData.password}`
+          ).toString('base64');
           headers['Authorization'] = `Basic ${credentials}`;
         } else if (args.credentialType === 'oauth2') {
           if (args.credentialData.accessToken) {
@@ -642,14 +660,14 @@ export function createCredentialTestingTools(getClient: () => N8nClient | null, 
             `- **Status Code:** ${response.status} ${response.statusText}\n` +
             `- **Response Time:** ${Date.now() - Date.now()} ms\n` +
             `- **Content Type:** ${response.headers.get('content-type') || 'Unknown'}\n\n` +
-            (isSuccess ? 
-              `✅ The credential is valid and working correctly.` :
-              `❌ The credential test failed. This could indicate:\n` +
-              `- Invalid credentials\n` +
-              `- Expired tokens\n` +
-              `- Insufficient permissions\n` +
-              `- Service unavailable\n\n` +
-              `**Response:** ${responseText.substring(0, 500)}${responseText.length > 500 ? '...' : ''}`)
+            (isSuccess
+              ? `✅ The credential is valid and working correctly.`
+              : `❌ The credential test failed. This could indicate:\n` +
+                `- Invalid credentials\n` +
+                `- Expired tokens\n` +
+                `- Insufficient permissions\n` +
+                `- Service unavailable\n\n` +
+                `**Response:** ${responseText.substring(0, 500)}${responseText.length > 500 ? '...' : ''}`)
           );
         } catch (error) {
           clearTimeout(timeoutId);
@@ -699,7 +717,7 @@ export function createCredentialTestingTools(getClient: () => N8nClient | null, 
           responseTime?: number;
         }> = [];
 
-        const testCredential = async (cred: typeof args.credentials[0]) => {
+        const testCredential = async (cred: (typeof args.credentials)[0]) => {
           const startTime = Date.now();
           try {
             if (!cred.testEndpoint) {
@@ -714,13 +732,15 @@ export function createCredentialTestingTools(getClient: () => N8nClient | null, 
             // Prepare headers (simplified version of individual test)
             const headers: Record<string, string> = {
               'User-Agent': 'n8n-mcp-server/2.0.0',
-              'Accept': 'application/json',
+              Accept: 'application/json',
             };
 
             if (cred.type === 'api-key' && cred.data.apiKey) {
               headers['Authorization'] = `Bearer ${cred.data.apiKey}`;
             } else if (cred.type === 'basic-auth') {
-              const credentials = Buffer.from(`${cred.data.username}:${cred.data.password}`).toString('base64');
+              const credentials = Buffer.from(
+                `${cred.data.username}:${cred.data.password}`
+              ).toString('base64');
               headers['Authorization'] = `Basic ${credentials}`;
             }
 
@@ -751,7 +771,7 @@ export function createCredentialTestingTools(getClient: () => N8nClient | null, 
         // Execute tests
         if (args.parallel) {
           const promises = args.credentials.map(testCredential);
-          results.push(...await Promise.all(promises));
+          results.push(...(await Promise.all(promises)));
         } else {
           for (const cred of args.credentials) {
             const result = await testCredential(cred);
@@ -762,9 +782,9 @@ export function createCredentialTestingTools(getClient: () => N8nClient | null, 
         // Generate summary
         const successful = results.filter(r => r.success).length;
         const failed = results.length - successful;
-        const avgResponseTime = results
-          .filter(r => r.responseTime)
-          .reduce((sum, r) => sum + (r.responseTime || 0), 0) / results.length;
+        const avgResponseTime =
+          results.filter(r => r.responseTime).reduce((sum, r) => sum + (r.responseTime || 0), 0) /
+          results.length;
 
         let output = `📊 **Batch Credential Test Results**\n\n`;
         output += `- **Total Tested:** ${results.length}\n`;
@@ -800,10 +820,10 @@ export function createCredentialTestingTools(getClient: () => N8nClient | null, 
   });
 }
 
-// Helper function to format response time
-function formatResponseTime(ms: number): string {
-  if (ms < 1000) {
-    return `${ms}ms`;
-  }
-  return `${(ms / 1000).toFixed(2)}s`;
-}
+// Helper function to format response time (for future use)
+// function formatResponseTime(ms: number): string {
+//   if (ms < 1000) {
+//     return `${ms}ms`;
+//   }
+//   return `${(ms / 1000).toFixed(2)}s`;
+// }
