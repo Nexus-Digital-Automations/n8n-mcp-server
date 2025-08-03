@@ -19,6 +19,7 @@ import { createAnalyticsTools } from './tools/analytics.js';
 import { createTemplateTools } from './tools/templates.js';
 import { createSourceControlTools } from './tools/source-control.js';
 import { createResourceTransferTools } from './tools/resource-transfer.js';
+import { createDataManagementTools } from './tools/data-management.js';
 import {
   detectTransportConfig,
   validateTransportConfig,
@@ -57,6 +58,9 @@ Key Features:
 - Resource portability with comprehensive export/import tools
 - Cross-instance workflow, credential, and configuration transfer
 - Batch resource operations and project migration tools
+- Binary data management with upload/download capabilities
+- Large file handling with progress tracking and validation
+- Static workflow file storage and organization tools
 
 Getting Started:
 1. Initialize connection: Use 'init-n8n' with your n8n instance URL and API key
@@ -94,6 +98,9 @@ createSourceControlTools(getClient, server);
 
 // Register resource transfer tools (Phase 1)
 createResourceTransferTools(getClient, server);
+
+// Register data management tools (Phase 1)
+createDataManagementTools(getClient, server);
 
 // Register AI-centric tools (Phase 3)
 createAIConfigTools(getClient, server);
