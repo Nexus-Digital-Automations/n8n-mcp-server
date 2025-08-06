@@ -23,6 +23,13 @@ import { createDataManagementTools } from './tools/data-management.js';
 import { createCredentialTestingTools } from './tools/credential-testing.js';
 import { createExecutionControlTools } from './tools/execution-control.js';
 import { createWorkflowDevelopmentTools } from './tools/workflow-development.js';
+import { createNodeManagementTools } from './tools/node-management.js';
+import { createAIHelperTools } from './tools/ai-helpers.js';
+import { createInstanceMonitoringTools } from './tools/instance-monitoring.js';
+import { createBinaryDataTools } from './tools/binary-data.js';
+import { createFileOperationsTools } from './tools/file-operations.js';
+import { createSystemHealthTools } from './tools/system-health.js';
+import { createPerformanceMetricsTools } from './tools/performance-metrics.js';
 import {
   detectTransportConfig,
   validateTransportConfig,
@@ -69,6 +76,23 @@ Key Features:
 - Credential validity testing and security validation
 - Multi-factor authentication and session management
 - Advanced security monitoring and audit capabilities
+- Community node and integration management with npm registry support
+- Node installation, removal, and update tools with progress tracking
+- Node type discovery and detailed parameter documentation
+- Workflow-centric node analysis and usage statistics
+- Dynamic parameter resolution and AI-powered node suggestions
+- AI-powered workflow analysis with connection suggestions and optimization
+- Smart parameter mapping with auto-configuration capabilities
+- Node compatibility analysis with transformation recommendations
+- Data flow analysis with bottleneck identification and performance optimization
+- Instance-level resource monitoring with CPU, memory, and disk usage tracking
+- Per-workflow resource consumption metrics and performance analysis
+- System health monitoring with alerting and threshold management
+- Real-time resource usage tracking with historical data retention
+- Comprehensive system health checks with diagnostics and troubleshooting tools
+- Performance metrics collection with trend analysis and benchmarking capabilities
+- Resource monitoring with configurable thresholds and automated alerting
+- Connectivity testing and API response time monitoring
 
 Getting Started:
 1. Initialize connection: Use 'init-n8n' with your n8n instance URL and API key
@@ -110,6 +134,10 @@ createResourceTransferTools(getClient, server);
 // Register data management tools (Phase 1)
 createDataManagementTools(getClient, server);
 
+// Register binary data and file operations tools (Phase 1)
+createBinaryDataTools(getClient, server);
+createFileOperationsTools(server);
+
 // Register credential testing tools (Phase 1)
 createCredentialTestingTools(getClient, server);
 
@@ -119,6 +147,15 @@ createExecutionControlTools(getClient, server);
 // Register workflow development tools (Phase 2)
 createWorkflowDevelopmentTools(getClient, server);
 
+// Register node and integration management tools (Phase 2)
+createNodeManagementTools(getClient, server);
+
+// Register AI-powered helper tools (Phase 2)
+createAIHelperTools(getClient, server);
+
+// Register instance resource monitoring tools (Phase 4)
+createInstanceMonitoringTools(getClient, server);
+
 // Register AI-centric tools (Phase 3)
 createAIConfigTools(getClient, server);
 createAITestingTools(getClient, server);
@@ -126,6 +163,10 @@ createAIModelsTools(getClient, server);
 
 // Register advanced monitoring tools (Phase 3)
 createMonitoringTools(getClient, server);
+
+// Register system health and performance monitoring tools (Phase 3)
+createSystemHealthTools(getClient, server);
+createPerformanceMetricsTools(getClient, server);
 
 // Register workflow analytics and intelligence tools (Phase 3)
 createAnalyticsTools(getClient, server);

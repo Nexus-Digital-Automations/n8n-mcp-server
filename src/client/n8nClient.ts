@@ -8,6 +8,8 @@ import {
   N8nVariable,
   N8nTag,
   N8nAuditReport,
+  N8nCommunityPackage,
+  N8nNodeTypeDescription,
   ApiResponse,
   PaginationOptions,
   CreateUserRequest,
@@ -20,6 +22,13 @@ import {
   CreateVariableRequest,
   CreateTagRequest,
   UpdateTagRequest,
+  CommunityPackageInstallRequest,
+  CommunityPackageUpdateRequest,
+  DynamicNodeOptions,
+  DynamicNodeParameter,
+  ResourceLocatorResult,
+  AINodeClassification,
+  AINodeSuggestion,
 } from '../types/n8n.js';
 
 export class N8nClient {
@@ -310,5 +319,78 @@ export class N8nClient {
   // Audit Report
   async generateAuditReport(): Promise<N8nAuditReport> {
     return this.makeRequest<N8nAuditReport>('/audit');
+  }
+
+  // Community Package Management
+  async getCommunityPackages(): Promise<ApiResponse<N8nCommunityPackage[]>> {
+    return this.makeRequest<ApiResponse<N8nCommunityPackage[]>>('/community-packages');
+  }
+
+  async installCommunityPackage(packageData: CommunityPackageInstallRequest): Promise<N8nCommunityPackage> {
+    return this.makeRequest<N8nCommunityPackage>('/community-packages', {
+      method: 'POST',
+      body: JSON.stringify(packageData),
+    });
+  }
+
+  async updateCommunityPackage(packageName: string, packageData: CommunityPackageUpdateRequest): Promise<N8nCommunityPackage> {
+    return this.makeRequest<N8nCommunityPackage>(`/community-packages/${encodeURIComponent(packageName)}`, {
+      method: 'PATCH',
+      body: JSON.stringify(packageData),
+    });
+  }
+
+  async uninstallCommunityPackage(packageName: string): Promise<void> {
+    await this.makeRequest<void>(`/community-packages/${encodeURIComponent(packageName)}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // Node Type Management
+  async getNodeTypes(): Promise<N8nNodeTypeDescription[]> {
+    return this.makeRequest<N8nNodeTypeDescription[]>('/node-types');
+  }
+
+  async getNodeType(nodeType: string): Promise<N8nNodeTypeDescription> {
+    return this.makeRequest<N8nNodeTypeDescription>(`/node-types/${encodeURIComponent(nodeType)}`);
+  }
+
+  async getCommunityNodeTypes(): Promise<N8nNodeTypeDescription[]> {
+    return this.makeRequest<N8nNodeTypeDescription[]>('/community-node-types');
+  }
+
+  async getCommunityNodeType(name: string): Promise<N8nNodeTypeDescription> {
+    return this.makeRequest<N8nNodeTypeDescription>(`/community-node-types/${encodeURIComponent(name)}`);
+  }
+
+  // Dynamic Node Parameters
+  async getDynamicNodeParameters(options: DynamicNodeOptions): Promise<DynamicNodeParameter[]> {
+    return this.makeRequest<DynamicNodeParameter[]>('/dynamic-node-parameters/options', {
+      method: 'POST',
+      body: JSON.stringify(options),
+    });
+  }
+
+  async getResourceLocatorResults(options: DynamicNodeOptions): Promise<ResourceLocatorResult[]> {
+    return this.makeRequest<ResourceLocatorResult[]>('/dynamic-node-parameters/resource-locator', {
+      method: 'POST',
+      body: JSON.stringify(options),
+    });
+  }
+
+  // AI Node Features
+  async getAINodes(): Promise<N8nNodeTypeDescription[]> {
+    return this.makeRequest<N8nNodeTypeDescription[]>('/ai-nodes');
+  }
+
+  async classifyAINode(nodeType: string): Promise<AINodeClassification> {
+    return this.makeRequest<AINodeClassification>('/ai-nodes/classify', {
+      method: 'POST',
+      body: JSON.stringify({ nodeType }),
+    });
+  }
+
+  async getAINodeSuggestions(nodeType: string): Promise<AINodeSuggestion[]> {
+    return this.makeRequest<AINodeSuggestion[]>(`/ai-nodes/${encodeURIComponent(nodeType)}/suggestions`);
   }
 }

@@ -211,3 +211,212 @@ export interface CreateTagRequest {
 export interface UpdateTagRequest {
   name?: string;
 }
+
+// Community Node and Package Management Types
+
+export interface N8nCommunityPackage {
+  packageName: string;
+  installedVersion: string;
+  authorName?: string;
+  authorEmail?: string;
+  installedNodes?: N8nNodeTypeDescription[];
+  createdAt: string;
+  updatedAt: string;
+  failedLoading?: boolean;
+}
+
+export interface N8nNodeTypeDescription {
+  name: string;
+  displayName: string;
+  description: string;
+  version: number;
+  defaults: Record<string, unknown>;
+  inputs: string[];
+  outputs: string[];
+  properties: N8nNodeProperty[];
+  credentials?: N8nNodeCredential[];
+  documentationUrl?: string;
+  icon?: string;
+  iconData?: {
+    type: string;
+    fileBuffer: string;
+  };
+  group: string[];
+  subtitle?: string;
+  codex?: {
+    label?: string;
+    categories?: string[];
+    subcategories?: Record<string, string[]>;
+    resources?: {
+      primaryDocumentation?: Array<{
+        url: string;
+      }>;
+      credentialDocumentation?: Array<{
+        url: string;
+      }>;
+    };
+    alias?: string[];
+  };
+  parameterPane?: string;
+  supportsCORS?: boolean;
+  maxNodes?: number;
+  polling?: boolean;
+  triggerPanel?: {
+    header: string;
+    executionsHelp: {
+      inactive: string;
+      active: string;
+    };
+    activationHint: string;
+  };
+  webhooks?: Array<{
+    name: string;
+    httpMethod: string;
+    responseMode: string;
+    path: string;
+    ndvHideUrl?: boolean;
+    ndvHideMethod?: boolean;
+  }>;
+  requestDefaults?: {
+    returnFullResponse?: boolean;
+    baseURL?: string;
+  };
+}
+
+export interface N8nNodeProperty {
+  displayName: string;
+  name: string;
+  type: 'string' | 'number' | 'boolean' | 'options' | 'multiOptions' | 'json' | 'dateTime' | 'resourceLocator' | 'fixedCollection' | 'collection' | 'color' | 'hidden' | 'notice';
+  default?: unknown;
+  description?: string;
+  placeholder?: string;
+  required?: boolean;
+  options?: Array<{
+    name: string;
+    value: unknown;
+    description?: string;
+  }>;
+  routing?: Record<string, unknown>;
+  extractValue?: Record<string, unknown>;
+  displayOptions?: Record<string, unknown>;
+  typeOptions?: Record<string, unknown>;
+}
+
+export interface N8nNodeCredential {
+  name: string;
+  required?: boolean;
+  displayOptions?: Record<string, unknown>;
+  testedBy?: string;
+}
+
+export interface CommunityPackageInstallRequest {
+  name: string;
+  version?: string;
+}
+
+export interface CommunityPackageUpdateRequest {
+  name: string;
+  version?: string;
+}
+
+export interface NodeSearchResult {
+  workflowId: string;
+  workflowName: string;
+  node: N8nNode;
+  isWorkflowActive: boolean;
+}
+
+export interface NodeUsageStats {
+  nodeType: string;
+  totalCount: number;
+  activeWorkflowCount: number;
+  workflowIds: string[];
+  lastUsed?: string;
+}
+
+export interface NodeUpdateRequest {
+  workflowId: string;
+  nodeId: string;
+  updates: Partial<N8nNode>;
+}
+
+export interface NodeInstallationProgress {
+  packageName: string;
+  status: 'downloading' | 'installing' | 'validating' | 'completed' | 'failed';
+  progress: number;
+  message?: string;
+  error?: string;
+}
+
+export interface NodeRegistrySearchResult {
+  name: string;
+  version: string;
+  description: string;
+  keywords: string[];
+  author: {
+    name?: string;
+    email?: string;
+    url?: string;
+  };
+  maintainers: Array<{
+    name: string;
+    email?: string;
+  }>;
+  license: string;
+  homepage?: string;
+  repository?: {
+    type: string;
+    url: string;
+  };
+  downloads: {
+    weekly: number;
+    monthly: number;
+    total: number;
+  };
+  nodeTypes: string[];
+  compatibility: {
+    minN8nVersion: string;
+    maxN8nVersion?: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface DynamicNodeParameter {
+  name: string;
+  displayName: string;
+  value: string;
+  type: string;
+  action?: string;
+}
+
+export interface DynamicNodeOptions {
+  property: string;
+  currentNodeParameters: Record<string, unknown>;
+  credentials?: Record<string, unknown>;
+  path?: string;
+  methodName?: string;
+  loadOptionsMethod?: string;
+}
+
+export interface ResourceLocatorResult {
+  name: string;
+  value: string;
+  url?: string;
+}
+
+export interface AINodeClassification {
+  nodeType: string;
+  isAINode: boolean;
+  aiCapabilities: string[];
+  suggestedIntegrations: string[];
+  confidenceScore: number;
+}
+
+export interface AINodeSuggestion {
+  nodeType: string;
+  suggestion: string;
+  reasoning: string;
+  confidence: number;
+  alternativeNodes: string[];
+}
