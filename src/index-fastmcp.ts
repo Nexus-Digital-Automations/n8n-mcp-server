@@ -30,6 +30,8 @@ import { createBinaryDataTools } from './tools/binary-data.js';
 import { createFileOperationsTools } from './tools/file-operations.js';
 import { createSystemHealthTools } from './tools/system-health.js';
 import { createPerformanceMetricsTools } from './tools/performance-metrics.js';
+import { createEventStreamingTools } from './tools/event-streaming.js';
+import { createAnalyticsDashboardTools } from './tools/analytics-dashboard.js';
 import {
   detectTransportConfig,
   validateTransportConfig,
@@ -93,6 +95,10 @@ Key Features:
 - Performance metrics collection with trend analysis and benchmarking capabilities
 - Resource monitoring with configurable thresholds and automated alerting
 - Connectivity testing and API response time monitoring
+- Real-time event streaming with custom event subscriptions and webhook notifications
+- Analytics dashboard with comprehensive usage insights, performance reports, and trend analysis
+- Event-driven architecture with webhook management and authentication support
+- Advanced analytics export capabilities with JSON/CSV formats for external analysis
 
 Getting Started:
 1. Initialize connection: Use 'init-n8n' with your n8n instance URL and API key
@@ -167,6 +173,10 @@ createMonitoringTools(getClient, server);
 // Register system health and performance monitoring tools (Phase 3)
 createSystemHealthTools(getClient, server);
 createPerformanceMetricsTools(getClient, server);
+
+// Register event streaming and analytics dashboard tools (Phase 3)
+createEventStreamingTools(getClient, server);
+createAnalyticsDashboardTools(getClient, server);
 
 // Register workflow analytics and intelligence tools (Phase 3)
 createAnalyticsTools(getClient, server);

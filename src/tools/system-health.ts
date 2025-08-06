@@ -3,9 +3,6 @@ import { UserError } from 'fastmcp';
 import { N8nClient } from '../client/n8nClient.js';
 import { MonitoringClient } from '../client/monitoringClient.js';
 import {
-  InstanceHealthMetrics,
-  SystemDiagnostics,
-  PerformanceAlert,
   ResourceThresholds,
 } from '../types/monitoringTypes.js';
 
@@ -57,13 +54,6 @@ const ResourceThresholdSchema = z.object({
   }).optional(),
 });
 
-const AlertsQuerySchema = z.object({
-  severity: z.enum(['low', 'medium', 'high', 'critical']).optional(),
-  resolved: z.boolean().optional(),
-  workflowId: z.string().optional(),
-  limit: z.number().min(1).max(100).default(50),
-  timeRange: z.enum(['1h', '6h', '24h', '7d', '30d']).default('24h'),
-});
 
 const ConnectivityTestSchema = z.object({
   includeLatency: z.boolean().default(true),
@@ -201,14 +191,14 @@ export function createSystemHealthTools(getClient: () => N8nClient | null, serve
 
           if (diagnostics.overall.issues.length > 0) {
             response += `\n**⚠️ Issues Detected:**\n`;
-            diagnostics.overall.issues.forEach(issue => {
+            diagnostics.overall.issues.forEach((issue: string) => {
               response += `• ${issue}\n`;
             });
           }
 
           if (args.includeRecommendations && diagnostics.overall.recommendations.length > 0) {
             response += `\n**💡 Recommendations:**\n`;
-            diagnostics.overall.recommendations.forEach(rec => {
+            diagnostics.overall.recommendations.forEach((rec: string) => {
               response += `• ${rec}\n`;
             });
           }
@@ -276,7 +266,7 @@ export function createSystemHealthTools(getClient: () => N8nClient | null, serve
         // Issues and recommendations
         if (diagnostics.overall.issues.length > 0) {
           response += `**⚠️ Issues Detected:**\n`;
-          diagnostics.overall.issues.forEach(issue => {
+          diagnostics.overall.issues.forEach((issue: string) => {
             response += `• ${issue}\n`;
           });
           response += `\n`;
@@ -284,7 +274,7 @@ export function createSystemHealthTools(getClient: () => N8nClient | null, serve
 
         if (diagnostics.overall.recommendations.length > 0) {
           response += `**💡 Recommendations:**\n`;
-          diagnostics.overall.recommendations.forEach(rec => {
+          diagnostics.overall.recommendations.forEach((rec: string) => {
             response += `• ${rec}\n`;
           });
         }

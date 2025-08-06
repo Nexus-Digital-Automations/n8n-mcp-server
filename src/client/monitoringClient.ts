@@ -2,10 +2,6 @@ import fetch from 'node-fetch';
 import { N8nClient } from './n8nClient.js';
 import {
   SystemResourceUsage,
-  WorkflowResourceUsage,
-  InstanceHealthMetrics,
-  MonitoringReport,
-  PerformanceAlert,
   SystemDiagnostics,
 } from '../types/monitoringTypes.js';
 
@@ -205,7 +201,6 @@ export class MonitoringClient {
    * Get comprehensive system metrics
    */
   async getMetrics(): Promise<MetricsResponse> {
-    const startTime = Date.now();
 
     try {
       // Fetch data in parallel

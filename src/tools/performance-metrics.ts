@@ -271,7 +271,7 @@ export function createPerformanceMetricsTools(getClient: () => N8nClient | null,
         let response = `🔍 **Performance Analysis: ${args.analysisType}**\n\n`;
 
         switch (args.analysisType) {
-          case 'execution-times':
+          case 'execution-times': {
             const executionTimes = executions
               .filter(e => e.finished && e.startedAt && e.stoppedAt)
               .map(e => ({
@@ -305,8 +305,9 @@ export function createPerformanceMetricsTools(getClient: () => N8nClient | null,
             }
 
             break;
+          }
 
-          case 'error-rates':
+          case 'error-rates': {
             const totalExecs = executions.length;
             const failedExecs = executions.filter(e => e.finished && e.stoppedAt).length;
             const errorRate = totalExecs > 0 ? (failedExecs / totalExecs) * 100 : 0;
@@ -325,8 +326,9 @@ export function createPerformanceMetricsTools(getClient: () => N8nClient | null,
             }
 
             break;
+          }
 
-          case 'throughput':
+          case 'throughput': {
             const now = new Date();
             const hourAgo = new Date(now.getTime() - 60 * 60 * 1000);
             const recentExecs = executions.filter(e => new Date(e.startedAt) > hourAgo);
@@ -339,8 +341,9 @@ export function createPerformanceMetricsTools(getClient: () => N8nClient | null,
             response += `• Peak capacity utilization: ${formatPercentage((throughputPerMinute / 10) * 100)}\n`; // Assuming 10/min peak
 
             break;
+          }
 
-          case 'resource-usage':
+          case 'resource-usage': {
             const monitoringClient = getMonitoringClient(getClient);
             const systemUsage = monitoringClient.getSystemResourceUsage();
             
@@ -350,6 +353,7 @@ export function createPerformanceMetricsTools(getClient: () => N8nClient | null,
             response += `• Process Memory: ${formatBytes(systemUsage.memory.processMemory.rss)}\n`;
 
             break;
+          }
         }
 
         // Add recommendations if requested
@@ -409,7 +413,7 @@ export function createPerformanceMetricsTools(getClient: () => N8nClient | null,
 
         try {
           switch (args.testType) {
-            case 'api-response':
+            case 'api-response': {
               // Test API response times
               while (Date.now() < endTime) {
                 const promises = [];
@@ -437,8 +441,9 @@ export function createPerformanceMetricsTools(getClient: () => N8nClient | null,
                 await new Promise(resolve => setTimeout(resolve, 100));
               }
               break;
+            }
 
-            case 'workflow-execution':
+            case 'workflow-execution': {
               if (!args.workflowId) {
                 throw new UserError('Workflow ID is required for workflow execution benchmark');
               }
@@ -451,8 +456,9 @@ export function createPerformanceMetricsTools(getClient: () => N8nClient | null,
               results.failedRequests = 2;
               results.responseTimes = [1200, 1350, 1100, 1450, 1300, 1250, 1400, 1150];
               break;
+            }
 
-            case 'resource-load':
+            case 'resource-load': {
               // Monitor resource usage during load
               const loadStartUsage = monitoringClient.getSystemResourceUsage();
               
@@ -480,6 +486,7 @@ export function createPerformanceMetricsTools(getClient: () => N8nClient | null,
               response += `• CPU Change: ${(loadEndUsage.cpu.totalUsage - loadStartUsage.cpu.totalUsage).toFixed(1)}%\n`;
               response += `• Memory Change: ${formatBytes(loadEndUsage.memory.processMemory.rss - loadStartUsage.memory.processMemory.rss)}\n`;
               break;
+            }
 
             default:
               throw new UserError(`Unsupported benchmark type: ${args.testType}`);
@@ -592,8 +599,8 @@ export function createPerformanceMetricsTools(getClient: () => N8nClient | null,
 
         if (recentDataPoints.length > 1) {
           const executionTimes = recentDataPoints
-            .filter(dp => dp.data.performance?.averageExecutionTime)
-            .map(dp => dp.data.performance.averageExecutionTime);
+            .filter(dp => (dp.data as any).performance?.averageExecutionTime)
+            .map(dp => (dp.data as any).performance.averageExecutionTime);
           
           if (executionTimes.length > 1) {
             const trend = calculateTrend(executionTimes);
@@ -665,26 +672,26 @@ export function createPerformanceMetricsTools(getClient: () => N8nClient | null,
         switch (args.metric) {
           case 'execution-times':
             values = relevantData
-              .filter(dp => dp.data.performance?.averageExecutionTime)
-              .map(dp => dp.data.performance.averageExecutionTime);
+              .filter(dp => (dp.data as any).performance?.averageExecutionTime)
+              .map(dp => (dp.data as any).performance.averageExecutionTime);
             unit = 'ms';
             break;
           case 'success-rates':
             values = relevantData
-              .filter(dp => dp.data.executions)
-              .map(dp => (dp.data.executions.successful / dp.data.executions.total) * 100);
+              .filter(dp => (dp.data as any).executions)
+              .map(dp => ((dp.data as any).executions.successful / (dp.data as any).executions.total) * 100);
             unit = '%';
             break;
           case 'resource-usage':
             values = relevantData
-              .filter(dp => dp.data.system?.cpu?.totalUsage)
-              .map(dp => dp.data.system.cpu.totalUsage);
+              .filter(dp => (dp.data as any).system?.cpu?.totalUsage)
+              .map(dp => (dp.data as any).system.cpu.totalUsage);
             unit = '%';
             break;
           case 'throughput':
             values = relevantData
-              .filter(dp => dp.data.performance?.throughput)
-              .map(dp => dp.data.performance.throughput);
+              .filter(dp => (dp.data as any).performance?.throughput)
+              .map(dp => (dp.data as any).performance.throughput);
             unit = 'executions/min';
             break;
         }
