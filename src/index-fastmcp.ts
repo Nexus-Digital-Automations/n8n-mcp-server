@@ -22,6 +22,7 @@ import { createResourceTransferTools } from './tools/resource-transfer.js';
 import { createDataManagementTools } from './tools/data-management.js';
 import { createCredentialTestingTools } from './tools/credential-testing.js';
 import { createExecutionControlTools } from './tools/execution-control.js';
+import { createWorkflowDevelopmentTools } from './tools/workflow-development.js';
 import {
   detectTransportConfig,
   validateTransportConfig,
@@ -114,6 +115,9 @@ createCredentialTestingTools(getClient, server);
 
 // Register execution control tools (Phase 1)
 createExecutionControlTools(getClient, server);
+
+// Register workflow development tools (Phase 2)
+createWorkflowDevelopmentTools(getClient, server);
 
 // Register AI-centric tools (Phase 3)
 createAIConfigTools(getClient, server);

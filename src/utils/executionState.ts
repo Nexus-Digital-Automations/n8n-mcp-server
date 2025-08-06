@@ -10,7 +10,6 @@ import { N8nExecution, N8nNode } from '../types/n8n.js';
 import {
   ExecutionState,
   ExecutionAction,
-  ExecutionPriority,
   CancellationReason,
   RetryStrategy,
   NodeExecutionState,
@@ -117,7 +116,7 @@ export class ExecutionStateManager extends EventEmitter {
 
     // Initialize node states if workflow data is available
     if (execution.workflowData?.nodes) {
-      enhancedExecution.nodeStates = execution.workflowData.nodes.map(node => 
+      enhancedExecution.nodeStates = execution.workflowData.nodes.map(node =>
         this.createNodeExecutionState(node)
       );
     }
@@ -174,7 +173,7 @@ export class ExecutionStateManager extends EventEmitter {
     }
 
     const currentState = context.execution.enhancedState;
-    
+
     // Validate state transition
     if (!this.isValidStateTransition(currentState, newState)) {
       this.emit('invalidStateTransition', {
@@ -263,7 +262,7 @@ export class ExecutionStateManager extends EventEmitter {
 
     // Restore node states
     context.execution.nodeStates = [...checkpoint.nodeStates];
-    
+
     // Reset nodes that were running or failed to pending
     context.execution.nodeStates.forEach(node => {
       if (node.state === 'running' || node.state === 'failed') {
@@ -274,11 +273,9 @@ export class ExecutionStateManager extends EventEmitter {
     });
 
     // Update execution state
-    this.updateExecutionState(
-      checkpoint.executionId,
-      'pending',
-      { restoredFromCheckpoint: checkpointId }
-    );
+    this.updateExecutionState(checkpoint.executionId, 'pending', {
+      restoredFromCheckpoint: checkpointId,
+    });
 
     this.emit('checkpointRestored', {
       executionId: checkpoint.executionId,
@@ -305,23 +302,20 @@ export class ExecutionStateManager extends EventEmitter {
     switch (strategy) {
       case 'immediate':
         return 0;
-      
+
       case 'linear':
-        return Math.min(
-          retryConfig.initial * attemptCount,
-          retryConfig.maximum
-        );
-      
+        return Math.min(retryConfig.initial * attemptCount, retryConfig.maximum);
+
       case 'exponential':
         return Math.min(
           retryConfig.initial * Math.pow(retryConfig.multiplier, attemptCount - 1),
           retryConfig.maximum
         );
-      
+
       case 'custom':
         // Custom strategies can be implemented by overriding this method
         return retryConfig.initial;
-      
+
       default:
         return retryConfig.initial;
     }
@@ -383,8 +377,8 @@ export class ExecutionStateManager extends EventEmitter {
     // Calculate performance metrics
     const nodeExecutionTimes: Record<string, number> = {};
     let totalDuration = 0;
-    let memoryPeak = 0;
-    let cpuAverage = 0;
+    const memoryPeak = 0;
+    const cpuAverage = 0;
 
     completedNodes.forEach(node => {
       if (node.duration) {
@@ -435,9 +429,7 @@ export class ExecutionStateManager extends EventEmitter {
   /**
    * Process execution control request
    */
-  async processControlRequest(
-    request: ExecutionControlRequest
-  ): Promise<ExecutionControlResponse> {
+  async processControlRequest(request: ExecutionControlRequest): Promise<ExecutionControlResponse> {
     const context = this.executions.get(request.executionId);
     if (!context) {
       return {
@@ -480,7 +472,7 @@ export class ExecutionStateManager extends EventEmitter {
 
     try {
       const response = await this.executeControlAction(context, request);
-      
+
       // Remove request from active requests
       const activeReqs = this.activeRequests.get(request.executionId) || [];
       const index = activeReqs.indexOf(request);
@@ -534,12 +526,12 @@ export class ExecutionStateManager extends EventEmitter {
       if (isCompleted && executionTime < cutoffTime) {
         this.executions.delete(executionId);
         this.activeRequests.delete(executionId);
-        
+
         // Clean up associated checkpoints
         context.execution.checkpoints.forEach(checkpoint => {
           this.checkpoints.delete(checkpoint.checkpointId);
         });
-        
+
         cleaned++;
       }
     }
@@ -582,7 +574,10 @@ export class ExecutionStateManager extends EventEmitter {
     return STATE_TRANSITIONS[from]?.includes(to) || false;
   }
 
-  private getEventTypeFromStateTransition(from: ExecutionState, to: ExecutionState): ExecutionHistoryEntry['event'] {
+  private getEventTypeFromStateTransition(
+    from: ExecutionState,
+    to: ExecutionState
+  ): ExecutionHistoryEntry['event'] {
     if (from === 'pending' && to === 'running') return 'started';
     if (from === 'running' && to === 'paused') return 'paused';
     if (from === 'paused' && to === 'running') return 'resumed';
@@ -596,7 +591,7 @@ export class ExecutionStateManager extends EventEmitter {
   private updateExecutionProgress(context: ExecutionControlContext): void {
     const { execution } = context;
     const totalNodes = execution.nodeStates.length;
-    
+
     if (totalNodes === 0) {
       execution.progress.percentComplete = 0;
       return;
@@ -609,7 +604,9 @@ export class ExecutionStateManager extends EventEmitter {
     execution.progress.completedNodes = completed;
     execution.progress.failedNodes = failed;
     execution.progress.skippedNodes = skipped;
-    execution.progress.percentComplete = Math.round(((completed + failed + skipped) / totalNodes) * 100);
+    execution.progress.percentComplete = Math.round(
+      ((completed + failed + skipped) / totalNodes) * 100
+    );
   }
 
   private calculateCriticalPath(nodeStates: NodeExecutionState[]): string[] {
@@ -622,7 +619,9 @@ export class ExecutionStateManager extends EventEmitter {
       .map(node => node.nodeId);
   }
 
-  private generateOptimizationSuggestions(execution: EnhancedExecution): ExecutionAnalytics['optimizations'] {
+  private generateOptimizationSuggestions(
+    execution: EnhancedExecution
+  ): ExecutionAnalytics['optimizations'] {
     const suggestions: ExecutionAnalytics['optimizations'] = [];
 
     // Suggest optimizations based on execution patterns
@@ -656,8 +655,6 @@ export class ExecutionStateManager extends EventEmitter {
     context: ExecutionControlContext,
     request: ExecutionControlRequest
   ): Promise<ExecutionControlResponse> {
-    const { execution } = context;
-    
     switch (request.action) {
       case 'pause':
         return this.handlePauseAction(context, request);
@@ -681,11 +678,9 @@ export class ExecutionStateManager extends EventEmitter {
     request: ExecutionControlRequest
   ): Promise<ExecutionControlResponse> {
     // Create checkpoint before pausing
-    const checkpoint = this.createCheckpoint(
-      request.executionId,
-      'Execution paused by user',
-      { pausedBy: request.requestedBy }
-    );
+    const checkpoint = this.createCheckpoint(request.executionId, 'Execution paused by user', {
+      pausedBy: request.requestedBy,
+    });
 
     this.updateExecutionState(request.executionId, 'paused');
 
@@ -739,7 +734,7 @@ export class ExecutionStateManager extends EventEmitter {
     request: ExecutionControlRequest
   ): Promise<ExecutionControlResponse> {
     const reason = request.parameters?.reason || 'user-requested';
-    
+
     context.execution.cancellation = {
       reason: reason as CancellationReason,
       requestedAt: request.requestedAt,
@@ -763,9 +758,13 @@ export class ExecutionStateManager extends EventEmitter {
     context: ExecutionControlContext,
     request: ExecutionControlRequest
   ): Promise<ExecutionControlResponse> {
-    const strategy = request.parameters?.retryStrategy || context.execution.controlConfig.defaultRetryStrategy || 'exponential';
+    const strategy =
+      request.parameters?.retryStrategy ||
+      context.execution.controlConfig.defaultRetryStrategy ||
+      'exponential';
     const currentRetryCount = context.execution.retryInfo?.attemptCount || 0;
-    const maxRetries = request.parameters?.maxRetries || context.execution.controlConfig.maxExecutionRetries || 3;
+    const maxRetries =
+      request.parameters?.maxRetries || context.execution.controlConfig.maxExecutionRetries || 3;
 
     if (currentRetryCount >= maxRetries) {
       return {
@@ -782,8 +781,12 @@ export class ExecutionStateManager extends EventEmitter {
     }
 
     // Calculate retry delay
-    const retryDelay = this.calculateRetryDelay(strategy, currentRetryCount + 1, context.execution.controlConfig);
-    
+    const retryDelay = this.calculateRetryDelay(
+      strategy,
+      currentRetryCount + 1,
+      context.execution.controlConfig
+    );
+
     // Update retry information
     context.execution.retryInfo = {
       strategy,
@@ -862,7 +865,7 @@ export class ExecutionStateManager extends EventEmitter {
       if (node.nodeId === startFromNode) {
         resetFromFound = true;
       }
-      
+
       if (resetFromFound && ['failed', 'completed'].includes(node.state)) {
         node.state = 'pending';
         node.error = undefined;

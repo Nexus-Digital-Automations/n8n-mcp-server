@@ -12,9 +12,7 @@ import { ExecutionStateManager } from '../utils/executionState.js';
 import {
   ExecutionAction,
   ExecutionState,
-  RetryStrategy,
   CancellationReason,
-  ExecutionPriority,
   ExecutionControlRequest,
   BatchExecutionControlRequest,
 } from '../types/executionTypes.js';
@@ -22,7 +20,16 @@ import {
 // Zod schemas for validation
 const ExecutionControlSchema = z.object({
   executionId: z.string().min(1, 'Execution ID is required'),
-  action: z.enum(['pause', 'resume', 'stop', 'cancel', 'retry', 'retry-from-node', 'skip-node', 'execute-partial']),
+  action: z.enum([
+    'pause',
+    'resume',
+    'stop',
+    'cancel',
+    'retry',
+    'retry-from-node',
+    'skip-node',
+    'execute-partial',
+  ]),
   reason: z.string().optional(),
   force: z.boolean().optional().default(false),
   parameters: z.record(z.string(), z.any()).optional(),
@@ -30,7 +37,10 @@ const ExecutionControlSchema = z.object({
 
 const RetryExecutionSchema = z.object({
   executionId: z.string().min(1, 'Execution ID is required'),
-  strategy: z.enum(['immediate', 'linear', 'exponential', 'custom']).optional().default('exponential'),
+  strategy: z
+    .enum(['immediate', 'linear', 'exponential', 'custom'])
+    .optional()
+    .default('exponential'),
   maxRetries: z.number().min(1).max(10).optional().default(3),
   retryDelay: z.number().min(0).max(300000).optional(), // Max 5 minutes
   retryFromNode: z.string().optional(),
@@ -40,7 +50,18 @@ const RetryExecutionSchema = z.object({
 
 const CancelExecutionSchema = z.object({
   executionId: z.string().min(1, 'Execution ID is required'),
-  reason: z.enum(['user-requested', 'timeout', 'resource-limit', 'error-threshold', 'dependency-failure', 'system-shutdown', 'policy-violation']).optional().default('user-requested'),
+  reason: z
+    .enum([
+      'user-requested',
+      'timeout',
+      'resource-limit',
+      'error-threshold',
+      'dependency-failure',
+      'system-shutdown',
+      'policy-violation',
+    ])
+    .optional()
+    .default('user-requested'),
   force: z.boolean().optional().default(false),
   gracefulShutdown: z.boolean().optional().default(true),
 });
@@ -82,7 +103,24 @@ const ExecutionAnalyticsSchema = z.object({
 
 const ExecutionMonitoringSchema = z.object({
   executionIds: z.array(z.string()).optional(),
-  states: z.array(z.enum(['pending', 'running', 'paused', 'stopping', 'stopped', 'cancelled', 'completed', 'failed', 'timeout', 'waiting', 'retrying', 'partial'])).optional(),
+  states: z
+    .array(
+      z.enum([
+        'pending',
+        'running',
+        'paused',
+        'stopping',
+        'stopped',
+        'cancelled',
+        'completed',
+        'failed',
+        'timeout',
+        'waiting',
+        'retrying',
+        'partial',
+      ])
+    )
+    .optional(),
   includeHistory: z.boolean().optional().default(false),
   includeMetrics: z.boolean().optional().default(false),
   limit: z.number().min(1).max(100).optional().default(20),
@@ -127,13 +165,15 @@ export function createExecutionControlTools(getClient: () => N8nClient | null, s
         try {
           execution = await client.getExecution(args.executionId);
         } catch (error) {
-          throw new UserError(`Execution ${args.executionId} not found: ${error instanceof Error ? error.message : 'Unknown error'}`);
+          throw new UserError(
+            `Execution ${args.executionId} not found: ${error instanceof Error ? error.message : 'Unknown error'}`
+          );
         }
 
         // Initialize execution tracking if not already done
         let context = stateManager.getExecutionContext(args.executionId);
         if (!context) {
-          const enhancedExecution = stateManager.initializeExecution(execution);
+          stateManager.initializeExecution(execution);
           context = stateManager.getExecutionContext(args.executionId)!;
         }
 
@@ -159,12 +199,16 @@ export function createExecutionControlTools(getClient: () => N8nClient | null, s
             `- **Execution ID:** ${args.executionId}\n` +
             `- **Action:** ${args.action}\n` +
             `- **Error:** ${response.error?.message || response.message}\n` +
-            (response.error?.details ? `- **Details:** ${JSON.stringify(response.error.details, null, 2)}\n` : '') +
+            (response.error?.details
+              ? `- **Details:** ${JSON.stringify(response.error.details, null, 2)}\n`
+              : '') +
             `\nThe execution control action could not be completed.`
           );
         }
 
-        const statusIcon = getStatusIcon(response.executionState || context.execution.enhancedState);
+        const statusIcon = getStatusIcon(
+          response.executionState || context.execution.enhancedState
+        );
 
         return (
           `✅ **Execution Control Successful**\n\n` +
@@ -173,8 +217,12 @@ export function createExecutionControlTools(getClient: () => N8nClient | null, s
           `- **New State:** ${statusIcon} ${response.executionState}\n` +
           `- **Timestamp:** ${new Date(response.timestamp).toLocaleString()}\n` +
           (response.data?.checkpointId ? `- **Checkpoint:** ${response.data.checkpointId}\n` : '') +
-          (response.data?.estimatedCompletion ? `- **Estimated Completion:** ${new Date(response.data.estimatedCompletion).toLocaleString()}\n` : '') +
-          (response.data?.affectedNodes ? `- **Affected Nodes:** ${response.data.affectedNodes.length}\n` : '') +
+          (response.data?.estimatedCompletion
+            ? `- **Estimated Completion:** ${new Date(response.data.estimatedCompletion).toLocaleString()}\n`
+            : '') +
+          (response.data?.affectedNodes
+            ? `- **Affected Nodes:** ${response.data.affectedNodes.length}\n`
+            : '') +
           `\n${response.message}`
         );
       } catch (error) {
@@ -188,7 +236,8 @@ export function createExecutionControlTools(getClient: () => N8nClient | null, s
   // Advanced retry tool
   server.addTool({
     name: 'retry-execution',
-    description: 'Retry failed execution with advanced options including retry strategy, node selection, and custom parameters',
+    description:
+      'Retry failed execution with advanced options including retry strategy, node selection, and custom parameters',
     parameters: RetryExecutionSchema,
     annotations: {
       title: 'Retry Execution',
@@ -208,7 +257,7 @@ export function createExecutionControlTools(getClient: () => N8nClient | null, s
 
         // Get execution details
         const execution = await client.getExecution(args.executionId);
-        
+
         // Initialize or get execution context
         let context = stateManager.getExecutionContext(args.executionId);
         if (!context) {
@@ -220,7 +269,7 @@ export function createExecutionControlTools(getClient: () => N8nClient | null, s
         if (!stateManager.canRetryExecution(args.executionId)) {
           const currentRetryCount = context.execution.retryInfo?.attemptCount || 0;
           const maxRetries = context.execution.controlConfig.maxExecutionRetries || 3;
-          
+
           return (
             `❌ **Cannot Retry Execution**\n\n` +
             `- **Execution ID:** ${args.executionId}\n` +
@@ -282,7 +331,8 @@ export function createExecutionControlTools(getClient: () => N8nClient | null, s
   // Cancel execution tool
   server.addTool({
     name: 'cancel-execution',
-    description: 'Cancel execution with specified reason and options for graceful or forced cancellation',
+    description:
+      'Cancel execution with specified reason and options for graceful or forced cancellation',
     parameters: CancelExecutionSchema,
     annotations: {
       title: 'Cancel Execution',
@@ -302,7 +352,7 @@ export function createExecutionControlTools(getClient: () => N8nClient | null, s
 
         // Get execution details
         const execution = await client.getExecution(args.executionId);
-        
+
         // Initialize or get execution context
         let context = stateManager.getExecutionContext(args.executionId);
         if (!context) {
@@ -355,7 +405,8 @@ export function createExecutionControlTools(getClient: () => N8nClient | null, s
   // Partial execution tool
   server.addTool({
     name: 'execute-partial-workflow',
-    description: 'Execute specific nodes or workflow segments with options for node selection and execution boundaries',
+    description:
+      'Execute specific nodes or workflow segments with options for node selection and execution boundaries',
     parameters: PartialExecutionSchema,
     annotations: {
       title: 'Execute Partial Workflow',
@@ -375,7 +426,7 @@ export function createExecutionControlTools(getClient: () => N8nClient | null, s
 
         // Get execution details
         const execution = await client.getExecution(args.executionId);
-        
+
         // Initialize or get execution context
         let context = stateManager.getExecutionContext(args.executionId);
         if (!context) {
@@ -387,7 +438,7 @@ export function createExecutionControlTools(getClient: () => N8nClient | null, s
         const workflowNodes = execution.workflowData?.nodes || [];
         const nodeIds = workflowNodes.map(node => node.id);
         const invalidNodes = args.targetNodes.filter(nodeId => !nodeIds.includes(nodeId));
-        
+
         if (invalidNodes.length > 0) {
           return (
             `❌ **Invalid Target Nodes**\n\n` +
@@ -404,21 +455,6 @@ export function createExecutionControlTools(getClient: () => N8nClient | null, s
           startFromNode: args.startFromNode,
           executeUntilNode: args.executeUntilNode,
           skipNodes: args.skipNodes,
-        };
-
-        // Create execute-partial request
-        const request: ExecutionControlRequest = {
-          executionId: args.executionId,
-          action: 'execute-partial',
-          requestedAt: new Date().toISOString(),
-          requestedBy: 'mcp-user',
-          parameters: {
-            targetNodes: args.targetNodes,
-            startFromNode: args.startFromNode,
-            executeUntilNode: args.executeUntilNode,
-            skipNodes: args.skipNodes,
-            preserveState: args.preserveState,
-          },
         };
 
         // Update execution state
@@ -447,7 +483,8 @@ export function createExecutionControlTools(getClient: () => N8nClient | null, s
   // Batch execution control tool
   server.addTool({
     name: 'batch-control-executions',
-    description: 'Control multiple executions simultaneously with options for different actions and failure handling',
+    description:
+      'Control multiple executions simultaneously with options for different actions and failure handling',
     parameters: BatchExecutionControlSchema,
     annotations: {
       title: 'Batch Control Executions',
@@ -493,7 +530,7 @@ export function createExecutionControlTools(getClient: () => N8nClient | null, s
           try {
             // Get execution details
             const execution = await client.getExecution(executionId);
-            
+
             // Initialize or get execution context
             let context = stateManager.getExecutionContext(executionId);
             if (!context) {
@@ -607,7 +644,7 @@ export function createExecutionControlTools(getClient: () => N8nClient | null, s
 
         // Get execution details
         const execution = await client.getExecution(args.executionId);
-        
+
         // Initialize or get execution context
         let context = stateManager.getExecutionContext(args.executionId);
         if (!context) {
@@ -639,7 +676,9 @@ export function createExecutionControlTools(getClient: () => N8nClient | null, s
           `- **Timestamp:** ${new Date(checkpoint.timestamp).toLocaleString()}\n` +
           `- **Completed Nodes:** ${checkpoint.completedNodes.length}\n` +
           `- **Node States:** ${checkpoint.nodeStates.length}\n` +
-          (Object.keys(checkpoint.metadata).length > 0 ? `- **Metadata:** ${JSON.stringify(checkpoint.metadata, null, 2)}\n` : '') +
+          (Object.keys(checkpoint.metadata).length > 0
+            ? `- **Metadata:** ${JSON.stringify(checkpoint.metadata, null, 2)}\n`
+            : '') +
           `\nThe checkpoint can be used to restore the execution to this state later.`
         );
       } catch (error) {
@@ -697,7 +736,8 @@ export function createExecutionControlTools(getClient: () => N8nClient | null, s
   // Execution analytics tool
   server.addTool({
     name: 'get-execution-analytics',
-    description: 'Get detailed analytics and performance insights for an execution including optimization suggestions',
+    description:
+      'Get detailed analytics and performance insights for an execution including optimization suggestions',
     parameters: ExecutionAnalyticsSchema,
     annotations: {
       title: 'Get Execution Analytics',
@@ -767,7 +807,12 @@ export function createExecutionControlTools(getClient: () => N8nClient | null, s
         if (args.includeOptimizationSuggestions && analytics.optimizations.length > 0) {
           output += `**Optimization Suggestions:**\n`;
           analytics.optimizations.forEach((suggestion, index) => {
-            const priorityIcon = suggestion.priority === 'high' ? '🔴' : suggestion.priority === 'medium' ? '🟡' : '🟢';
+            const priorityIcon =
+              suggestion.priority === 'high'
+                ? '🔴'
+                : suggestion.priority === 'medium'
+                  ? '🟡'
+                  : '🟢';
             output += `${index + 1}. ${priorityIcon} **${suggestion.type.charAt(0).toUpperCase() + suggestion.type.slice(1)}**\n`;
             output += `   - **Description:** ${suggestion.description}\n`;
             output += `   - **Estimated Impact:** ${suggestion.estimatedImpact}\n`;
@@ -851,7 +896,7 @@ export function createExecutionControlTools(getClient: () => N8nClient | null, s
             }
 
             monitoringResults.push(result);
-          } catch (error) {
+          } catch {
             // Skip executions that can't be accessed
             continue;
           }

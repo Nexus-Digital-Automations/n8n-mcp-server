@@ -141,7 +141,7 @@
       "description": "Add tools for discovering variables, accessing documentation, and dynamic workflow manipulation during development",
       "mode": "DEVELOPMENT",
       "priority": "medium",
-      "status": "pending",
+      "status": "completed",
       "success_criteria": [
         "Variable discovery within workflow context implemented",
         "Built-in function documentation access functional",
@@ -287,14 +287,183 @@
         },
         "overallReady": false
       }
+    },
+    {
+      "id": "task_1754497482147_9y163q9sy",
+      "title": "Analyze Data Management & Integration Endpoints",
+      "description": "Analysis of credentials, binary data, node types, webhooks, and integration-focused endpoints for MCP value assessment",
+      "mode": "RESEARCH",
+      "priority": "medium",
+      "status": "pending",
+      "dependencies": [],
+      "important_files": [
+        "/Users/jeremyparker/Desktop/Claude Coding Projects/n8n-fork/packages/cli/src/credentials/credentials.controller.ts",
+        "/Users/jeremyparker/Desktop/Claude Coding Projects/n8n-fork/packages/cli/src/controllers/binary-data.controller.ts",
+        "/Users/jeremyparker/Desktop/Claude Coding Projects/n8n-fork/packages/cli/src/controllers/node-types.controller.ts",
+        "/Users/jeremyparker/Desktop/Claude Coding Projects/n8n-fork/packages/cli/src/webhooks/webhooks.controller.ts",
+        "./development/research-reports/research-report-task_1754497482147_9y163q9sy.md"
+      ],
+      "success_criteria": [
+        "Research report created: ./development/research-reports/research-report-task_1754497482147_9y163q9sy.md"
+      ],
+      "estimate": "",
+      "requires_research": false,
+      "subtasks": [],
+      "created_at": "2025-08-06T16:24:42.147Z"
+    },
+    {
+      "id": "task_1754508146900_rwp4c7jgf",
+      "title": "Analyze Core API Controllers",
+      "description": "Analyze auth, users, workflows, executions, and credentials controllers for API endpoints",
+      "mode": "RESEARCH",
+      "priority": "medium",
+      "status": "pending",
+      "dependencies": [],
+      "important_files": [
+        "/Users/jeremyparker/Desktop/Claude Coding Projects/n8n-fork/packages/cli/src/controllers/auth.controller.ts",
+        "/Users/jeremyparker/Desktop/Claude Coding Projects/n8n-fork/packages/cli/src/controllers/users.controller.ts",
+        "/Users/jeremyparker/Desktop/Claude Coding Projects/n8n-fork/packages/cli/src/workflows/workflows.controller.ts",
+        "/Users/jeremyparker/Desktop/Claude Coding Projects/n8n-fork/packages/cli/src/executions/executions.controller.ts",
+        "/Users/jeremyparker/Desktop/Claude Coding Projects/n8n-fork/packages/cli/src/credentials/credentials.controller.ts",
+        "./development/research-reports/research-report-task_1754508146900_rwp4c7jgf.md"
+      ],
+      "success_criteria": [
+        "Research report created: ./development/research-reports/research-report-task_1754508146900_rwp4c7jgf.md"
+      ],
+      "estimate": "",
+      "requires_research": false,
+      "subtasks": [],
+      "created_at": "2025-08-06T19:22:26.900Z"
+    },
+    {
+      "id": "task_1754508154953_nuskx9enk",
+      "title": "Analyze Node and AI Controllers",
+      "description": "Analyze node-types, ai, ai-nodes, ai-helpers, dynamic-node-parameters controllers for API endpoints",
+      "mode": "RESEARCH",
+      "priority": "medium",
+      "status": "pending",
+      "dependencies": [],
+      "important_files": [
+        "/Users/jeremyparker/Desktop/Claude Coding Projects/n8n-fork/packages/cli/src/controllers/node-types.controller.ts",
+        "/Users/jeremyparker/Desktop/Claude Coding Projects/n8n-fork/packages/cli/src/controllers/ai.controller.ts",
+        "/Users/jeremyparker/Desktop/Claude Coding Projects/n8n-fork/packages/cli/src/controllers/ai-nodes.controller.ts",
+        "/Users/jeremyparker/Desktop/Claude Coding Projects/n8n-fork/packages/cli/src/controllers/ai-helpers.controller.ts",
+        "/Users/jeremyparker/Desktop/Claude Coding Projects/n8n-fork/packages/cli/src/controllers/dynamic-node-parameters.controller.ts",
+        "./development/research-reports/research-report-task_1754508154953_nuskx9enk.md"
+      ],
+      "success_criteria": [
+        "Research report created: ./development/research-reports/research-report-task_1754508154953_nuskx9enk.md"
+      ],
+      "estimate": "",
+      "requires_research": false,
+      "subtasks": [],
+      "created_at": "2025-08-06T19:22:34.953Z"
+    },
+    {
+      "id": "task_1754508163328_n1ymch597",
+      "title": "Analyze Management and Admin Controllers",
+      "description": "Analyze project, role, tags, folder, invitation, owner, user-settings, and other administrative controllers",
+      "mode": "RESEARCH",
+      "priority": "medium",
+      "status": "pending",
+      "dependencies": [],
+      "important_files": [
+        "/Users/jeremyparker/Desktop/Claude Coding Projects/n8n-fork/packages/cli/src/controllers/project.controller.ts",
+        "/Users/jeremyparker/Desktop/Claude Coding Projects/n8n-fork/packages/cli/src/controllers/role.controller.ts",
+        "/Users/jeremyparker/Desktop/Claude Coding Projects/n8n-fork/packages/cli/src/controllers/tags.controller.ts",
+        "/Users/jeremyparker/Desktop/Claude Coding Projects/n8n-fork/packages/cli/src/controllers/folder.controller.ts",
+        "/Users/jeremyparker/Desktop/Claude Coding Projects/n8n-fork/packages/cli/src/controllers/invitation.controller.ts",
+        "/Users/jeremyparker/Desktop/Claude Coding Projects/n8n-fork/packages/cli/src/controllers/owner.controller.ts",
+        "/Users/jeremyparker/Desktop/Claude Coding Projects/n8n-fork/packages/cli/src/controllers/user-settings.controller.ts",
+        "./development/research-reports/research-report-task_1754508163328_n1ymch597.md"
+      ],
+      "success_criteria": [
+        "Research report created: ./development/research-reports/research-report-task_1754508163328_n1ymch597.md"
+      ],
+      "estimate": "",
+      "requires_research": false,
+      "subtasks": [],
+      "created_at": "2025-08-06T19:22:43.328Z"
+    },
+    {
+      "id": "task_1754508641556_61gbyoppn",
+      "title": "Add Binary Data Upload/Download Tools",
+      "description": "Create tools for uploading files, downloading execution artifacts, and managing binary data in workflows",
+      "mode": "DEVELOPMENT",
+      "priority": "high",
+      "status": "pending",
+      "dependencies": [],
+      "important_files": [
+        "src/tools/binary-data.ts",
+        "src/tools/file-operations.ts",
+        "src/client/binaryDataClient.ts"
+      ],
+      "success_criteria": [
+        "File upload to workflows functional",
+        "Binary data download from executions working",
+        "File lifecycle management implemented",
+        "Large file handling with progress tracking"
+      ],
+      "estimate": "8-12 hours",
+      "requires_research": false,
+      "subtasks": [],
+      "created_at": "2025-08-06T19:30:41.556Z"
+    },
+    {
+      "id": "task_1754508653668_12br3er2p",
+      "title": "Create System Health and Monitoring Tools",
+      "description": "Add system health checks, performance metrics, and monitoring capabilities",
+      "mode": "DEVELOPMENT",
+      "priority": "medium",
+      "status": "pending",
+      "dependencies": [],
+      "important_files": [
+        "src/tools/system-health.ts",
+        "src/tools/performance-metrics.ts",
+        "src/client/monitoringClient.ts"
+      ],
+      "success_criteria": [
+        "System health monitoring implemented",
+        "Performance metrics collection working",
+        "Resource usage tracking functional",
+        "Diagnostic and troubleshooting tools available"
+      ],
+      "estimate": "6-10 hours",
+      "requires_research": false,
+      "subtasks": [],
+      "created_at": "2025-08-06T19:30:53.668Z"
+    },
+    {
+      "id": "task_1754508666055_z4823qixw",
+      "title": "Create Real-time Event System and Analytics Tools",
+      "description": "Implement event streaming, webhook management, and advanced analytics dashboard",
+      "mode": "DEVELOPMENT",
+      "priority": "low",
+      "status": "pending",
+      "dependencies": [],
+      "important_files": [
+        "src/tools/event-streaming.ts",
+        "src/tools/analytics-dashboard.ts",
+        "src/client/eventClient.ts"
+      ],
+      "success_criteria": [
+        "Real-time event streaming implemented",
+        "Webhook configuration and management working",
+        "Usage analytics and insights dashboard",
+        "Performance metrics and reporting functional"
+      ],
+      "estimate": "14-20 hours",
+      "requires_research": false,
+      "subtasks": [],
+      "created_at": "2025-08-06T19:31:06.055Z"
     }
   ],
   "review_strikes": 0,
   "strikes_completed_last_run": false,
   "current_task_index": 0,
   "last_mode": "DEVELOPMENT",
-  "execution_count": 314,
-  "last_hook_activation": 1754232851600,
+  "execution_count": 317,
+  "last_hook_activation": 1754508763312,
   "__removedLinterTasks": {
     "removedCount": 1,
     "finalTaskCount": 11

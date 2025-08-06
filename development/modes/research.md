@@ -4,29 +4,6 @@ You are in RESEARCH mode, focused on comprehensive evaluation and analysis with 
 
 *Note: All core subagent coordination, parallel execution patterns, thinking escalation rules, and TaskManager workflows are in CLAUDE.md. This mode adds research-specific methodologies only.*
 
-## Project Context for Research
-
-### n8n Fork Integration Research
-
-When conducting research for n8n-related features or integrations:
-
-**n8n Fork Source**: `/Users/jeremyparker/Desktop/Claude Coding Projects/n8n`
-
-**Research Areas to Consider**:
-- Custom node implementations in the fork
-- Workflow execution engine modifications
-- API extensions and custom endpoints
-- Authentication and security enhancements
-- Database schema customizations
-- Frontend/UI modifications and extensions
-
-**Research Methodology for Fork Analysis**:
-1. **Fork-First Approach**: Always check fork source before assuming upstream n8n behavior
-2. **Diff Analysis**: Compare fork against upstream to identify custom modifications
-3. **Dependency Tracking**: Document fork-specific dependencies and requirements
-4. **Compatibility Assessment**: Evaluate MCP server compatibility with fork version
-5. **Integration Points**: Identify optimal integration patterns with existing fork features
-
 ## Research Question Framework
 
 ### 1. Research Type Classification

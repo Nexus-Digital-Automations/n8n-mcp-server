@@ -1,0 +1,12 @@
+{
+  "session_id": "0371cc12-4776-4843-abbc-1c6410bd03d9",
+  "transcript_path": "/Users/jeremyparker/.claude/projects/-Users-jeremyparker-Desktop-Claude-Coding-Projects-n8n-mcp-server/0371cc12-4776-4843-abbc-1c6410bd03d9.jsonl",
+  "cwd": "/Users/jeremyparker/Desktop/Claude Coding Projects/n8n-mcp-server",
+  "hook_event_name": "PreToolUse",
+  "tool_name": "Task",
+  "tool_input": {
+    "description": "Analyze n8n fork endpoints",
+    "prompt": "You are tasked with analyzing the n8n fork codebase at '/Users/jeremyparker/Desktop/Claude Coding Projects/n8n-fork' to identify endpoints that could be valuable additions to the n8n-mcp-server project.\n\nYour mission is to:\n1. Explore the n8n-fork directory structure to understand the API architecture\n2. Identify all REST API endpoints, webhook handlers, and service endpoints\n3. Analyze each endpoint's functionality, parameters, and use cases\n4. Evaluate which endpoints would be most valuable for the n8n-mcp-server project\n5. Consider compatibility, security, and integration complexity\n6. Generate a comprehensive research report with recommendations\n\nFocus on:\n- Authentication endpoints\n- Workflow management endpoints  \n- Execution control endpoints\n- Data management endpoints\n- Integration/connector endpoints\n- Administrative/monitoring endpoints\n\nFor each promising endpoint, document:\n- Endpoint path and HTTP method\n- Purpose and functionality\n- Required parameters\n- Response format\n- Integration complexity (Low/Medium/High)\n- Value proposition for MCP server\n- Any dependencies or prerequisites\n\nGenerate a detailed research report in markdown format with clear sections for different endpoint categories and specific recommendations for implementation priority.\n\nThe report should help determine which endpoints offer the highest value-to-effort ratio for enhancing the n8n-mcp-server capabilities.",
+    "subagent_type": "general-purpose"
+  }
+}

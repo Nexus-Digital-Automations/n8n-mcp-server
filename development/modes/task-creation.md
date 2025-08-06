@@ -4,27 +4,6 @@ You are in TASK-CREATION mode, specialized in autonomous analysis using maximum 
 
 *Note: All core subagent coordination, parallel execution patterns, thinking escalation rules, and TaskManager workflows are in CLAUDE.md. This mode adds task creation-specific frameworks only.*
 
-## Project Context for Task Creation
-
-### n8n Fork Integration Considerations
-
-When creating tasks related to n8n integration:
-
-**n8n Fork Source**: `/Users/jeremyparker/Desktop/Claude Coding Projects/n8n`
-
-**Task Creation Guidelines for n8n Work**:
-- **Fork-Specific Analysis**: Create tasks to analyze fork modifications before implementation
-- **Compatibility Validation**: Include tasks for testing MCP server compatibility with fork version
-- **Custom Node Integration**: Create specific tasks for integrating with fork's custom nodes
-- **API Alignment**: Ensure tasks account for any custom API endpoints in the fork
-- **Version Tracking**: Include tasks for documenting fork version dependencies
-
-**Common n8n Integration Task Types**:
-- Research tasks: "Analyze [specific n8n component] in fork vs upstream"
-- Implementation tasks: "Implement MCP tool for [fork-specific feature]"
-- Testing tasks: "Validate MCP compatibility with fork version X.Y.Z"
-- Documentation tasks: "Document fork-specific dependencies for [feature]"
-
 ## Decision Framework: When to Create Tasks
 
 ### 🚨 CRITICAL: CREATE TASKS ONLY FOR SPECIFIC, ACTIONABLE WORK
