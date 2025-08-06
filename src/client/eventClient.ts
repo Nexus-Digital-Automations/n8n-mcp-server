@@ -1,6 +1,7 @@
 import { EventEmitter } from 'events';
+import { setTimeout, setInterval, clearInterval } from 'timers';
+import fetch from 'node-fetch';
 import { N8nClient } from './n8nClient.js';
-import { N8nWorkflow, N8nExecution } from '../types/n8n.js';
 
 export interface EventStreamConfig {
   baseUrl: string;
@@ -108,7 +109,7 @@ export class EventClient extends EventEmitter {
   private subscriptions: Map<string, EventSubscription> = new Map();
   private isConnected: boolean = false;
   private reconnectAttempts: number = 0;
-  private heartbeatTimer?: NodeJS.Timeout;
+  private heartbeatTimer?: ReturnType<typeof setInterval>;
   private eventBuffer: EventData[] = [];
   private analyticsBuffer: AnalyticsEvent[] = [];
 
@@ -398,7 +399,7 @@ export class EventClient extends EventEmitter {
     
     try {
       await this.connect();
-    } catch (error) {
+    } catch {
       if (this.reconnectAttempts < (this.config.maxReconnectAttempts || 10)) {
         setTimeout(() => this.reconnect(), this.config.reconnectInterval);
       } else {
@@ -535,9 +536,10 @@ export class EventClient extends EventEmitter {
     switch (auth.type) {
       case 'bearer':
         return { Authorization: `Bearer ${auth.token}` };
-      case 'basic':
+      case 'basic': {
         const credentials = Buffer.from(`${auth.username}:${auth.password}`).toString('base64');
         return { Authorization: `Basic ${credentials}` };
+      }
       case 'apikey':
         return { [auth.apiKeyHeader || 'X-API-Key']: auth.apiKeyValue || '' };
       default:

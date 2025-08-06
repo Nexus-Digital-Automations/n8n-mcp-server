@@ -5,7 +5,7 @@
  * for enhanced security and integration with OAuth2-enabled services.
  */
 
-/* eslint-disable no-undef */
+ 
 declare const fetch: typeof globalThis.fetch;
 
 import * as crypto from 'crypto';

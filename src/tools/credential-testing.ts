@@ -5,7 +5,7 @@
  * and authentication flow validation.
  */
 
-/* eslint-disable no-undef */
+ 
 declare const fetch: typeof globalThis.fetch;
 declare const AbortController: typeof globalThis.AbortController;
 declare const AbortSignal: typeof globalThis.AbortSignal;

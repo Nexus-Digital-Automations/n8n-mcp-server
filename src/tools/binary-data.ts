@@ -503,7 +503,7 @@ export function createBinaryDataTools(getClient: () => N8nClient | null, server:
           throw new UserError(`File validation failed: ${validation.errors.join(', ')}`);
         }
 
-        let progressUpdates: FileTransferProgress[] = [];
+        const progressUpdates: FileTransferProgress[] = [];
 
         // Upload with progress tracking
         const result = await binaryClient.uploadLargeFile(fileData, fileName, mimeType, {

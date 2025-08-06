@@ -399,11 +399,12 @@ describe('src/index-fastmcp.ts - FastMCP Server Entry Point', () => {
       // Wait for async operations to complete
       await new Promise(resolve => setImmediate(resolve));
 
-      expect(mockConsoleLog).toHaveBeenCalledWith('🚀 Starting n8n MCP Server...');
-      expect(mockConsoleLog).toHaveBeenCalledWith('📡 Transport type: stdio');
+      // For stdio transport, all logging goes to stderr (console.error) to avoid corrupting JSON-RPC communication
+      expect(mockConsoleError).toHaveBeenCalledWith('🚀 Starting n8n MCP Server...');
+      expect(mockConsoleError).toHaveBeenCalledWith('📡 Transport type: stdio');
       expect(mockFastMCP.start).toHaveBeenCalledWith({ transportType: 'stdio' });
-      expect(mockConsoleLog).toHaveBeenCalledWith('📟 Server started with stdio transport');
-      expect(mockConsoleLog).toHaveBeenCalledWith('✅ n8n MCP Server is ready!');
+      expect(mockConsoleError).toHaveBeenCalledWith('📟 Server started with stdio transport');
+      expect(mockConsoleError).toHaveBeenCalledWith('✅ n8n MCP Server is ready!');
     });
 
     it('should call transport detection and validation', async () => {
