@@ -520,52 +520,6 @@
       "created_at": "2025-08-06T20:20:57.364Z"
     },
     {
-      "id": "quality-improvement-1754511750920",
-      "title": "Create Quality Improvement Tasks",
-      "description": "Analyze project quality issues and create specific tasks to reach 100% quality for all strikes",
-      "mode": "DEVELOPMENT",
-      "priority": "high",
-      "status": "pending",
-      "prompt": "Project quality assessment shows issues preventing 100% strike success:\n\nQuality Status:\n- Strike 1 (Build): 100%\n- Strike 2 (Lint): 20%  \n- Strike 3 (Tests): 30%\n\nIssues Found:\n- Lint and Code Quality: 32 ESLint errors found\n- Lint and Code Quality: 31 ESLint warnings found\n- Test Coverage and Success: Tests are failing\n- Test Coverage and Success: Coverage check failed\n\nTASK: Analyze these quality gaps and create specific improvement tasks to bring ALL strikes to 100% quality. Create tasks for:\n1. Build issues (missing dependencies, build failures, configuration)\n2. Code quality issues (lint errors, style violations, code standards)\n3. Testing issues (failing tests, missing coverage, test setup)\n\nInsert all improvement tasks BEFORE the strike review tasks. Strikes should always remain last in the task list.",
-      "success_criteria": [
-        "All quality issues identified and analyzed",
-        "Specific improvement tasks created for each quality gap",
-        "Tasks properly prioritized and ordered before strikes",
-        "Clear path to 100% quality established"
-      ],
-      "important_files": [
-        "package.json",
-        "eslint.config.js",
-        "**/*.test.js"
-      ],
-      "requires_research": true,
-      "is_quality_improvement_task": true,
-      "quality_analysis": {
-        "strike1": {
-          "name": "Build Verification",
-          "quality": 100,
-          "issues": []
-        },
-        "strike2": {
-          "name": "Lint and Code Quality",
-          "quality": 20,
-          "issues": [
-            "32 ESLint errors found",
-            "31 ESLint warnings found"
-          ]
-        },
-        "strike3": {
-          "name": "Test Coverage and Success",
-          "quality": 30,
-          "issues": [
-            "Tests are failing",
-            "Coverage check failed"
-          ]
-        },
-        "overallReady": false
-      }
-    },
-    {
       "id": "task_1754630979543_6sjcuv64f",
       "title": "Develop Workflow Management Integration",
       "description": "Create tools for programmatic workflow creation, execution, monitoring, and management using n8n fork APIs with support for tags, projects, and collaboration features",
@@ -648,14 +602,170 @@
       "requires_research": false,
       "subtasks": [],
       "created_at": "2025-08-08T05:29:44.347Z"
+    },
+    {
+      "id": "task_1754634534219_6azozbd0s",
+      "title": "Fix ESLint Node.js Global Environment Configuration",
+      "description": "Configure ESLint to recognize Node.js globals (setTimeout, setInterval, clearTimeout, clearInterval, NodeJS namespace) across all source and test files",
+      "mode": "DEVELOPMENT",
+      "priority": "high",
+      "status": "pending",
+      "dependencies": [],
+      "important_files": [
+        "eslint.config.js",
+        "src/utils/resourceMonitor.ts",
+        "src/utils/executionBridge.ts",
+        "src/transport/websocketClient.ts",
+        "tests/unit/**/*.test.ts"
+      ],
+      "success_criteria": [
+        "ESLint recognizes Node.js globals without no-undef errors",
+        "setTimeout, setInterval, clearTimeout, clearInterval errors resolved (45+ instances)",
+        "NodeJS namespace errors resolved",
+        "ESLint config updated with proper environment settings",
+        "All global-related ESLint errors eliminated (60+ errors)"
+      ],
+      "estimate": "2-3 hours",
+      "requires_research": false,
+      "subtasks": [],
+      "created_at": "2025-08-08T06:28:54.219Z"
+    },
+    {
+      "id": "task_1754634534222_2e85o0604",
+      "title": "Fix Unused Variable and Parameter ESLint Errors",
+      "description": "Fix all unused variable and parameter errors by either using them, removing them, or prefixing with underscore for intentionally unused parameters",
+      "mode": "DEVELOPMENT",
+      "priority": "high",
+      "status": "pending",
+      "dependencies": [],
+      "important_files": [
+        "src/utils/nodeAnalysis.ts",
+        "src/utils/resourceMonitor.ts",
+        "src/utils/executionBridge.ts",
+        "tests/unit/tools/instance-monitoring.test.ts"
+      ],
+      "success_criteria": [
+        "All @typescript-eslint/no-unused-vars errors resolved (25+ instances)",
+        "Unused parameters prefixed with underscore where appropriate",
+        "Dead code removed where variables are truly unused",
+        "Function signatures cleaned up for unused parameters",
+        "Import statements cleaned of unused imports"
+      ],
+      "estimate": "3-4 hours",
+      "requires_research": false,
+      "subtasks": [],
+      "created_at": "2025-08-08T06:28:54.222Z"
+    },
+    {
+      "id": "task_1754634534223_yxwp9w6kj",
+      "title": "Fix Import and Module-related ESLint Errors",
+      "description": "Fix duplicate imports, missing type definitions, and module resolution issues across the codebase",
+      "mode": "DEVELOPMENT",
+      "priority": "medium",
+      "status": "pending",
+      "dependencies": [],
+      "important_files": [
+        "tests/unit/tools/instance-monitoring.test.ts",
+        "package.json",
+        "tsconfig.json"
+      ],
+      "success_criteria": [
+        "All no-duplicate-imports errors resolved",
+        "Missing type definitions added or configured",
+        "Module import statements properly organized",
+        "No import-related ESLint errors remain"
+      ],
+      "estimate": "1-2 hours",
+      "requires_research": false,
+      "subtasks": [],
+      "created_at": "2025-08-08T06:28:54.223Z"
+    },
+    {
+      "id": "task_1754634534224_ll856jqae",
+      "title": "Replace Non-null Assertions with Safe Type Guards",
+      "description": "Replace forbidden non-null assertions (!) with proper type guards and null checks to improve code safety and eliminate @typescript-eslint/no-non-null-assertion warnings",
+      "mode": "DEVELOPMENT",
+      "priority": "medium",
+      "status": "pending",
+      "dependencies": [],
+      "important_files": [
+        "src/__tests__/**/*.test.ts",
+        "src/utils/*.ts",
+        "tests/unit/**/*.test.ts"
+      ],
+      "success_criteria": [
+        "All @typescript-eslint/no-non-null-assertion warnings resolved (140+ instances)",
+        "Non-null assertions replaced with proper null checks",
+        "Type guards implemented where appropriate",
+        "Code safety improved with explicit null/undefined handling",
+        "Test files updated with safe assertion patterns"
+      ],
+      "estimate": "6-8 hours",
+      "requires_research": false,
+      "subtasks": [],
+      "created_at": "2025-08-08T06:28:54.224Z"
+    },
+    {
+      "id": "task_1754634534226_ctb1r1tdc",
+      "title": "Fix Failing Instance Monitoring Unit Tests",
+      "description": "Debug and fix the 25 failing test cases in instance-monitoring.test.ts related to mock function calls and ResourceMonitor integration",
+      "mode": "TESTING",
+      "priority": "high",
+      "status": "pending",
+      "dependencies": [],
+      "important_files": [
+        "tests/unit/tools/instance-monitoring.test.ts",
+        "src/tools/instance-monitoring.ts",
+        "src/utils/resourceMonitor.ts"
+      ],
+      "success_criteria": [
+        "All 25 failing instance monitoring tests pass",
+        "Mock function expectations correctly configured",
+        "Test assertions align with actual implementation behavior",
+        "ResourceMonitor integration properly tested",
+        "Client initialization error handling tests fixed",
+        "Test coverage for instance monitoring tools >90%"
+      ],
+      "estimate": "4-6 hours",
+      "requires_research": false,
+      "subtasks": [],
+      "created_at": "2025-08-08T06:28:54.226Z"
+    },
+    {
+      "id": "task_1754634534227_xvm26jy6h",
+      "title": "Add Unit Tests for WebSocket Transport Components",
+      "description": "Create comprehensive unit tests for the new WebSocket transport components to improve overall test coverage above 80%",
+      "mode": "TESTING",
+      "priority": "medium",
+      "status": "pending",
+      "dependencies": [],
+      "important_files": [
+        "src/transport/connectionManager.ts",
+        "src/transport/eventStreamingManager.ts",
+        "src/transport/progressMonitor.ts",
+        "src/transport/websocketAuth.ts",
+        "tests/unit/transport/"
+      ],
+      "success_criteria": [
+        "Unit tests added for connectionManager.ts (0% coverage)",
+        "Unit tests added for eventStreamingManager.ts (0% coverage)",
+        "Unit tests added for progressMonitor.ts (0% coverage)",
+        "Unit tests added for websocketAuth.ts (0% coverage)",
+        "Overall project test coverage >80%",
+        "All new transport components have >85% test coverage"
+      ],
+      "estimate": "8-12 hours",
+      "requires_research": false,
+      "subtasks": [],
+      "created_at": "2025-08-08T06:28:54.227Z"
     }
   ],
   "review_strikes": 0,
   "strikes_completed_last_run": false,
   "current_task_index": 0,
-  "last_mode": "DEVELOPMENT",
-  "execution_count": 343,
-  "last_hook_activation": 1754633613467,
+  "last_mode": "TASK_CREATION",
+  "execution_count": 344,
+  "last_hook_activation": 1754634383891,
   "__removedLinterTasks": {
     "removedCount": 1,
     "finalTaskCount": 11
