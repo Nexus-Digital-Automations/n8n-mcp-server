@@ -302,7 +302,7 @@ export class N8nNodeGenerator {
   /**
    * Check if tool has multiple operations (placeholder for future enhancement)
    */
-  private hasMultipleOperations(tool: MCPTool): boolean {
+  private hasMultipleOperations(_tool: MCPTool): boolean {
     // For now, assume single operation per tool
     // In future versions, this could be enhanced to detect operation patterns
     return false;

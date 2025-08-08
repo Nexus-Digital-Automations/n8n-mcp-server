@@ -1,5 +1,4 @@
 import {
-  MCPServer,
   MCPTool,
   MCPToolRequest,
   MCPToolResponse,
@@ -16,7 +15,7 @@ import fetch from 'node-fetch';
 export class MCPExecutionBridge {
   private parameterMapper: ParameterMapper;
   private connectionPool: Map<string, MCPConnection> = new Map();
-  private connectionTimeouts: Map<string, NodeJS.Timeout> = new Map();
+  private connectionTimeouts: Map<string, ReturnType<typeof setTimeout>> = new Map();
   private readonly CONNECTION_TIMEOUT = 30000; // 30 seconds
   private readonly REQUEST_TIMEOUT = 60000; // 60 seconds
 

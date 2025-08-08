@@ -350,7 +350,7 @@ export class ParameterMapper {
   /**
    * Map MCP response back to n8n execution data
    */
-  mapMCPResponseToN8n(mcpResponse: any, context: MCPExecutionContext): N8nExecutionData[] {
+  mapMCPResponseToN8n(mcpResponse: any, _context: MCPExecutionContext): N8nExecutionData[] {
     const outputData: N8nExecutionData[] = [];
 
     try {

@@ -2,7 +2,6 @@ import {
   MCPTool,
   MCPToolSchema,
   MCPToolProperty,
-  MCPServer,
   MCPCapabilities,
   ConversionResult,
 } from '../types/mcpTypes.js';
