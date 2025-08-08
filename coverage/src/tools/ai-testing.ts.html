@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">8.87% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>11/124</span>
+                <span class='fraction'>0/121</span>
             </div>
         
             
@@ -37,16 +37,16 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">5% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>1/20</span>
+                <span class='fraction'>0/20</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">9.48% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>11/116</span>
+                <span class='fraction'>0/113</span>
             </div>
         
             
@@ -562,31 +562,32 @@
 <a name='L497'></a><a href='#L497'>497</a>
 <a name='L498'></a><a href='#L498'>498</a>
 <a name='L499'></a><a href='#L499'>499</a>
-<a name='L500'></a><a href='#L500'>500</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">25x</span>
-<span class="cline-any cline-yes">25x</span>
+<a name='L500'></a><a href='#L500'>500</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">25x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">25x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">25x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">25x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -594,9 +595,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">25x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">25x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -717,7 +717,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">25x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -827,7 +827,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">25x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -928,7 +928,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">25x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1066,26 +1066,26 @@ import { UserError } from 'fastmcp';
 import { N8nClient } from '../client/n8nClient.js';
 &nbsp;
 // Zod schemas for AI testing validation
-const AIPromptValidationSchema = z.object({
+const AIPromptValidationSchema = <span class="cstat-no" title="statement not covered" >z.object({</span>
   prompt: z.string().min(1, 'Prompt is required'),
   context: z.record(z.any()).optional(),
   variables: z.array(z.string()).optional(),
 });
 &nbsp;
-const AINodeTestSchema = z.object({
+const AINodeTestSchema = <span class="cstat-no" title="statement not covered" >z.object({</span>
   workflowId: z.string().min(1, 'Workflow ID is required'),
   nodeId: z.string().min(1, 'Node ID is required'),
   testData: z.record(z.any()),
   validateOnly: z.boolean().optional().default(false),
 });
 &nbsp;
-const AIExpressionTestSchema = z.object({
+const AIExpressionTestSchema = <span class="cstat-no" title="statement not covered" >z.object({</span>
   expression: z.string().min(1, 'Expression is required'),
   sampleData: z.record(z.any()),
   context: z.record(z.any()).optional(),
 });
 &nbsp;
-const AIPerformanceTestSchema = z.object({
+const AIPerformanceTestSchema = <span class="cstat-no" title="statement not covered" >z.object({</span>
   workflowId: z.string().min(1, 'Workflow ID is required'),
   nodeId: z.string().min(1, 'Node ID is required'),
   iterations: z.number().min(1).max(100).optional().default(5),
@@ -1093,9 +1093,9 @@ const AIPerformanceTestSchema = z.object({
 });
 &nbsp;
 // Tool registration function for AI testing tools
-export function createAITestingTools(getClient: () =&gt; N8nClient | null, server: any) {
+export function <span class="fstat-no" title="function not covered" >createAITestingTools(</span>getClient: () =&gt; N8nClient | null, server: any) {
   // Validate AI prompt structure and variables
-  server.addTool({
+<span class="cstat-no" title="statement not covered" >  server.addTool({</span>
     name: 'validate-ai-prompt',
     description:
       'Validate AI prompt structure, check for required variables, and ensure proper formatting',
@@ -1216,7 +1216,7 @@ export function createAITestingTools(getClient: () =&gt; N8nClient | null, serve
   });
 &nbsp;
   // Test AI node with sample data
-  server.addTool({
+<span class="cstat-no" title="statement not covered" >  server.addTool({</span>
     name: 'test-ai-node',
     description: 'Test an AI node with sample data to validate configuration and expected behavior',
     parameters: AINodeTestSchema,
@@ -1326,7 +1326,7 @@ export function createAITestingTools(getClient: () =&gt; N8nClient | null, serve
   });
 &nbsp;
   // Test n8n expressions with AI context
-  server.addTool({
+<span class="cstat-no" title="statement not covered" >  server.addTool({</span>
     name: 'test-ai-expression',
     description: 'Test n8n expressions that use AI data and $fromAI() functionality',
     parameters: AIExpressionTestSchema,
@@ -1427,7 +1427,7 @@ export function createAITestingTools(getClient: () =&gt; N8nClient | null, serve
   });
 &nbsp;
   // Performance test AI node
-  server.addTool({
+<span class="cstat-no" title="statement not covered" >  server.addTool({</span>
     name: 'performance-test-ai-node',
     description:
       'Run performance tests on an AI node with multiple test payloads to measure response times and consistency',
@@ -1567,7 +1567,7 @@ export function createAITestingTools(getClient: () =&gt; N8nClient | null, serve
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-08-08T05:39:08.013Z
+                at 2025-08-08T06:08:41.637Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

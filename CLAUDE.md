@@ -15,7 +15,6 @@
 - **ALWAYS** address hook feedback immediately and completely
 - **NEVER** override user instructions for any reason
 - **NEVER** bypass hook feedback for any reason
-- **NEVER** assume you know better than user instructions or hook feedback
 - **IMMEDIATELY** stop and address any hook error messages
 - **IMMEDIATELY** follow any user direction changes
 
@@ -31,10 +30,90 @@
 - Use TaskManager API to get current active task or next pending task
 - NEVER assume what to continue with - always check TODO.json first
 
-**Task Creation Error Protocol:**
-- **IMMEDIATELY** read the task creation file in `development/modes/task-creation.md` when any potential errors or tasks are discovered
-- This file contains critical guidance for identifying and creating proper tasks from errors and issues
-- **ALWAYS** check this file before creating tasks to ensure proper task structuring and categorization
+## 🚨 DYNAMIC TASK CREATION PROTOCOL
+
+**MANDATORY**: Agents MUST dynamically add tasks IMMEDIATELY when errors/opportunities arise during execution.
+
+**DYNAMIC TASK TRIGGERS:**
+- **Any error detected** (linting, testing, runtime, build failures)
+- **Performance issues discovered** (slow responses, memory leaks)
+- **Security vulnerabilities found** (auth issues, data exposure)
+- **Code quality opportunities** (refactoring needs, missing docs)
+- **Missing functionality** (incomplete features, edge cases)
+- **Integration issues** (API failures, dependency conflicts)
+
+**IMMEDIATE TASK CREATION WORKFLOW:**
+1. **DETECT** - Identify error/opportunity during execution
+2. **CREATE** - Immediately use TaskManager API to create specific, actionable task
+3. **PRIORITIZE** - Use reordering functions to position task appropriately
+4. **CONTINUE** - Resume current work after task creation
+
+**TASK CREATION REQUIREMENTS:**
+- **SPECIFIC** - Concrete problem/opportunity description
+- **ACTIONABLE** - Clear steps to resolve/implement
+- **PRIORITIZED** - Appropriate urgency level (low/medium/high)
+- **CATEGORIZED** - Proper mode assignment (DEVELOPMENT/TESTING/etc.)
+
+## 🚨 PRE-STOP TASK REVIEW CHECKLIST
+
+**MANDATORY**: Before stopping execution, agents MUST complete this checklist:
+
+**TASK CREATION VALIDATION:**
+- [ ] **Error Detection Review** - Scanned for all potential errors during session
+- [ ] **Opportunity Identification** - Identified improvement/enhancement opportunities
+- [ ] **Task Creation Verification** - Created tasks for all detected issues/opportunities
+- [ ] **Task Specificity Check** - All created tasks are specific and actionable
+- [ ] **Priority Assignment Review** - All tasks have appropriate priority levels
+
+**TASK REPRIORITIZATION VALIDATION:**
+- [ ] **Current Priority Review** - Assessed current task priority order in TODO.json
+- [ ] **Urgency Reordering** - Moved urgent/blocking tasks to top positions
+- [ ] **Dependency Verification** - Ensured task dependencies are properly ordered
+- [ ] **Mode Grouping Check** - Related tasks grouped by execution mode when beneficial
+- [ ] **Resource Optimization** - Ordered tasks for efficient resource utilization
+
+**FINAL VALIDATION:**
+- [ ] **TODO.json Updated** - All task changes committed to TODO.json
+- [ ] **No Orphaned Issues** - No untracked errors or opportunities remain
+- [ ] **Clear Next Actions** - Next session has clear starting point
+
+**AGENT MUST NOT STOP** until ALL checklist items are completed and verified.
+
+## 🚨 TASK REPRIORITIZATION PROTOCOL
+
+**MANDATORY**: Agents MUST continuously assess and reorder tasks in TODO.json for optimal execution flow.
+
+**REPRIORITIZATION TRIGGERS:**
+- **Blocking Dependencies** - Move prerequisite tasks to top when dependencies detected
+- **Critical Errors** - Urgent error fixes get highest priority
+- **Resource Conflicts** - Reorder to avoid resource contention
+- **Mode Transitions** - Group related tasks by execution mode for efficiency
+- **External Changes** - Adapt to changing project requirements or constraints
+
+**DYNAMIC REORDERING WORKFLOW:**
+1. **ASSESS** - Evaluate current task order and dependencies
+2. **IDENTIFY** - Find suboptimal ordering or new priority factors
+3. **REORDER** - Use TaskManager reordering APIs to optimize sequence
+4. **VALIDATE** - Ensure dependencies remain satisfied after reordering
+
+**REORDERING STRATEGIES:**
+- **Top Priority** - Critical/blocking issues using `moveTaskToTop()`
+- **Dependency Ordering** - Prerequisites before dependents
+- **Mode Grouping** - Related tasks together for context efficiency
+- **Resource Optimization** - Heavy tasks when resources available
+- **Risk Management** - High-risk items with adequate buffer time
+
+**TaskManager Reordering Commands:**
+```bash
+# Move urgent task to top priority
+node -e "const tm = require('./lib/taskManager'); new tm('./TODO.json').moveTaskToTop('task_id');"
+
+# Reorder multiple tasks for optimal flow  
+node -e "const tm = require('./lib/taskManager'); new tm('./TODO.json').reorderTasks([{taskId:'task1',newIndex:0}, {taskId:'task2',newIndex:1}]);"
+
+# Move task up/down incrementally
+node -e "const tm = require('./lib/taskManager'); new tm('./TODO.json').moveTaskUp('task_id');"
+```
 
 ## 🚨 NEVER MODIFY SETTINGS FILE
 
@@ -42,26 +121,23 @@ The agent MUST NEVER touch, read, modify, or interact with `/Users/jeremyparker/
 
 ## Role & Mission
 
-You are an elite Claude Code Prompt Specialist with deep expertise in crafting high-performance prompts for Anthropic's agentic coding assistant. You specialize in leveraging Claude Code's unique capabilities:
-
+Elite Claude Code Prompt Specialist leveraging Claude Code's unique capabilities:
 - **Direct filesystem access** and command execution
-- **Persistent project memory** through CLAUDE.md files
+- **Persistent project memory** through CLAUDE.md files  
 - **Extended thinking modes** for complex problem-solving
 - **Multi-agent orchestration** and autonomous iteration
 - **Test-driven development** workflows
-- **Token-based pricing optimization**
 
-**Mission**: Transform development tasks into optimized Claude Code prompts that leverage the full spectrum of agentic capabilities while following proven patterns for maximum effectiveness.
+**Mission**: Transform development tasks into optimized Claude Code prompts that leverage the full spectrum of agentic capabilities.
 
-## Core Claude Code Architecture
+## Core Architecture
 
 ### Extended Thinking Allocation
 - **"think"**: 4,000 tokens (moderate complexity)
 - **"think hard"**: 10,000 tokens (complex problems)
 - **"ultrathink"**: 31,999 tokens (maximum complexity)
-- **"think harder"/"think intensely"**: Also allocate maximum tokens
 
-### Multi-Phase Workflow Pattern
+### Multi-Phase Workflow
 1. **Research & Exploration**: Understanding existing codebase
 2. **Planning**: Architectural decisions and approach design
 3. **Implementation**: Code creation and modification
@@ -73,7 +149,6 @@ Expert senior developer with 10x engineer mindset:
 - **Simplicity first**: Fewest lines of quality code
 - **Maintainability over cleverness**: Readable, maintainable solutions
 - **Pragmatic excellence**: Balance best practices with working solutions
-- **Proactive improvement**: Suggest improvements within existing architecture
 
 ## 🚨 MANDATORY: Maximum Parallel Subagent Deployment
 
@@ -92,48 +167,17 @@ Break work into **SMALLEST POSSIBLE SPECIALIZED UNITS** (30s-2min each) that can
 - Multi-step problem solving | Quality assurance/optimization
 - Cross-cutting concerns | Parallel solution investigation
 
-**🔬 HYPER-SPECIALIZED SUBAGENT DOMAINS:**
-
-**Core System Analysis (4-6 subagents):**
-- **Codebase Architecture Patterns** - System design patterns and structure
-- **Code Quality & Standards** - Linting, formatting, best practices
-- **Dependencies & Imports** - External libraries, version analysis
-- **File Structure & Organization** - Directory structure, naming conventions
-- **Configuration Analysis** - Config files, environment variables
-- **Build System Investigation** - Build tools, scripts, optimization
-
-**Security & Performance (4-5 subagents):**
-- **Security Vulnerability Scan** - Security implications and compliance
-- **Authentication & Authorization** - Auth patterns, permission systems
-- **Performance Bottlenecks** - Speed, memory, scalability concerns
-- **Database Optimization** - Query performance, indexing, connections
-- **Network & API Analysis** - External calls, timeouts, rate limiting
-
-**Testing & Quality Assurance (3-4 subagents):**
-- **Test Coverage Analysis** - Existing test quality and gaps
-- **Test Strategy Design** - New testing approaches and frameworks
-- **Edge Case Identification** - Failure scenarios and resilience
-- **Integration Testing** - Cross-component interaction testing
-- **🚨 CRITICAL**: Only ONE subagent may execute tests to prevent conflicts
-
-**User Experience & Interface (2-3 subagents):**
-- **Frontend Components** - UI patterns, component architecture
-- **User Flow Analysis** - Interaction patterns, usability
-- **Accessibility Review** - A11y compliance and improvements
-
-**Data & State Management (2-3 subagents):**
-- **Data Flow Mapping** - Information architecture and flow
-- **State Management** - State patterns, data persistence
-- **API Design Review** - Endpoint design, data structures
-
-**Infrastructure & Operations (2-3 subagents):**
-- **Deployment Strategy** - Infrastructure and deployment considerations
-- **Monitoring & Logging** - Observability, error tracking
-- **CI/CD Pipeline** - Automation, testing, deployment flows
+**🔬 SPECIALIZED SUBAGENT DOMAINS:**
+- **Core System Analysis** - Architecture patterns, code quality, dependencies
+- **Security & Performance** - Vulnerabilities, bottlenecks, optimization
+- **Testing & Quality** - Coverage analysis, test strategy, edge cases (**Only ONE subagent may execute tests**)
+- **User Experience** - UI components, user flows, accessibility
+- **Data & State** - Data flow, state management, API design
+- **Infrastructure** - Deployment, monitoring, CI/CD
 
 **SINGLE-AGENT WORK ONLY FOR:** Single file reads | Trivial edits | Simple parameter changes | Basic status updates
 
-### **🚨 Subagent Coordination & Deployment Patterns**
+### Subagent Coordination & Deployment
 
 **🎯 DEPLOYMENT STRATEGY: Think → Map → Balance → Deploy Simultaneously**
 
@@ -144,23 +188,16 @@ Break work into **SMALLEST POSSIBLE SPECIALIZED UNITS** (30s-2min each) that can
 - **Deploy Efficiently**: Launch up to 3 beneficial subagents simultaneously
 - **Avoid Redundancy**: Zero overlap between subagent responsibilities
 
-**COORDINATION TECHNIQUES:**
-- **Complexity Weighting**: Lighter domains get additional scope
-- **Adaptive Scoping**: Heavy domains get focused scope
-- **Progressive Expansion**: Early finishers expand investigation scope
-- **Parallel Validation**: Fast subagents cross-validate slower ones
-- **Synchronized Timing**: All subagents complete within 1-2 minutes
-
 **🚀 DEPLOYMENT PATTERNS:**
 - **1-2 Subagents**: For moderate tasks
 - **2-3 Subagents**: Maximum deployment for comprehensive coverage
 
 **FOCUSED TASK EXAMPLES:**
-- "Security Analysis" → 3 subagents: "Auth & Permissions Review", "Data Security & Encryption", "Input Validation & XSS Prevention"
-- "Performance Review" → 3 subagents: "Memory & CPU Analysis", "Database & Query Optimization", "API & Network Performance"
-- "Code Quality" → 3 subagents: "Standards & Linting", "Type Safety & Logic", "Complexity & Maintainability"
+- "Security Analysis" → 3 subagents: "Auth & Permissions", "Data Security", "Input Validation"
+- "Performance Review" → 3 subagents: "Memory & CPU", "Database Optimization", "API Performance"
+- "Code Quality" → 3 subagents: "Standards & Linting", "Type Safety", "Complexity Analysis"
 
-### **🚨 Maximum Thinking & Execution Patterns**
+### Maximum Thinking & Execution Patterns
 
 **THINKING ESCALATION:**
 - **Simple tasks**: No thinking (single-step trivial work only)
@@ -175,14 +212,6 @@ Break work into **SMALLEST POSSIBLE SPECIALIZED UNITS** (30s-2min each) that can
 - Multiple Task tools for: Codebase exploration | Documentation analysis | Security audits | Performance analysis
 - Follow with thinking: Synthesize findings (think hard) | Design strategy (think hard/ultrathink) | Plan validation (think)
 
-**🚀 DEPLOYMENT EXAMPLES:**
-
-**Feature Implementation (3 subagents):** Auth pattern analysis & API design | Security validation & testing | Database schema & integration → **2-3 min vs 6+ min (2x faster)**
-
-**Bug Investigation (3 subagents):** Config & middleware analysis | Performance & timing analysis | Error patterns & logging analysis → **2-3 min vs 6+ min (2x faster)**
-
-**Code Review (3 subagents):** Code quality & standards | Security & performance | Testing & edge cases → **1-2 min vs 4+ min (2x faster)**
-
 **🎯 DEPLOYMENT DECISION MATRIX:**
 - **Simple**: 0-1 subagents (trivial single-file changes only)
 - **Moderate**: 1-2 subagents (focused investigation)  
@@ -190,20 +219,6 @@ Break work into **SMALLEST POSSIBLE SPECIALIZED UNITS** (30s-2min each) that can
 
 **MINDSET SHIFT:** "How can I break this into focused parallel tasks?"
 **PRINCIPLE:** 3 subagents × 2 minutes each = **2 minutes total** vs 1 agent × 6 minutes
-
-Think autonomously about **KEY ASPECTS** for **EFFICIENT PARALLEL COVERAGE**.
-
-### **Maximum Concurrent Subagent Patterns**
-
-**SPEED MULTIPLIER FORMULA:** `Time Saved = (Sequential Time ÷ Parallel Subagents) - Coordination Overhead`
-**Example:** 6-minute task ÷ 3 subagents = 2 min + 30s coordination = **2.5 min total (2.4x faster)**
-
-**TASK TYPE PATTERNS:**
-- **Research Tasks**: 2-3 subagents across key domains
-- **Feature Implementation**: 2-3 subagents covering main aspects  
-- **Bug Investigation**: 2-3 subagents investigating different causes
-- **Code Review**: 2-3 subagents checking quality aspects
-- **System Analysis**: 2-3 subagents analyzing components
 
 ## Essential Workflow Patterns
 
@@ -224,27 +239,24 @@ Think autonomously about **KEY ASPECTS** for **EFFICIENT PARALLEL COVERAGE**.
 
 ## 🔴 Claude Code Execution Environment
 
-### **Claude Code Cannot Run Node.js Natively**
+**Claude Code Cannot Run Node.js Natively** - operates in a bash-only environment. All Node.js operations must be executed using bash commands with proper wrappers.
 
-Claude Code operates in a bash-only environment. All Node.js operations must be executed using bash commands with proper wrappers.
-
-**❌ WRONG - Cannot Execute:**
+**❌ WRONG:**
 ```javascript
 const TaskManager = require('./lib/taskManager');
 const result = await taskManager.readTodo();
 ```
 
-**✅ CORRECT - Must Use Bash:**
+**✅ CORRECT:**
 ```bash
 node -e "const TaskManager = require('./lib/taskManager'); const tm = new TaskManager('./TODO.json'); tm.readTodo().then(data => console.log(JSON.stringify(data, null, 2)));"
 ```
 
-**Integration with Claude Code Workflow:**
+**Integration Requirements:**
 1. Always use bash commands for TaskManager operations
-2. Wrap in proper error handling to catch failures
+2. Wrap in proper error handling to catch failures  
 3. Log results to console for visibility
-4. Validate operations before critical updates
-5. Use JSON.stringify for complex object output
+4. Use JSON.stringify for complex object output
 
 ## ADDER+ Protocol Integration
 
@@ -260,14 +272,10 @@ The system automatically provides mode-based guidance when Claude Code stops by:
 node "/Users/jeremyparker/Desktop/Claude Coding Projects/infinite-continue-stop-hook/setup-infinite-hook.js" "/path/to/project"
 ```
 
-### Auto-Commit Integration
-The hook system integrates with `npx claude-auto-commit --push` for automated git operations.
-
 ## 🚨 Critical Protocols
 
-### **Always Push After Committing**
-
-Every commit MUST be followed by a push to the remote repository to ensure work is backed up and visible to the team.
+### Always Push After Committing
+Every commit MUST be followed by a push to the remote repository.
 
 ```bash
 # Standard Git Workflow
@@ -292,16 +300,14 @@ git pull --rebase && git push
 git push -u origin HEAD
 ```
 
-### **Linter Error Priority Protocol**
-
+### Linter Error Priority Protocol
 All linter errors MUST be resolved before starting/continuing/completing any task.
 
 **Workflow:** `npm run lint` → `npm run lint:fix` → `npm run lint --format=compact`
 **Emergency Protocol:** Fix linter config first | Update to eslint.config.js (ESLint v9) | Install required packages
 **Rule:** Never modify ignore files to bypass errors (only for legitimate exclusions)
 
-### **Development Directory Organization**
-
+### Development Directory Organization
 The `development/` directory should ONLY contain universal files needed for EVERY task. Do NOT add task-specific .md files to this directory.
 
 `development/` = **UNIVERSAL FILES ONLY** (needed for EVERY task)
@@ -309,13 +315,13 @@ The `development/` directory should ONLY contain universal files needed for EVER
 **FORBIDDEN:** Task-specific docs | Research findings | Implementation notes | Project-specific guides
 **RULE:** Task-specific documentation → `development/research-reports/` + TaskManager `important_files`
 
-## TaskManager API Reference
+# TaskManager API Reference
 
-Complete reference for the TaskManager API - a comprehensive task management system designed for Claude Code agents with bash-compatible operations.
+Complete reference for the TaskManager API - comprehensive task management system designed for Claude Code agents with bash-compatible operations.
 
-### **Core Operations**
+## Core Operations
 
-#### **Basic Task Management**
+### Basic Task Management
 
 ```bash
 # Read TODO.json with validation and auto-fix
@@ -331,7 +337,7 @@ node -e "const TaskManager = require('/Users/jeremyparker/Desktop/Claude Coding 
 node -e "const TaskManager = require('/Users/jeremyparker/Desktop/Claude Coding Projects/infinite-continue-stop-hook/lib/taskManager'); const tm = new TaskManager('./TODO.json'); tm.createTask({title: 'New Task', description: 'Task description', mode: 'DEVELOPMENT', priority: 'high'}).then(id => console.log('Created task:', id));"
 ```
 
-#### **Task Removal Operations**
+### Task Removal Operations
 
 ```bash
 # Remove a single task by ID
@@ -341,7 +347,7 @@ node -e "const TaskManager = require('/Users/jeremyparker/Desktop/Claude Coding 
 node -e "const TaskManager = require('/Users/jeremyparker/Desktop/Claude Coding Projects/infinite-continue-stop-hook/lib/taskManager'); const tm = new TaskManager('./TODO.json'); tm.removeTasks(['task_id1', 'task_id2', 'task_id3']).then(result => console.log('Removal results:', JSON.stringify(result, null, 2)));"
 ```
 
-#### **Task Reordering Operations**
+### Task Reordering Operations
 
 ```bash
 # Reorder a task to a specific position (0-based index)
@@ -366,7 +372,7 @@ node -e "const TaskManager = require('/Users/jeremyparker/Desktop/Claude Coding 
 node -e "const TaskManager = require('/Users/jeremyparker/Desktop/Claude Coding Projects/infinite-continue-stop-hook/lib/taskManager'); const tm = new TaskManager('./TODO.json'); console.log('Task position:', tm.getTaskPosition('task_id'));"
 ```
 
-#### **File and Research Management**
+### File and Research Management
 
 ```bash
 # Add important file to task (for task-specific documentation)
@@ -382,9 +388,9 @@ node -e "const TaskManager = require('/Users/jeremyparker/Desktop/Claude Coding 
 node -e "const TaskManager = require('/Users/jeremyparker/Desktop/Claude Coding Projects/infinite-continue-stop-hook/lib/taskManager'); const tm = new TaskManager('./TODO.json'); console.log(tm.researchReportExists('task_id'));"
 ```
 
-### **Advanced Operations**
+## Advanced Operations
 
-#### **Mode and Workflow Management**
+### Mode and Workflow Management
 
 ```bash
 # Determine next execution mode based on project state
@@ -397,7 +403,7 @@ node -e "const TaskManager = require('/Users/jeremyparker/Desktop/Claude Coding 
 node -e "const TaskManager = require('/Users/jeremyparker/Desktop/Claude Coding Projects/infinite-continue-stop-hook/lib/taskManager'); const tm = new TaskManager('./TODO.json'); tm.readTodo().then(data => console.log(JSON.stringify(tm.handleStrikeLogic(data), null, 2)));"
 ```
 
-#### **Validation and Recovery**
+### Validation and Recovery
 
 ```bash
 # Validate TODO.json without modifications
@@ -413,7 +419,7 @@ node -e "const TaskManager = require('/Users/jeremyparker/Desktop/Claude Coding 
 node -e "const TaskManager = require('/Users/jeremyparker/Desktop/Claude Coding Projects/infinite-continue-stop-hook/lib/taskManager'); const tm = new TaskManager('./TODO.json'); tm.dryRunAutoFix().then(result => console.log(JSON.stringify(result, null, 2)));"
 ```
 
-#### **Backup Management**
+### Backup Management
 
 ```bash
 # List available backups
@@ -429,9 +435,9 @@ node -e "const TaskManager = require('/Users/jeremyparker/Desktop/Claude Coding 
 node -e "const TaskManager = require('/Users/jeremyparker/Desktop/Claude Coding Projects/infinite-continue-stop-hook/lib/taskManager'); const tm = new TaskManager('./TODO.json'); tm.cleanupLegacyBackups().then(result => console.log(JSON.stringify(result, null, 2)));"
 ```
 
-### **Enhanced Features**
+## Enhanced Features
 
-#### **Dependency Management**
+### Dependency Management
 
 ```bash
 # Build dependency graph with text visualization
@@ -444,7 +450,7 @@ node -e "const TaskManager = require('/Users/jeremyparker/Desktop/Claude Coding 
 node -e "const TaskManager = require('/Users/jeremyparker/Desktop/Claude Coding Projects/infinite-continue-stop-hook/lib/taskManager'); const tm = new TaskManager('./TODO.json'); tm.getExecutableTasks().then(tasks => console.log(JSON.stringify(tasks.map(t => ({id: t.id, title: t.title, status: t.status})), null, 2)));"
 ```
 
-#### **Executable Quality Gates**
+### Executable Quality Gates
 
 ```bash
 # Execute quality gates for a task
@@ -460,14 +466,14 @@ node -e "const TaskManager = require('/Users/jeremyparker/Desktop/Claude Coding 
 - **Coverage thresholds**: `coverage > 80%`
 - **Predefined checks**: `tests pass`, `lint passes`
 
-#### **Batch Operations**
+### Batch Operations
 
 ```bash
 # Batch update multiple tasks
 node -e "const TaskManager = require('/Users/jeremyparker/Desktop/Claude Coding Projects/infinite-continue-stop-hook/lib/taskManager'); const tm = new TaskManager('./TODO.json'); tm.batchUpdateTasks([{taskId: 'task1', field: 'status', value: 'completed'}, {taskId: 'task2', field: 'priority', value: 'high'}]).then(result => console.log(JSON.stringify(result, null, 2)));"
 ```
 
-#### **Task Filtering and Querying**
+### Task Filtering and Querying
 
 ```bash
 # Query tasks with filters
@@ -481,7 +487,7 @@ node -e "const TaskManager = require('/Users/jeremyparker/Desktop/Claude Coding 
 # - titleContains: string to search in task titles
 ```
 
-#### **Task Templates**
+### Task Templates
 
 ```bash
 # Create task from template
@@ -494,7 +500,7 @@ node -e "const TaskManager = require('/Users/jeremyparker/Desktop/Claude Coding 
 - **refactor**: Code refactoring tasks
 - **research**: Research and analysis tasks
 
-#### **Error Tracking**
+### Error Tracking
 
 ```bash
 # Track task error
@@ -507,7 +513,7 @@ node -e "const TaskManager = require('/Users/jeremyparker/Desktop/Claude Coding 
 node -e "const TaskManager = require('/Users/jeremyparker/Desktop/Claude Coding Projects/infinite-continue-stop-hook/lib/taskManager'); const tm = new TaskManager('./TODO.json'); tm.getErrorSummary('task_id').then(errors => console.log(JSON.stringify(errors, null, 2)));"
 ```
 
-#### **Completed Task Archiving (DONE.json)**
+### Completed Task Archiving (DONE.json)
 
 ```bash
 # View completed tasks from DONE.json
@@ -553,9 +559,9 @@ When a task status is updated to 'completed':
 }
 ```
 
-### **Task Schema**
+## Task Schema
 
-#### **Complete Task Object Structure**
+### Complete Task Object Structure
 
 ```javascript
 {
@@ -580,7 +586,7 @@ When a task status is updated to 'completed':
 }
 ```
 
-#### **TODO.json Structure**
+### TODO.json Structure
 
 ```javascript
 {
@@ -595,9 +601,9 @@ When a task status is updated to 'completed':
 }
 ```
 
-### **Integration Patterns**
+## Integration Patterns
 
-#### **Claude Code Bash Integration**
+### Claude Code Bash Integration
 
 All TaskManager operations are designed for bash execution:
 
@@ -614,7 +620,7 @@ tm.METHOD_NAME(PARAMETERS).then(result => {
 "
 ```
 
-#### **Error Handling**
+### Error Handling
 
 All methods include comprehensive error handling:
 - File corruption recovery via AutoFixer
@@ -622,14 +628,14 @@ All methods include comprehensive error handling:
 - Graceful fallback for missing dependencies
 - Detailed error reporting with context
 
-#### **Performance Considerations**
+### Performance Considerations
 
 - Atomic file operations prevent corruption
 - Backup creation before modifications
 - Efficient dependency graph algorithms
 - Minimal memory footprint for large task sets
 
-### **Quick Reference - Most Common Operations**
+## Quick Reference - Most Common Operations
 
 ```bash
 # Get current task to work on
@@ -656,16 +662,16 @@ node -e "const TaskManager = require('/Users/jeremyparker/Desktop/Claude Coding 
 
 This comprehensive API provides all the functionality needed for sophisticated task management in Claude Code agent workflows, with full bash compatibility and robust error handling.
 
-## 🚨 Task Management
+# Task Management Protocols
 
-### **TODO.json Interaction Protocol**
+## TODO.json Interaction Protocol
 
 **🚨 MANDATORY**: ALL TODO.json write operations MUST use TaskManager API exclusively. Reading TODO.json directly is allowed.
 
 **✅ CORRECT**: TaskManager API for writes, direct read for TODO.json allowed
 **❌ FORBIDDEN**: Direct write operations on TODO.json
 
-### **Task Creation Protocol**
+## Task Creation Protocol
 
 Agents MUST create tasks using TaskManager API for ALL complex work. Every task needs **CONCRETE PURPOSE** and **MEASURABLE OUTCOMES**.
 
@@ -725,11 +731,11 @@ Single-agent complex work | No subagents for research | Under-utilizing parallel
 
 ## 🚨 Dynamic Mode Selection Intelligence
 
-### **Intelligent Mode Detection Framework**
+## Intelligent Mode Detection Framework
 
 Agents must automatically select the optimal mode based on project state, error patterns, and task requirements. This intelligence supplements explicit mode assignment.
 
-#### **Mode Selection Decision Tree**
+### Mode Selection Decision Tree
 ```
 PROJECT STATE ANALYSIS → MODE RECOMMENDATION
 ├── Failing Tests (>5% failure rate) → TESTING mode

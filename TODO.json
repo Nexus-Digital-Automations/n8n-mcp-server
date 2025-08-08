@@ -520,62 +520,6 @@
       "created_at": "2025-08-06T20:20:57.364Z"
     },
     {
-      "id": "task_1754511657366_vnc1ft64j",
-      "title": "Add unit tests for resource monitoring utilities",
-      "description": "Create unit tests for ResourceMonitor class and related utility functions",
-      "mode": "TESTING",
-      "priority": "high",
-      "status": "pending",
-      "dependencies": [],
-      "important_files": [
-        "tests/unit/utils/resourceMonitor.test.ts",
-        "src/utils/resourceMonitor.ts"
-      ],
-      "success_criteria": [
-        "Unit tests for ResourceMonitor class methods",
-        "Test coverage above 80% for resourceMonitor.ts",
-        "Mock system resources for consistent testing"
-      ],
-      "estimate": "3-5 hours",
-      "requires_research": false,
-      "subtasks": [],
-      "created_at": "2025-08-06T20:20:57.366Z"
-    },
-    {
-      "id": "task_1754630962167_9fxb5hqlj",
-      "title": "Implement n8n Authentication Support",
-      "description": "Add support for multiple authentication mechanisms: API keys (X-N8N-API-KEY), OAuth 2.0, session-based auth, and enterprise SSO (SAML/OIDC)",
-      "mode": "DEVELOPMENT",
-      "priority": "high",
-      "status": "pending",
-      "dependencies": [],
-      "important_files": [
-        "./development/research-reports/n8n-fork-api-analysis.md"
-      ],
-      "success_criteria": [],
-      "estimate": "",
-      "requires_research": false,
-      "subtasks": [],
-      "created_at": "2025-08-08T05:29:22.167Z"
-    },
-    {
-      "id": "task_1754630968682_hon8inhcq",
-      "title": "Create MCP-to-n8n Node Conversion System",
-      "description": "Build utilities to automatically convert MCP server capabilities and tools into n8n node definitions with proper parameter mapping and execution context",
-      "mode": "DEVELOPMENT",
-      "priority": "high",
-      "status": "pending",
-      "dependencies": [],
-      "important_files": [
-        "./development/research-reports/n8n-fork-integration-patterns.md"
-      ],
-      "success_criteria": [],
-      "estimate": "",
-      "requires_research": false,
-      "subtasks": [],
-      "created_at": "2025-08-08T05:29:28.682Z"
-    },
-    {
       "id": "task_1754630974430_cdlo3rkmv",
       "title": "Build Real-time Communication Bridge",
       "description": "Implement WebSocket and SSE integration for real-time workflow execution updates, progress monitoring, and bidirectional communication with n8n fork",
@@ -587,8 +531,14 @@
         "./development/research-reports/n8n-fork-api-analysis.md",
         "./development/research-reports/n8n-fork-integration-patterns.md"
       ],
-      "success_criteria": [],
-      "estimate": "",
+      "success_criteria": [
+        "WebSocket connection handler implemented",
+        "Server-sent events (SSE) integration functional",
+        "Real-time workflow execution status updates",
+        "Bidirectional communication with n8n fork established",
+        "Connection resilience and error handling implemented"
+      ],
+      "estimate": "10-14 hours",
       "requires_research": false,
       "subtasks": [],
       "created_at": "2025-08-08T05:29:34.430Z"
@@ -648,8 +598,14 @@
       "status": "pending",
       "dependencies": [],
       "important_files": [],
-      "success_criteria": [],
-      "estimate": "",
+      "success_criteria": [
+        "Programmatic workflow creation tools implemented",
+        "Workflow execution management with progress tracking",
+        "Tag and project-based organization support",
+        "Collaboration features integration (sharing, permissions)",
+        "Workflow monitoring and analytics dashboard"
+      ],
+      "estimate": "14-18 hours",
       "requires_research": false,
       "subtasks": [],
       "created_at": "2025-08-08T05:29:39.543Z"
@@ -661,12 +617,16 @@
       "mode": "DEVELOPMENT",
       "priority": "medium",
       "status": "pending",
-      "dependencies": [
-        "task_1754630968682_hon8inhcq"
-      ],
+      "dependencies": [],
       "important_files": [],
-      "success_criteria": [],
-      "estimate": "",
+      "success_criteria": [
+        "MCP server capability discovery system implemented",
+        "Automatic tool-to-node conversion pipeline",
+        "Real-time capability synchronization",
+        "Dynamic integration updates without restarts",
+        "Capability versioning and compatibility management"
+      ],
+      "estimate": "10-14 hours",
       "requires_research": false,
       "subtasks": [],
       "created_at": "2025-08-08T05:29:49.961Z"
@@ -682,8 +642,14 @@
         "task_1754630974430_cdlo3rkmv"
       ],
       "important_files": [],
-      "success_criteria": [],
-      "estimate": "",
+      "success_criteria": [
+        "Comprehensive execution monitoring implemented",
+        "Structured logging with n8n fork integration",
+        "Performance metrics collection and analysis",
+        "Error tracking and audit trail systems",
+        "Analytics dashboard with execution insights"
+      ],
+      "estimate": "8-12 hours",
       "requires_research": false,
       "subtasks": [],
       "created_at": "2025-08-08T05:29:54.634Z"
@@ -695,12 +661,16 @@
       "mode": "DEVELOPMENT",
       "priority": "high",
       "status": "pending",
-      "dependencies": [
-        "task_1754630962167_9fxb5hqlj"
-      ],
+      "dependencies": [],
       "important_files": [],
-      "success_criteria": [],
-      "estimate": "",
+      "success_criteria": [
+        "Secure credential storage with encryption implemented",
+        "Access control and permission management",
+        "Integration with n8n credential system",
+        "MCP server connection credential management",
+        "Credential lifecycle and rotation support"
+      ],
+      "estimate": "6-10 hours",
       "requires_research": false,
       "subtasks": [],
       "created_at": "2025-08-08T05:29:44.347Z"
@@ -710,8 +680,8 @@
   "strikes_completed_last_run": false,
   "current_task_index": 0,
   "last_mode": "DEVELOPMENT",
-  "execution_count": 338,
-  "last_hook_activation": 1754631319270,
+  "execution_count": 342,
+  "last_hook_activation": 1754633438500,
   "__removedLinterTasks": {
     "removedCount": 1,
     "finalTaskCount": 11

@@ -195,7 +195,7 @@ export default {
   ],
 
   // Setup files
-  setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
+  setupFilesAfterEnv: ['<rootDir>/tests/setup.ts', '<rootDir>/src/__tests__/setup.ts'],
 
   // Test timeout
   testTimeout: 10000,

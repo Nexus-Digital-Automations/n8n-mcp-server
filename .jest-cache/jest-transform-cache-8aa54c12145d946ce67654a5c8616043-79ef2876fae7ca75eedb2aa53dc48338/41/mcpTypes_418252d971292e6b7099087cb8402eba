@@ -1,0 +1,240 @@
+bf19314b22071942b6e736043daaedfe
+/* istanbul ignore next */
+function cov_28kjakm4eb() {
+  var path = "/Users/jeremyparker/Desktop/Claude Coding Projects/n8n-mcp-server/src/types/mcpTypes.ts";
+  var hash = "54bb24f5347eceef229a94a0886dde79bc2abbe9";
+  var global = new Function("return this")();
+  var gcv = "__coverage__";
+  var coverageData = {
+    path: "/Users/jeremyparker/Desktop/Claude Coding Projects/n8n-mcp-server/src/types/mcpTypes.ts",
+    statementMap: {
+      "0": {
+        start: {
+          line: 3,
+          column: 0
+        },
+        end: {
+          line: 12,
+          column: 40
+        }
+      },
+      "1": {
+        start: {
+          line: 4,
+          column: 4
+        },
+        end: {
+          line: 4,
+          column: 71
+        }
+      },
+      "2": {
+        start: {
+          line: 5,
+          column: 4
+        },
+        end: {
+          line: 5,
+          column: 79
+        }
+      },
+      "3": {
+        start: {
+          line: 6,
+          column: 4
+        },
+        end: {
+          line: 6,
+          column: 81
+        }
+      },
+      "4": {
+        start: {
+          line: 7,
+          column: 4
+        },
+        end: {
+          line: 7,
+          column: 77
+        }
+      },
+      "5": {
+        start: {
+          line: 8,
+          column: 4
+        },
+        end: {
+          line: 8,
+          column: 77
+        }
+      },
+      "6": {
+        start: {
+          line: 9,
+          column: 4
+        },
+        end: {
+          line: 9,
+          column: 75
+        }
+      },
+      "7": {
+        start: {
+          line: 10,
+          column: 4
+        },
+        end: {
+          line: 10,
+          column: 89
+        }
+      },
+      "8": {
+        start: {
+          line: 11,
+          column: 4
+        },
+        end: {
+          line: 11,
+          column: 87
+        }
+      }
+    },
+    fnMap: {
+      "0": {
+        name: "(anonymous_0)",
+        decl: {
+          start: {
+            line: 3,
+            column: 1
+          },
+          end: {
+            line: 3,
+            column: 2
+          }
+        },
+        loc: {
+          start: {
+            line: 3,
+            column: 25
+          },
+          end: {
+            line: 12,
+            column: 1
+          }
+        },
+        line: 3
+      }
+    },
+    branchMap: {
+      "0": {
+        loc: {
+          start: {
+            line: 12,
+            column: 3
+          },
+          end: {
+            line: 12,
+            column: 38
+          }
+        },
+        type: "binary-expr",
+        locations: [{
+          start: {
+            line: 12,
+            column: 3
+          },
+          end: {
+            line: 12,
+            column: 15
+          }
+        }, {
+          start: {
+            line: 12,
+            column: 20
+          },
+          end: {
+            line: 12,
+            column: 37
+          }
+        }],
+        line: 12
+      }
+    },
+    s: {
+      "0": 0,
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0,
+      "6": 0,
+      "7": 0,
+      "8": 0
+    },
+    f: {
+      "0": 0
+    },
+    b: {
+      "0": [0, 0]
+    },
+    inputSourceMap: {
+      file: "/Users/jeremyparker/Desktop/Claude Coding Projects/n8n-mcp-server/src/types/mcpTypes.ts",
+      mappings: "AAAA,yEAAyE;AAmFzE,MAAM,CAAN,IAAY,YASX;AATD,WAAY,YAAY;IACtB,kEAAoB,CAAA;IACpB,0EAAwB,CAAA;IACxB,4EAAyB,CAAA;IACzB,wEAAuB,CAAA;IACvB,wEAAuB,CAAA;IACvB,sEAAqB,CAAA;IACrB,oFAA4B,CAAA;IAC5B,kFAA2B,CAAA;AAC7B,CAAC,EATW,YAAY,KAAZ,YAAY,QASvB",
+      names: [],
+      sources: ["/Users/jeremyparker/Desktop/Claude Coding Projects/n8n-mcp-server/src/types/mcpTypes.ts"],
+      sourcesContent: ["// MCP (Model Context Protocol) type definitions for conversion utilities\n\nexport interface MCPServer {\n  id: string;\n  name: string;\n  url: string;\n  version: string;\n  authentication?: MCPAuthentication;\n  capabilities: MCPCapabilities;\n}\n\nexport interface MCPAuthentication {\n  type: 'none' | 'bearer' | 'api-key' | 'basic';\n  credentials?: Record<string, unknown>;\n}\n\nexport interface MCPCapabilities {\n  tools: MCPTool[];\n  resources?: MCPResource[];\n  sampling?: MCPSamplingCapability;\n}\n\nexport interface MCPTool {\n  name: string;\n  description: string;\n  inputSchema: MCPToolSchema;\n}\n\nexport interface MCPToolSchema {\n  type: 'object';\n  properties: Record<string, MCPToolProperty>;\n  required?: string[];\n  additionalProperties?: boolean;\n}\n\nexport interface MCPToolProperty {\n  type: 'string' | 'number' | 'integer' | 'boolean' | 'array' | 'object';\n  description?: string;\n  default?: unknown;\n  enum?: unknown[];\n  items?: MCPToolProperty;\n  properties?: Record<string, MCPToolProperty>;\n  format?: string;\n  minimum?: number;\n  maximum?: number;\n  minLength?: number;\n  maxLength?: number;\n  pattern?: string;\n}\n\nexport interface MCPResource {\n  uri: string;\n  name: string;\n  description?: string;\n  mimeType?: string;\n}\n\nexport interface MCPSamplingCapability {\n  models: string[];\n}\n\n// Request/Response types\nexport interface MCPToolRequest {\n  name: string;\n  arguments: Record<string, unknown>;\n}\n\nexport interface MCPToolResponse {\n  content: Array<{\n    type: 'text' | 'image' | 'resource';\n    text?: string;\n    data?: string;\n    mimeType?: string;\n  }>;\n  isError?: boolean;\n}\n\nexport interface MCPError {\n  code: MCPErrorCode;\n  message: string;\n  data?: unknown;\n}\n\nexport enum MCPErrorCode {\n  PARSE_ERROR = -32700,\n  INVALID_REQUEST = -32600,\n  METHOD_NOT_FOUND = -32601,\n  INVALID_PARAMS = -32602,\n  INTERNAL_ERROR = -32603,\n  TOOL_NOT_FOUND = -404,\n  AUTHENTICATION_FAILED = -401,\n  AUTHORIZATION_FAILED = -403,\n}\n\n// n8n Integration Types\nexport interface N8nNodeTypeDescription {\n  displayName: string;\n  name: string;\n  icon: string;\n  group: string[];\n  version: number[];\n  description: string;\n  defaults: {\n    name: string;\n  };\n  inputs: string[];\n  outputs: string[];\n  credentials?: Array<{\n    name: string;\n    required: boolean;\n  }>;\n  properties: N8nNodeProperty[];\n}\n\nexport interface N8nNodeProperty {\n  displayName: string;\n  name: string;\n  type: N8nPropertyType;\n  default?: unknown;\n  description?: string;\n  required?: boolean;\n  placeholder?: string;\n  options?: Array<{\n    name: string;\n    value: unknown;\n  }>;\n  typeOptions?: Record<string, unknown>;\n  displayOptions?: {\n    show?: Record<string, unknown[]>;\n    hide?: Record<string, unknown[]>;\n  };\n}\n\nexport type N8nPropertyType =\n  | 'string'\n  | 'number'\n  | 'boolean'\n  | 'options'\n  | 'multiOptions'\n  | 'json'\n  | 'dateTime'\n  | 'collection'\n  | 'fixedCollection'\n  | 'resourceLocator'\n  | 'hidden';\n\nexport interface N8nExecutionData {\n  json: Record<string, unknown>;\n  binary?: Record<\n    string,\n    {\n      data: string;\n      mimeType: string;\n      fileName?: string;\n      fileExtension?: string;\n    }\n  >;\n  pairedItem?: {\n    item: number;\n    input?: number;\n  };\n}\n\n// Conversion Configuration\nexport interface MCPConversionConfig {\n  nodeNamePrefix?: string;\n  defaultIcon?: string;\n  defaultGroup?: string[];\n  credentialName?: string;\n  enableBinaryData?: boolean;\n  enableResourceAccess?: boolean;\n  typeMapping?: Record<string, N8nPropertyType>;\n}\n\nexport interface ConversionResult {\n  success: boolean;\n  nodeDefinition?: N8nNodeTypeDescription;\n  errors?: string[];\n  warnings?: string[];\n}\n\nexport interface ConversionContext {\n  mcpServer: MCPServer;\n  tool: MCPTool;\n  config: MCPConversionConfig;\n}\n\n// Connection and execution types\nexport interface MCPConnection {\n  serverId: string;\n  url: string;\n  authentication: MCPAuthentication;\n  isConnected: boolean;\n  lastHeartbeat?: Date;\n}\n\nexport interface MCPExecutionContext {\n  connection: MCPConnection;\n  tool: MCPTool;\n  inputData: N8nExecutionData[];\n  nodeParameters: Record<string, unknown>;\n}\n\nexport interface MCPExecutionResult {\n  outputData: N8nExecutionData[];\n  executionTime: number;\n  success: boolean;\n  error?: MCPError;\n}\n"],
+      version: 3
+    },
+    _coverageSchema: "1a1c01bbd47fc00a2c39e90264f33305004495a9",
+    hash: "54bb24f5347eceef229a94a0886dde79bc2abbe9"
+  };
+  var coverage = global[gcv] || (global[gcv] = {});
+  if (!coverage[path] || coverage[path].hash !== hash) {
+    coverage[path] = coverageData;
+  }
+  var actualCoverage = coverage[path];
+  {
+    // @ts-ignore
+    cov_28kjakm4eb = function () {
+      return actualCoverage;
+    };
+  }
+  return actualCoverage;
+}
+cov_28kjakm4eb();
+// MCP (Model Context Protocol) type definitions for conversion utilities
+export var MCPErrorCode;
+/* istanbul ignore next */
+cov_28kjakm4eb().s[0]++;
+(function (MCPErrorCode) {
+  /* istanbul ignore next */
+  cov_28kjakm4eb().f[0]++;
+  cov_28kjakm4eb().s[1]++;
+  MCPErrorCode[MCPErrorCode["PARSE_ERROR"] = -32700] = "PARSE_ERROR";
+  /* istanbul ignore next */
+  cov_28kjakm4eb().s[2]++;
+  MCPErrorCode[MCPErrorCode["INVALID_REQUEST"] = -32600] = "INVALID_REQUEST";
+  /* istanbul ignore next */
+  cov_28kjakm4eb().s[3]++;
+  MCPErrorCode[MCPErrorCode["METHOD_NOT_FOUND"] = -32601] = "METHOD_NOT_FOUND";
+  /* istanbul ignore next */
+  cov_28kjakm4eb().s[4]++;
+  MCPErrorCode[MCPErrorCode["INVALID_PARAMS"] = -32602] = "INVALID_PARAMS";
+  /* istanbul ignore next */
+  cov_28kjakm4eb().s[5]++;
+  MCPErrorCode[MCPErrorCode["INTERNAL_ERROR"] = -32603] = "INTERNAL_ERROR";
+  /* istanbul ignore next */
+  cov_28kjakm4eb().s[6]++;
+  MCPErrorCode[MCPErrorCode["TOOL_NOT_FOUND"] = -404] = "TOOL_NOT_FOUND";
+  /* istanbul ignore next */
+  cov_28kjakm4eb().s[7]++;
+  MCPErrorCode[MCPErrorCode["AUTHENTICATION_FAILED"] = -401] = "AUTHENTICATION_FAILED";
+  /* istanbul ignore next */
+  cov_28kjakm4eb().s[8]++;
+  MCPErrorCode[MCPErrorCode["AUTHORIZATION_FAILED"] = -403] = "AUTHORIZATION_FAILED";
+})(
+/* istanbul ignore next */
+(cov_28kjakm4eb().b[0][0]++, MCPErrorCode) ||
+/* istanbul ignore next */
+(cov_28kjakm4eb().b[0][1]++, MCPErrorCode = {}));
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJNQ1BFcnJvckNvZGUiLCJjb3ZfMjhramFrbTRlYiIsInMiLCJmIiwiYiJdLCJzb3VyY2VzIjpbIi9Vc2Vycy9qZXJlbXlwYXJrZXIvRGVza3RvcC9DbGF1ZGUgQ29kaW5nIFByb2plY3RzL244bi1tY3Atc2VydmVyL3NyYy90eXBlcy9tY3BUeXBlcy50cyJdLCJzb3VyY2VzQ29udGVudCI6WyIvLyBNQ1AgKE1vZGVsIENvbnRleHQgUHJvdG9jb2wpIHR5cGUgZGVmaW5pdGlvbnMgZm9yIGNvbnZlcnNpb24gdXRpbGl0aWVzXG5cbmV4cG9ydCBpbnRlcmZhY2UgTUNQU2VydmVyIHtcbiAgaWQ6IHN0cmluZztcbiAgbmFtZTogc3RyaW5nO1xuICB1cmw6IHN0cmluZztcbiAgdmVyc2lvbjogc3RyaW5nO1xuICBhdXRoZW50aWNhdGlvbj86IE1DUEF1dGhlbnRpY2F0aW9uO1xuICBjYXBhYmlsaXRpZXM6IE1DUENhcGFiaWxpdGllcztcbn1cblxuZXhwb3J0IGludGVyZmFjZSBNQ1BBdXRoZW50aWNhdGlvbiB7XG4gIHR5cGU6ICdub25lJyB8ICdiZWFyZXInIHwgJ2FwaS1rZXknIHwgJ2Jhc2ljJztcbiAgY3JlZGVudGlhbHM/OiBSZWNvcmQ8c3RyaW5nLCB1bmtub3duPjtcbn1cblxuZXhwb3J0IGludGVyZmFjZSBNQ1BDYXBhYmlsaXRpZXMge1xuICB0b29sczogTUNQVG9vbFtdO1xuICByZXNvdXJjZXM/OiBNQ1BSZXNvdXJjZVtdO1xuICBzYW1wbGluZz86IE1DUFNhbXBsaW5nQ2FwYWJpbGl0eTtcbn1cblxuZXhwb3J0IGludGVyZmFjZSBNQ1BUb29sIHtcbiAgbmFtZTogc3RyaW5nO1xuICBkZXNjcmlwdGlvbjogc3RyaW5nO1xuICBpbnB1dFNjaGVtYTogTUNQVG9vbFNjaGVtYTtcbn1cblxuZXhwb3J0IGludGVyZmFjZSBNQ1BUb29sU2NoZW1hIHtcbiAgdHlwZTogJ29iamVjdCc7XG4gIHByb3BlcnRpZXM6IFJlY29yZDxzdHJpbmcsIE1DUFRvb2xQcm9wZXJ0eT47XG4gIHJlcXVpcmVkPzogc3RyaW5nW107XG4gIGFkZGl0aW9uYWxQcm9wZXJ0aWVzPzogYm9vbGVhbjtcbn1cblxuZXhwb3J0IGludGVyZmFjZSBNQ1BUb29sUHJvcGVydHkge1xuICB0eXBlOiAnc3RyaW5nJyB8ICdudW1iZXInIHwgJ2ludGVnZXInIHwgJ2Jvb2xlYW4nIHwgJ2FycmF5JyB8ICdvYmplY3QnO1xuICBkZXNjcmlwdGlvbj86IHN0cmluZztcbiAgZGVmYXVsdD86IHVua25vd247XG4gIGVudW0/OiB1bmtub3duW107XG4gIGl0ZW1zPzogTUNQVG9vbFByb3BlcnR5O1xuICBwcm9wZXJ0aWVzPzogUmVjb3JkPHN0cmluZywgTUNQVG9vbFByb3BlcnR5PjtcbiAgZm9ybWF0Pzogc3RyaW5nO1xuICBtaW5pbXVtPzogbnVtYmVyO1xuICBtYXhpbXVtPzogbnVtYmVyO1xuICBtaW5MZW5ndGg/OiBudW1iZXI7XG4gIG1heExlbmd0aD86IG51bWJlcjtcbiAgcGF0dGVybj86IHN0cmluZztcbn1cblxuZXhwb3J0IGludGVyZmFjZSBNQ1BSZXNvdXJjZSB7XG4gIHVyaTogc3RyaW5nO1xuICBuYW1lOiBzdHJpbmc7XG4gIGRlc2NyaXB0aW9uPzogc3RyaW5nO1xuICBtaW1lVHlwZT86IHN0cmluZztcbn1cblxuZXhwb3J0IGludGVyZmFjZSBNQ1BTYW1wbGluZ0NhcGFiaWxpdHkge1xuICBtb2RlbHM6IHN0cmluZ1tdO1xufVxuXG4vLyBSZXF1ZXN0L1Jlc3BvbnNlIHR5cGVzXG5leHBvcnQgaW50ZXJmYWNlIE1DUFRvb2xSZXF1ZXN0IHtcbiAgbmFtZTogc3RyaW5nO1xuICBhcmd1bWVudHM6IFJlY29yZDxzdHJpbmcsIHVua25vd24+O1xufVxuXG5leHBvcnQgaW50ZXJmYWNlIE1DUFRvb2xSZXNwb25zZSB7XG4gIGNvbnRlbnQ6IEFycmF5PHtcbiAgICB0eXBlOiAndGV4dCcgfCAnaW1hZ2UnIHwgJ3Jlc291cmNlJztcbiAgICB0ZXh0Pzogc3RyaW5nO1xuICAgIGRhdGE/OiBzdHJpbmc7XG4gICAgbWltZVR5cGU/OiBzdHJpbmc7XG4gIH0+O1xuICBpc0Vycm9yPzogYm9vbGVhbjtcbn1cblxuZXhwb3J0IGludGVyZmFjZSBNQ1BFcnJvciB7XG4gIGNvZGU6IE1DUEVycm9yQ29kZTtcbiAgbWVzc2FnZTogc3RyaW5nO1xuICBkYXRhPzogdW5rbm93bjtcbn1cblxuZXhwb3J0IGVudW0gTUNQRXJyb3JDb2RlIHtcbiAgUEFSU0VfRVJST1IgPSAtMzI3MDAsXG4gIElOVkFMSURfUkVRVUVTVCA9IC0zMjYwMCxcbiAgTUVUSE9EX05PVF9GT1VORCA9IC0zMjYwMSxcbiAgSU5WQUxJRF9QQVJBTVMgPSAtMzI2MDIsXG4gIElOVEVSTkFMX0VSUk9SID0gLTMyNjAzLFxuICBUT09MX05PVF9GT1VORCA9IC00MDQsXG4gIEFVVEhFTlRJQ0FUSU9OX0ZBSUxFRCA9IC00MDEsXG4gIEFVVEhPUklaQVRJT05fRkFJTEVEID0gLTQwMyxcbn1cblxuLy8gbjhuIEludGVncmF0aW9uIFR5cGVzXG5leHBvcnQgaW50ZXJmYWNlIE44bk5vZGVUeXBlRGVzY3JpcHRpb24ge1xuICBkaXNwbGF5TmFtZTogc3RyaW5nO1xuICBuYW1lOiBzdHJpbmc7XG4gIGljb246IHN0cmluZztcbiAgZ3JvdXA6IHN0cmluZ1tdO1xuICB2ZXJzaW9uOiBudW1iZXJbXTtcbiAgZGVzY3JpcHRpb246IHN0cmluZztcbiAgZGVmYXVsdHM6IHtcbiAgICBuYW1lOiBzdHJpbmc7XG4gIH07XG4gIGlucHV0czogc3RyaW5nW107XG4gIG91dHB1dHM6IHN0cmluZ1tdO1xuICBjcmVkZW50aWFscz86IEFycmF5PHtcbiAgICBuYW1lOiBzdHJpbmc7XG4gICAgcmVxdWlyZWQ6IGJvb2xlYW47XG4gIH0+O1xuICBwcm9wZXJ0aWVzOiBOOG5Ob2RlUHJvcGVydHlbXTtcbn1cblxuZXhwb3J0IGludGVyZmFjZSBOOG5Ob2RlUHJvcGVydHkge1xuICBkaXNwbGF5TmFtZTogc3RyaW5nO1xuICBuYW1lOiBzdHJpbmc7XG4gIHR5cGU6IE44blByb3BlcnR5VHlwZTtcbiAgZGVmYXVsdD86IHVua25vd247XG4gIGRlc2NyaXB0aW9uPzogc3RyaW5nO1xuICByZXF1aXJlZD86IGJvb2xlYW47XG4gIHBsYWNlaG9sZGVyPzogc3RyaW5nO1xuICBvcHRpb25zPzogQXJyYXk8e1xuICAgIG5hbWU6IHN0cmluZztcbiAgICB2YWx1ZTogdW5rbm93bjtcbiAgfT47XG4gIHR5cGVPcHRpb25zPzogUmVjb3JkPHN0cmluZywgdW5rbm93bj47XG4gIGRpc3BsYXlPcHRpb25zPzoge1xuICAgIHNob3c/OiBSZWNvcmQ8c3RyaW5nLCB1bmtub3duW10+O1xuICAgIGhpZGU/OiBSZWNvcmQ8c3RyaW5nLCB1bmtub3duW10+O1xuICB9O1xufVxuXG5leHBvcnQgdHlwZSBOOG5Qcm9wZXJ0eVR5cGUgPVxuICB8ICdzdHJpbmcnXG4gIHwgJ251bWJlcidcbiAgfCAnYm9vbGVhbidcbiAgfCAnb3B0aW9ucydcbiAgfCAnbXVsdGlPcHRpb25zJ1xuICB8ICdqc29uJ1xuICB8ICdkYXRlVGltZSdcbiAgfCAnY29sbGVjdGlvbidcbiAgfCAnZml4ZWRDb2xsZWN0aW9uJ1xuICB8ICdyZXNvdXJjZUxvY2F0b3InXG4gIHwgJ2hpZGRlbic7XG5cbmV4cG9ydCBpbnRlcmZhY2UgTjhuRXhlY3V0aW9uRGF0YSB7XG4gIGpzb246IFJlY29yZDxzdHJpbmcsIHVua25vd24+O1xuICBiaW5hcnk/OiBSZWNvcmQ8XG4gICAgc3RyaW5nLFxuICAgIHtcbiAgICAgIGRhdGE6IHN0cmluZztcbiAgICAgIG1pbWVUeXBlOiBzdHJpbmc7XG4gICAgICBmaWxlTmFtZT86IHN0cmluZztcbiAgICAgIGZpbGVFeHRlbnNpb24/OiBzdHJpbmc7XG4gICAgfVxuICA+O1xuICBwYWlyZWRJdGVtPzoge1xuICAgIGl0ZW06IG51bWJlcjtcbiAgICBpbnB1dD86IG51bWJlcjtcbiAgfTtcbn1cblxuLy8gQ29udmVyc2lvbiBDb25maWd1cmF0aW9uXG5leHBvcnQgaW50ZXJmYWNlIE1DUENvbnZlcnNpb25Db25maWcge1xuICBub2RlTmFtZVByZWZpeD86IHN0cmluZztcbiAgZGVmYXVsdEljb24/OiBzdHJpbmc7XG4gIGRlZmF1bHRHcm91cD86IHN0cmluZ1tdO1xuICBjcmVkZW50aWFsTmFtZT86IHN0cmluZztcbiAgZW5hYmxlQmluYXJ5RGF0YT86IGJvb2xlYW47XG4gIGVuYWJsZVJlc291cmNlQWNjZXNzPzogYm9vbGVhbjtcbiAgdHlwZU1hcHBpbmc/OiBSZWNvcmQ8c3RyaW5nLCBOOG5Qcm9wZXJ0eVR5cGU+O1xufVxuXG5leHBvcnQgaW50ZXJmYWNlIENvbnZlcnNpb25SZXN1bHQge1xuICBzdWNjZXNzOiBib29sZWFuO1xuICBub2RlRGVmaW5pdGlvbj86IE44bk5vZGVUeXBlRGVzY3JpcHRpb247XG4gIGVycm9ycz86IHN0cmluZ1tdO1xuICB3YXJuaW5ncz86IHN0cmluZ1tdO1xufVxuXG5leHBvcnQgaW50ZXJmYWNlIENvbnZlcnNpb25Db250ZXh0IHtcbiAgbWNwU2VydmVyOiBNQ1BTZXJ2ZXI7XG4gIHRvb2w6IE1DUFRvb2w7XG4gIGNvbmZpZzogTUNQQ29udmVyc2lvbkNvbmZpZztcbn1cblxuLy8gQ29ubmVjdGlvbiBhbmQgZXhlY3V0aW9uIHR5cGVzXG5leHBvcnQgaW50ZXJmYWNlIE1DUENvbm5lY3Rpb24ge1xuICBzZXJ2ZXJJZDogc3RyaW5nO1xuICB1cmw6IHN0cmluZztcbiAgYXV0aGVudGljYXRpb246IE1DUEF1dGhlbnRpY2F0aW9uO1xuICBpc0Nvbm5lY3RlZDogYm9vbGVhbjtcbiAgbGFzdEhlYXJ0YmVhdD86IERhdGU7XG59XG5cbmV4cG9ydCBpbnRlcmZhY2UgTUNQRXhlY3V0aW9uQ29udGV4dCB7XG4gIGNvbm5lY3Rpb246IE1DUENvbm5lY3Rpb247XG4gIHRvb2w6IE1DUFRvb2w7XG4gIGlucHV0RGF0YTogTjhuRXhlY3V0aW9uRGF0YVtdO1xuICBub2RlUGFyYW1ldGVyczogUmVjb3JkPHN0cmluZywgdW5rbm93bj47XG59XG5cbmV4cG9ydCBpbnRlcmZhY2UgTUNQRXhlY3V0aW9uUmVzdWx0IHtcbiAgb3V0cHV0RGF0YTogTjhuRXhlY3V0aW9uRGF0YVtdO1xuICBleGVjdXRpb25UaW1lOiBudW1iZXI7XG4gIHN1Y2Nlc3M6IGJvb2xlYW47XG4gIGVycm9yPzogTUNQRXJyb3I7XG59XG4iXSwibWFwcGluZ3MiOiI7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7O0FBQUE7QUFtRkEsV0FBWUEsWUFTWDtBQUFBO0FBQUFDLGNBQUEsR0FBQUMsQ0FBQTtBQVRELFdBQVlGLFlBQVk7RUFBQTtFQUFBQyxjQUFBLEdBQUFFLENBQUE7RUFBQUYsY0FBQSxHQUFBQyxDQUFBO0VBQ3RCRixZQUFBLENBQUFBLFlBQUEseUNBQW9CO0VBQUE7RUFBQUMsY0FBQSxHQUFBQyxDQUFBO0VBQ3BCRixZQUFBLENBQUFBLFlBQUEsaURBQXdCO0VBQUE7RUFBQUMsY0FBQSxHQUFBQyxDQUFBO0VBQ3hCRixZQUFBLENBQUFBLFlBQUEsbURBQXlCO0VBQUE7RUFBQUMsY0FBQSxHQUFBQyxDQUFBO0VBQ3pCRixZQUFBLENBQUFBLFlBQUEsK0NBQXVCO0VBQUE7RUFBQUMsY0FBQSxHQUFBQyxDQUFBO0VBQ3ZCRixZQUFBLENBQUFBLFlBQUEsK0NBQXVCO0VBQUE7RUFBQUMsY0FBQSxHQUFBQyxDQUFBO0VBQ3ZCRixZQUFBLENBQUFBLFlBQUEsNkNBQXFCO0VBQUE7RUFBQUMsY0FBQSxHQUFBQyxDQUFBO0VBQ3JCRixZQUFBLENBQUFBLFlBQUEsMkRBQTRCO0VBQUE7RUFBQUMsY0FBQSxHQUFBQyxDQUFBO0VBQzVCRixZQUFBLENBQUFBLFlBQUEseURBQTJCO0FBQzdCLENBQUM7QUFUVztBQUFBLENBQUFDLGNBQUEsR0FBQUcsQ0FBQSxVQUFBSixZQUFZO0FBQUE7QUFBQSxDQUFBQyxjQUFBLEdBQUFHLENBQUEsVUFBWkosWUFBWSIsImlnbm9yZUxpc3QiOltdfQ==

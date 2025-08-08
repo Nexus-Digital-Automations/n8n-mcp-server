@@ -232,7 +232,7 @@ describe('Instance Monitoring Tools', () => {
     } as unknown as jest.Mocked<ResourceMonitor>;
 
     // Set up getClient function
-    let clientInstance: N8nClient | null = mockClient;
+    const clientInstance: N8nClient | null = mockClient;
     getClient = jest.fn(() => clientInstance);
 
     // Set up mock implementations

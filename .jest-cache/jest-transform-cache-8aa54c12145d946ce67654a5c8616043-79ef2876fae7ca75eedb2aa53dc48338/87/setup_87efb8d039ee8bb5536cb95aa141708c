@@ -1,0 +1,20 @@
+5b059f23fece6628109a396b0f304e61
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+// Jest test setup for MCP conversion utilities
+const globals_1 = require("@jest/globals");
+// Mock node-fetch for HTTP testing
+globals_1.jest.mock('node-fetch', () => ({
+    __esModule: true,
+    default: globals_1.jest.fn(),
+}));
+// Global test timeout
+globals_1.jest.setTimeout(10000);
+// Mock console methods for cleaner test output
+global.console = {
+    ...console,
+    log: globals_1.jest.fn(),
+    warn: globals_1.jest.fn(),
+    error: globals_1.jest.fn(),
+};
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJmaWxlIjoiL1VzZXJzL2plcmVteXBhcmtlci9EZXNrdG9wL0NsYXVkZSBDb2RpbmcgUHJvamVjdHMvbjhuLW1jcC1zZXJ2ZXIvc3JjL19fdGVzdHNfXy9zZXR1cC50cyIsIm1hcHBpbmdzIjoiOztBQUFBLCtDQUErQztBQUMvQywyQ0FBcUM7QUFFckMsbUNBQW1DO0FBQ25DLGNBQUksQ0FBQyxJQUFJLENBQUMsWUFBWSxFQUFFLEdBQUcsRUFBRSxDQUFDLENBQUM7SUFDN0IsVUFBVSxFQUFFLElBQUk7SUFDaEIsT0FBTyxFQUFFLGNBQUksQ0FBQyxFQUFFLEVBQUU7Q0FDbkIsQ0FBQyxDQUFDLENBQUM7QUFFSixzQkFBc0I7QUFDdEIsY0FBSSxDQUFDLFVBQVUsQ0FBQyxLQUFLLENBQUMsQ0FBQztBQUV2QiwrQ0FBK0M7QUFDL0MsTUFBTSxDQUFDLE9BQU8sR0FBRztJQUNmLEdBQUcsT0FBTztJQUNWLEdBQUcsRUFBRSxjQUFJLENBQUMsRUFBRSxFQUFFO0lBQ2QsSUFBSSxFQUFFLGNBQUksQ0FBQyxFQUFFLEVBQUU7SUFDZixLQUFLLEVBQUUsY0FBSSxDQUFDLEVBQUUsRUFBRTtDQUNqQixDQUFDIiwibmFtZXMiOltdLCJzb3VyY2VzIjpbIi9Vc2Vycy9qZXJlbXlwYXJrZXIvRGVza3RvcC9DbGF1ZGUgQ29kaW5nIFByb2plY3RzL244bi1tY3Atc2VydmVyL3NyYy9fX3Rlc3RzX18vc2V0dXAudHMiXSwic291cmNlc0NvbnRlbnQiOlsiLy8gSmVzdCB0ZXN0IHNldHVwIGZvciBNQ1AgY29udmVyc2lvbiB1dGlsaXRpZXNcbmltcG9ydCB7IGplc3QgfSBmcm9tICdAamVzdC9nbG9iYWxzJztcblxuLy8gTW9jayBub2RlLWZldGNoIGZvciBIVFRQIHRlc3Rpbmdcbmplc3QubW9jaygnbm9kZS1mZXRjaCcsICgpID0+ICh7XG4gIF9fZXNNb2R1bGU6IHRydWUsXG4gIGRlZmF1bHQ6IGplc3QuZm4oKSxcbn0pKTtcblxuLy8gR2xvYmFsIHRlc3QgdGltZW91dFxuamVzdC5zZXRUaW1lb3V0KDEwMDAwKTtcblxuLy8gTW9jayBjb25zb2xlIG1ldGhvZHMgZm9yIGNsZWFuZXIgdGVzdCBvdXRwdXRcbmdsb2JhbC5jb25zb2xlID0ge1xuICAuLi5jb25zb2xlLFxuICBsb2c6IGplc3QuZm4oKSxcbiAgd2FybjogamVzdC5mbigpLFxuICBlcnJvcjogamVzdC5mbigpLFxufTsiXSwidmVyc2lvbiI6M30=

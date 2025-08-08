@@ -19,9 +19,77 @@
       "created_at": "2025-08-08T05:28:40.139Z",
       "completed_at": "2025-08-08T05:40:19.114Z",
       "archived_from_todo": "./TODO.json"
+    },
+    {
+      "id": "task_1754511657366_vnc1ft64j",
+      "title": "Add unit tests for resource monitoring utilities",
+      "description": "Create unit tests for ResourceMonitor class and related utility functions",
+      "mode": "TESTING",
+      "priority": "high",
+      "status": "completed",
+      "dependencies": [],
+      "important_files": [
+        "tests/unit/utils/resourceMonitor.test.ts",
+        "src/utils/resourceMonitor.ts"
+      ],
+      "success_criteria": [
+        "Unit tests for ResourceMonitor class methods",
+        "Test coverage above 80% for resourceMonitor.ts",
+        "Mock system resources for consistent testing"
+      ],
+      "estimate": "3-5 hours",
+      "requires_research": false,
+      "subtasks": [],
+      "created_at": "2025-08-06T20:20:57.366Z",
+      "completed_at": "2025-08-08T05:47:28.149Z",
+      "archived_from_todo": "./TODO.json"
+    },
+    {
+      "id": "task_1754630962167_9fxb5hqlj",
+      "title": "Implement n8n Authentication Support",
+      "description": "Add support for multiple authentication mechanisms: API keys (X-N8N-API-KEY), OAuth 2.0, session-based auth, and enterprise SSO (SAML/OIDC)",
+      "mode": "DEVELOPMENT",
+      "priority": "high",
+      "status": "completed",
+      "dependencies": [],
+      "important_files": [
+        "./development/research-reports/n8n-fork-api-analysis.md"
+      ],
+      "success_criteria": [],
+      "estimate": "",
+      "requires_research": false,
+      "subtasks": [],
+      "created_at": "2025-08-08T05:29:22.167Z",
+      "completed_at": "2025-08-08T05:49:51.201Z",
+      "archived_from_todo": "./TODO.json"
+    },
+    {
+      "id": "task_1754630968682_hon8inhcq",
+      "title": "Create MCP-to-n8n Node Conversion System",
+      "description": "Build utilities to automatically convert MCP server capabilities and tools into n8n node definitions with proper parameter mapping and execution context",
+      "mode": "DEVELOPMENT",
+      "priority": "high",
+      "status": "completed",
+      "dependencies": [],
+      "important_files": [
+        "./development/research-reports/n8n-fork-integration-patterns.md"
+      ],
+      "success_criteria": [
+        "MCP server tool definition parser implemented",
+        "n8n node definition generator functional",
+        "Parameter mapping system with type conversion",
+        "Execution context bridging between MCP and n8n",
+        "Unit tests with >80% coverage for conversion utilities"
+      ],
+      "estimate": "12-16 hours",
+      "requires_research": false,
+      "subtasks": [],
+      "created_at": "2025-08-08T05:29:28.682Z",
+      "completed_at": "2025-08-08T06:10:44.577Z",
+      "archived_from_todo": "./TODO.json"
     }
   ],
-  "total_completed": 1,
-  "last_completion": "2025-08-08T05:40:19.114Z",
+  "total_completed": 4,
+  "last_completion": "2025-08-08T06:10:44.577Z",
   "created_at": "2025-08-08T05:40:19.114Z"
 }
