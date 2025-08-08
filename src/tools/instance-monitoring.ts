@@ -68,15 +68,21 @@ function formatSystemUsage(usage: SystemResourceUsage): string {
 
   sections.push(`**🧠 Memory:**`);
   sections.push(`• Total: ${formatBytes(usage.memory.totalMemory)}`);
-  sections.push(`• Used: ${formatBytes(usage.memory.usedMemory)} (${usage.memory.utilization.toFixed(1)}%)`);
+  sections.push(
+    `• Used: ${formatBytes(usage.memory.usedMemory)} (${usage.memory.utilization.toFixed(1)}%)`
+  );
   sections.push(`• Free: ${formatBytes(usage.memory.freeMemory)}`);
-  sections.push(`• Process Heap: ${formatBytes(usage.memory.processMemory.heapUsed)} / ${formatBytes(usage.memory.processMemory.heapTotal)}`);
+  sections.push(
+    `• Process Heap: ${formatBytes(usage.memory.processMemory.heapUsed)} / ${formatBytes(usage.memory.processMemory.heapTotal)}`
+  );
   sections.push(`• Process RSS: ${formatBytes(usage.memory.processMemory.rss)}`);
   sections.push('');
 
   sections.push(`**💾 Disk:**`);
   sections.push(`• Total: ${formatBytes(usage.disk.totalSpace)}`);
-  sections.push(`• Used: ${formatBytes(usage.disk.usedSpace)} (${usage.disk.utilization.toFixed(1)}%)`);
+  sections.push(
+    `• Used: ${formatBytes(usage.disk.usedSpace)} (${usage.disk.utilization.toFixed(1)}%)`
+  );
   sections.push(`• Free: ${formatBytes(usage.disk.freeSpace)}`);
   sections.push('');
 
@@ -101,13 +107,19 @@ function formatWorkflowUsage(usage: WorkflowResourceUsage[]): string {
   usage.forEach((workflow, index) => {
     const status = workflow.isActive ? '✅ Active' : '⏸️ Inactive';
     const successRate = workflow.executionStats.successRate.toFixed(1);
-    
+
     sections.push(`**${index + 1}. ${workflow.workflowName}** ${status}`);
     sections.push(`   ID: ${workflow.workflowId}`);
     sections.push(`   Executions: ${workflow.executionCount} (${successRate}% success rate)`);
-    sections.push(`   Avg Execution Time: ${formatDuration(workflow.resourceMetrics.averageExecutionTime / 1000)}`);
-    sections.push(`   Memory Usage: Avg ${formatBytes(workflow.resourceMetrics.memoryUsage.average)}, Peak ${formatBytes(workflow.resourceMetrics.memoryUsage.peak)}`);
-    sections.push(`   CPU Usage: Avg ${workflow.resourceMetrics.cpuUsage.average}%, Peak ${workflow.resourceMetrics.cpuUsage.peak}%`);
+    sections.push(
+      `   Avg Execution Time: ${formatDuration(workflow.resourceMetrics.averageExecutionTime / 1000)}`
+    );
+    sections.push(
+      `   Memory Usage: Avg ${formatBytes(workflow.resourceMetrics.memoryUsage.average)}, Peak ${formatBytes(workflow.resourceMetrics.memoryUsage.peak)}`
+    );
+    sections.push(
+      `   CPU Usage: Avg ${workflow.resourceMetrics.cpuUsage.average}%, Peak ${workflow.resourceMetrics.cpuUsage.peak}%`
+    );
     sections.push(`   Runs/Hour: ${workflow.executionStats.averageRunsPerHour.toFixed(1)}`);
     sections.push('');
   });
@@ -121,11 +133,13 @@ function formatHealthMetrics(health: InstanceHealthMetrics): string {
     healthy: '✅',
     warning: '⚠️',
     degraded: '🟡',
-    critical: '🚨'
+    critical: '🚨',
   };
 
   sections.push(`🏥 **Instance Health Report**\n`);
-  sections.push(`**Overall Status:** ${statusEmoji[health.overall.status]} ${health.overall.status.toUpperCase()}`);
+  sections.push(
+    `**Overall Status:** ${statusEmoji[health.overall.status]} ${health.overall.status.toUpperCase()}`
+  );
   sections.push(`**Health Score:** ${health.overall.score}/100\n`);
 
   if (health.overall.issues.length > 0) {
@@ -162,7 +176,9 @@ function formatHealthMetrics(health: InstanceHealthMetrics): string {
     sections.push(`**🔗 Dependencies:**`);
     health.dependencies.forEach(dep => {
       const statusEmoji = dep.status === 'online' ? '✅' : dep.status === 'degraded' ? '⚠️' : '❌';
-      sections.push(`• ${dep.name}: ${statusEmoji} ${dep.status} (${dep.responseTime}ms, ${dep.errorCount} errors)`);
+      sections.push(
+        `• ${dep.name}: ${statusEmoji} ${dep.status} (${dep.responseTime}ms, ${dep.errorCount} errors)`
+      );
     });
     sections.push('');
   }
@@ -174,7 +190,7 @@ function formatHealthMetrics(health: InstanceHealthMetrics): string {
         info: '💡',
         warning: '⚠️',
         error: '🚨',
-        critical: '🔴'
+        critical: '🔴',
       };
       sections.push(`• ${severityEmoji[alert.severity] || '💡'} ${alert.message}`);
     });
@@ -199,29 +215,31 @@ function formatAlerts(alerts: PerformanceAlert[]): string {
       low: '💡',
       medium: '⚠️',
       high: '🚨',
-      critical: '🔴'
+      critical: '🔴',
     };
-    
+
     const status = alert.resolvedAt ? '✅ Resolved' : '🔴 Active';
-    
+
     sections.push(`**${index + 1}. ${alert.title}** ${status}`);
     sections.push(`   Severity: ${severityEmoji[alert.severity]} ${alert.severity.toUpperCase()}`);
     sections.push(`   Type: ${alert.type}`);
     sections.push(`   Description: ${alert.description}`);
     sections.push(`   Triggered: ${new Date(alert.triggeredAt).toLocaleString()}`);
-    
+
     if (alert.resolvedAt) {
       sections.push(`   Resolved: ${new Date(alert.resolvedAt).toLocaleString()}`);
     }
-    
+
     if (alert.metadata.workflowId) {
       sections.push(`   Workflow: ${alert.metadata.workflowId}`);
     }
-    
+
     if (alert.metadata.threshold && alert.metadata.actualValue) {
-      sections.push(`   Threshold: ${alert.metadata.threshold}, Actual: ${alert.metadata.actualValue}`);
+      sections.push(
+        `   Threshold: ${alert.metadata.threshold}, Actual: ${alert.metadata.actualValue}`
+      );
     }
-    
+
     sections.push('');
   });
 
@@ -240,7 +258,7 @@ function formatDuration(seconds: number): string {
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
   const secs = Math.floor(seconds % 60);
-  
+
   if (hours > 0) {
     return `${hours}h ${minutes}m ${secs}s`;
   } else if (minutes > 0) {
@@ -254,7 +272,8 @@ export function createInstanceMonitoringTools(getClient: () => N8nClient | null,
   // System Resource Monitoring
   server.addTool({
     name: 'get-system-resources',
-    description: 'Get real-time system resource usage including CPU, memory, disk, and network statistics',
+    description:
+      'Get real-time system resource usage including CPU, memory, disk, and network statistics',
     parameters: z.object({}),
     annotations: {
       title: 'System Resource Usage',
@@ -280,7 +299,8 @@ export function createInstanceMonitoringTools(getClient: () => N8nClient | null,
   // Workflow Resource Usage
   server.addTool({
     name: 'get-workflow-resources',
-    description: 'Monitor per-workflow resource consumption including execution times and memory usage',
+    description:
+      'Monitor per-workflow resource consumption including execution times and memory usage',
     parameters: WorkflowMonitoringSchema,
     annotations: {
       title: 'Workflow Resource Monitoring',
@@ -311,7 +331,7 @@ export function createInstanceMonitoringTools(getClient: () => N8nClient | null,
         } else {
           // Get all workflows
           const workflowsResponse = await client.getWorkflows({ limit: 50 });
-          
+
           for (const workflow of workflowsResponse.data) {
             const usage = await monitor.getWorkflowResourceUsage(
               workflow.id,
@@ -335,7 +355,8 @@ export function createInstanceMonitoringTools(getClient: () => N8nClient | null,
   // Instance Health Check
   server.addTool({
     name: 'check-instance-health',
-    description: 'Comprehensive health check of the n8n instance including performance metrics and recommendations',
+    description:
+      'Comprehensive health check of the n8n instance including performance metrics and recommendations',
     parameters: HealthCheckSchema,
     annotations: {
       title: 'Instance Health Check',
@@ -403,7 +424,7 @@ export function createInstanceMonitoringTools(getClient: () => N8nClient | null,
       try {
         const monitor = getResourceMonitor();
         const resolved = monitor.resolveAlert(args.alertId);
-        
+
         if (resolved) {
           return `✅ Alert ${args.alertId} has been marked as resolved.`;
         } else {
@@ -436,30 +457,30 @@ export function createInstanceMonitoringTools(getClient: () => N8nClient | null,
     execute: async (args: { action: string; intervalMs?: number }) => {
       try {
         const monitor = getResourceMonitor();
-        
+
         switch (args.action) {
           case 'start':
             await monitor.startMonitoring();
             return '✅ Resource monitoring started successfully.';
-            
+
           case 'stop':
             monitor.stopMonitoring();
             return '⏹️ Resource monitoring stopped.';
-            
+
           case 'restart':
             monitor.stopMonitoring();
             if (args.intervalMs) {
               monitor.updateConfig({
-                monitoring: { ...monitor.getConfig().monitoring, intervalMs: args.intervalMs }
+                monitoring: { ...monitor.getConfig().monitoring, intervalMs: args.intervalMs },
               });
             }
             await monitor.startMonitoring();
             return '🔄 Resource monitoring restarted successfully.';
-            
+
           case 'status':
             const config = monitor.getConfig();
             return `📊 **Monitoring Status**\n\nEnabled: ${config.monitoring.enabled ? '✅ Yes' : '❌ No'}\nInterval: ${config.monitoring.intervalMs}ms\nRetention: ${config.monitoring.retentionDays} days\nData Points: ${monitor.getDataPoints().length}\nActive Alerts: ${monitor.getAlerts(undefined, false).length}`;
-            
+
           default:
             throw new UserError(`Unknown action: ${args.action}`);
         }
@@ -492,7 +513,7 @@ export function createInstanceMonitoringTools(getClient: () => N8nClient | null,
       try {
         const monitor = getResourceMonitor();
         monitor.recordWorkflowExecution(args.workflowId, args.duration, args.success);
-        
+
         return `📊 Execution metrics recorded for workflow ${args.workflowId}: ${args.duration}ms (${args.success ? 'success' : 'failure'})`;
       } catch (error) {
         if (error instanceof Error) {

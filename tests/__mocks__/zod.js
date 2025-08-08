@@ -2,7 +2,7 @@
 /* eslint-env node */
 /* global module */
 const createMockSchema = (type = 'any', constraints = {}) => {
-  const validate = (data) => {
+  const validate = data => {
     // Handle undefined/null values
     if (data === undefined || data === null) {
       if (constraints.required !== false) {
@@ -10,30 +10,39 @@ const createMockSchema = (type = 'any', constraints = {}) => {
       }
       return data; // Allow undefined/null for optional fields
     }
-    
+
     switch (type) {
       case 'string':
         if (typeof data !== 'string') throw new Error(`Expected string, received ${typeof data}`);
-        if (constraints.min !== undefined && data.length < constraints.min) throw new Error(`String must be at least ${constraints.min} character${constraints.min === 1 ? '' : 's'}`);
-        if (constraints.max !== undefined && data.length > constraints.max) throw new Error(`String must be at most ${constraints.max} characters`);
+        if (constraints.min !== undefined && data.length < constraints.min)
+          throw new Error(
+            `String must be at least ${constraints.min} character${constraints.min === 1 ? '' : 's'}`
+          );
+        if (constraints.max !== undefined && data.length > constraints.max)
+          throw new Error(`String must be at most ${constraints.max} characters`);
         if (constraints.email && !data.includes('@')) throw new Error('Invalid email format');
         if (constraints.url && !data.startsWith('http')) throw new Error('Invalid URL format');
         break;
       case 'number':
         if (typeof data !== 'number') throw new Error(`Expected number, received ${typeof data}`);
-        if (constraints.min && data < constraints.min) throw new Error(`Number must be at least ${constraints.min}`);
-        if (constraints.max && data > constraints.max) throw new Error(`Number must be at most ${constraints.max}`);
+        if (constraints.min && data < constraints.min)
+          throw new Error(`Number must be at least ${constraints.min}`);
+        if (constraints.max && data > constraints.max)
+          throw new Error(`Number must be at most ${constraints.max}`);
         break;
       case 'boolean':
         if (typeof data !== 'boolean') throw new Error(`Expected boolean, received ${typeof data}`);
         break;
       case 'object':
-        if (typeof data !== 'object' || data === null) throw new Error(`Expected object, received ${typeof data}`);
+        if (typeof data !== 'object' || data === null)
+          throw new Error(`Expected object, received ${typeof data}`);
         break;
       case 'array':
         if (!Array.isArray(data)) throw new Error(`Expected array, received ${typeof data}`);
-        if (constraints.min && data.length < constraints.min) throw new Error(`Array must have at least ${constraints.min} items`);
-        if (constraints.max && data.length > constraints.max) throw new Error(`Array must have at most ${constraints.max} items`);
+        if (constraints.min && data.length < constraints.min)
+          throw new Error(`Array must have at least ${constraints.min} items`);
+        if (constraints.max && data.length > constraints.max)
+          throw new Error(`Array must have at most ${constraints.max} items`);
         break;
     }
     return data;
@@ -41,24 +50,29 @@ const createMockSchema = (type = 'any', constraints = {}) => {
 
   return {
     parse: validate,
-    safeParse: (data) => {
+    safeParse: data => {
       try {
         return { success: true, data: validate(data) };
       } catch (error) {
         return { success: false, error: { message: error.message } };
       }
     },
-    optional: () => ({ 
+    optional: () => ({
       ...createMockSchema(type, { ...constraints, required: false }),
-      optional: true
+      optional: true,
     }),
-    min: (value) => createMockSchema(type, { ...constraints, min: value, required: constraints.required !== false }),
-    max: (value) => createMockSchema(type, { ...constraints, max: value }),
+    min: value =>
+      createMockSchema(type, {
+        ...constraints,
+        min: value,
+        required: constraints.required !== false,
+      }),
+    max: value => createMockSchema(type, { ...constraints, max: value }),
     email: () => createMockSchema(type, { ...constraints, email: true }),
     url: () => createMockSchema(type, { ...constraints, url: true }),
-    default: (defaultValue) => ({
+    default: defaultValue => ({
       ...createMockSchema(type, constraints),
-      parse: (data) => {
+      parse: data => {
         if (data === undefined) return defaultValue;
         const result = createMockSchema(type, constraints).parse(data);
         // For objects, merge defaults deeply
@@ -72,13 +86,13 @@ const createMockSchema = (type = 'any', constraints = {}) => {
       const originalValidate = validate;
       return {
         ...createMockSchema(type, constraints),
-        parse: (data) => {
+        parse: data => {
           const result = originalValidate(data);
           if (!refineFn(result)) {
             throw new Error(options?.message || 'Refinement failed');
           }
           return result;
-        }
+        },
       };
     },
     transform: () => createMockSchema(type, constraints),
@@ -104,9 +118,9 @@ const mockZod = {
     null: () => createMockSchema('any'),
     undefined: () => createMockSchema('any'),
     literal: () => createMockSchema('any'),
-    object: (shape) => ({
+    object: shape => ({
       shape,
-      parse: (data) => {
+      parse: data => {
         if (data === null) {
           throw new Error('Expected object, received null');
         }
@@ -116,14 +130,14 @@ const mockZod = {
         if (typeof data !== 'object') {
           throw new Error(`Expected object, received ${typeof data}`);
         }
-        
+
         const result = { ...data };
-        
+
         // Apply defaults and validate each field in the shape if provided
         if (shape) {
           for (const [key, schema] of Object.entries(shape || {})) {
             const value = data[key];
-            
+
             // Check if the field is present
             if (value !== undefined) {
               // Validate the field value using its schema
@@ -133,7 +147,7 @@ const mockZod = {
             } else {
               // Check if field is optional
               const isOptional = schema.optional === true;
-              
+
               if (!isOptional) {
                 // For required fields, try to apply default values first
                 if (schema?.parse) {
@@ -158,7 +172,7 @@ const mockZod = {
         }
         return result;
       },
-      safeParse: (data) => {
+      safeParse: data => {
         try {
           return { success: true, data: mockZod.z.object(shape).parse(data) };
         } catch (error) {
@@ -168,20 +182,20 @@ const mockZod = {
       optional: () => ({
         ...createMockSchema('object'),
         optional: true,
-        parse: (data) => {
+        parse: data => {
           if (data === undefined) return undefined;
           return mockZod.z.object(shape).parse(data);
-        }
+        },
       }),
       refine: (refineFn, options) => ({
         ...mockZod.z.object(shape),
-        parse: (data) => {
+        parse: data => {
           const result = mockZod.z.object(shape).parse(data);
           if (!refineFn(result)) {
             throw new Error(options?.message || 'Refinement failed');
           }
           return result;
-        }
+        },
       }),
       extend: () => createMockSchema('object'),
       merge: () => createMockSchema('object'),
@@ -194,21 +208,26 @@ const mockZod = {
       strict: () => createMockSchema('object'),
       strip: () => createMockSchema('object'),
       catchall: () => createMockSchema('object'),
-      default: (defaultValue) => ({
+      default: defaultValue => ({
         ...mockZod.z.object(shape),
-        parse: (data) => {
+        parse: data => {
           if (data === undefined) {
             // For undefined data, start with the default value
             data = defaultValue;
           }
-          
+
           // If we have an empty object as default and shape is defined, we need to apply nested defaults
-          if (typeof defaultValue === 'object' && defaultValue !== null && Object.keys(defaultValue).length === 0 && shape) {
+          if (
+            typeof defaultValue === 'object' &&
+            defaultValue !== null &&
+            Object.keys(defaultValue).length === 0 &&
+            shape
+          ) {
             // Parse with shape to apply nested defaults
             const resultWithDefaults = mockZod.z.object(shape).parse(data);
             return resultWithDefaults;
           }
-          
+
           const result = mockZod.z.object(shape).parse(data);
           // Merge default values deeply for nested objects
           if (typeof defaultValue === 'object' && typeof result === 'object') {
@@ -220,15 +239,15 @@ const mockZod = {
     }),
     array: () => createMockSchema('array'),
     record: () => createMockSchema('object'),
-    enum: (values) => ({
+    enum: values => ({
       values,
-      parse: (data) => {
+      parse: data => {
         if (!values.includes(data)) {
           throw new Error(`Expected one of [${values.join(', ')}], received ${data}`);
         }
         return data;
       },
-      safeParse: (data) => {
+      safeParse: data => {
         try {
           return { success: true, data: mockZod.z.enum(values).parse(data) };
         } catch (error) {
@@ -236,9 +255,9 @@ const mockZod = {
         }
       },
       optional: () => createMockSchema('any'),
-      default: (defaultValue) => ({
+      default: defaultValue => ({
         ...mockZod.z.enum(values),
-        parse: (data) => data === undefined ? defaultValue : mockZod.z.enum(values).parse(data),
+        parse: data => (data === undefined ? defaultValue : mockZod.z.enum(values).parse(data)),
       }),
     }),
     union: () => createMockSchema('any'),
@@ -265,7 +284,7 @@ const mockZod = {
       date: () => createMockSchema('any'),
     },
     NEVER: Symbol('NEVER'),
-    infer: (schema) => schema,
+    infer: schema => schema,
     custom: () => createMockSchema('any'),
     ostring: () => createMockSchema('string', { required: false }),
     onumber: () => createMockSchema('number', { required: false }),

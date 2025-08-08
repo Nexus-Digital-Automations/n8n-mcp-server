@@ -71,14 +71,14 @@ describe('Event System Integration', () => {
   describe('EventClient Integration', () => {
     it('should initialize and connect successfully', async () => {
       const connectPromise = eventClient.connect();
-      
+
       // Should emit connected event
-      const connectedPromise = new Promise<void>((resolve) => {
+      const connectedPromise = new Promise<void>(resolve => {
         eventClient.once('connected', () => resolve());
       });
 
       await Promise.all([connectPromise, connectedPromise]);
-      
+
       expect(mockClient.getWorkflows).toHaveBeenCalledWith({ limit: 1 });
     });
 
@@ -283,8 +283,8 @@ describe('Event System Integration', () => {
       // Mock client to fail
       mockClient.getWorkflows.mockRejectedValue(new Error('Connection failed'));
 
-      const errorPromise = new Promise<Error>((resolve) => {
-        eventClient.once('error', (error) => resolve(error));
+      const errorPromise = new Promise<Error>(resolve => {
+        eventClient.once('error', error => resolve(error));
       });
 
       const connectPromise = eventClient.connect();
@@ -310,11 +310,9 @@ describe('Event System Integration', () => {
       });
 
       // Create subscription
-      const subscriptionId = eventClient.subscribe(
-        ['workflow_execution'],
-        undefined,
-        { workflowId: 'wf_1' }
-      );
+      const subscriptionId = eventClient.subscribe(['workflow_execution'], undefined, {
+        workflowId: 'wf_1',
+      });
 
       // Emit matching event
       eventClient.emitEvent({
@@ -324,7 +322,7 @@ describe('Event System Integration', () => {
       });
 
       // Allow event processing
-      return new Promise<void>((resolve) => {
+      return new Promise<void>(resolve => {
         setTimeout(() => {
           expect(triggeredEvent).not.toBeNull();
           expect(triggeredSubscription).not.toBeNull();
@@ -343,11 +341,7 @@ describe('Event System Integration', () => {
       });
 
       // Create filtered subscription
-      eventClient.subscribe(
-        ['workflow_execution'],
-        undefined,
-        { workflowId: 'specific_workflow' }
-      );
+      eventClient.subscribe(['workflow_execution'], undefined, { workflowId: 'specific_workflow' });
 
       // Emit matching event
       eventClient.emitEvent({
@@ -363,7 +357,7 @@ describe('Event System Integration', () => {
         data: { status: 'success' },
       });
 
-      return new Promise<void>((resolve) => {
+      return new Promise<void>(resolve => {
         setTimeout(() => {
           expect(triggerCount).toBe(1); // Only one should match
           resolve();
@@ -386,7 +380,7 @@ describe('Event System Integration', () => {
       eventClient.emitEvent({ type: 'user_action', data: {} });
       eventClient.emitEvent({ type: 'system_event', data: {} });
 
-      return new Promise<void>((resolve) => {
+      return new Promise<void>(resolve => {
         setTimeout(() => {
           expect(triggerCount).toBe(3); // All should match wildcard
           resolve();

@@ -2,9 +2,7 @@ import { z } from 'zod';
 import { UserError } from 'fastmcp';
 import { N8nClient } from '../client/n8nClient.js';
 import { MonitoringClient } from '../client/monitoringClient.js';
-import {
-  ResourceThresholds,
-} from '../types/monitoringTypes.js';
+import { ResourceThresholds } from '../types/monitoringTypes.js';
 
 // Zod schemas for validation
 const HealthCheckSchema = z.object({
@@ -28,32 +26,43 @@ const WorkflowHealthSchema = z.object({
 });
 
 const ResourceThresholdSchema = z.object({
-  cpu: z.object({
-    warning: z.number().min(0).max(100).default(75),
-    critical: z.number().min(0).max(100).default(90),
-  }).optional(),
-  memory: z.object({
-    warning: z.number().min(0).max(100).default(80),
-    critical: z.number().min(0).max(100).default(95),
-  }).optional(),
-  disk: z.object({
-    warning: z.number().min(0).max(100).default(85),
-    critical: z.number().min(0).max(100).default(95),
-  }).optional(),
-  executionTime: z.object({
-    warning: z.number().min(0).default(30000), // 30 seconds
-    critical: z.number().min(0).default(120000), // 2 minutes
-  }).optional(),
-  errorRate: z.object({
-    warning: z.number().min(0).max(100).default(5),
-    critical: z.number().min(0).max(100).default(15),
-  }).optional(),
-  responseTime: z.object({
-    warning: z.number().min(0).default(1000), // 1 second
-    critical: z.number().min(0).default(3000), // 3 seconds
-  }).optional(),
+  cpu: z
+    .object({
+      warning: z.number().min(0).max(100).default(75),
+      critical: z.number().min(0).max(100).default(90),
+    })
+    .optional(),
+  memory: z
+    .object({
+      warning: z.number().min(0).max(100).default(80),
+      critical: z.number().min(0).max(100).default(95),
+    })
+    .optional(),
+  disk: z
+    .object({
+      warning: z.number().min(0).max(100).default(85),
+      critical: z.number().min(0).max(100).default(95),
+    })
+    .optional(),
+  executionTime: z
+    .object({
+      warning: z.number().min(0).default(30000), // 30 seconds
+      critical: z.number().min(0).default(120000), // 2 minutes
+    })
+    .optional(),
+  errorRate: z
+    .object({
+      warning: z.number().min(0).max(100).default(5),
+      critical: z.number().min(0).max(100).default(15),
+    })
+    .optional(),
+  responseTime: z
+    .object({
+      warning: z.number().min(0).default(1000), // 1 second
+      critical: z.number().min(0).default(3000), // 3 seconds
+    })
+    .optional(),
 });
-
 
 const ConnectivityTestSchema = z.object({
   includeLatency: z.boolean().default(true),
@@ -74,7 +83,7 @@ const getMonitoringClient = (getClient: () => N8nClient | null): MonitoringClien
     // Extract baseUrl and apiKey from client
     const baseUrl = (client as any).baseUrl || process.env.N8N_BASE_URL || 'http://localhost:5678';
     const apiKey = (client as any).apiKey || process.env.N8N_API_KEY || '';
-    
+
     monitoringClient = new MonitoringClient(client, baseUrl, apiKey);
   }
   return monitoringClient;
@@ -85,7 +94,7 @@ const formatUptime = (seconds: number): string => {
   const days = Math.floor(seconds / 86400);
   const hours = Math.floor((seconds % 86400) / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
-  
+
   if (days > 0) return `${days}d ${hours}h ${minutes}m`;
   if (hours > 0) return `${hours}h ${minutes}m`;
   return `${minutes}m`;
@@ -101,16 +110,21 @@ const formatBytes = (bytes: number): string => {
 
 const getHealthStatusIcon = (status: string): string => {
   switch (status) {
-    case 'healthy': return '✅';
-    case 'warning': return '⚠️';
-    case 'critical': return '🔴';
-    case 'degraded': return '🟡';
-    default: return '❓';
+    case 'healthy':
+      return '✅';
+    case 'warning':
+      return '⚠️';
+    case 'critical':
+      return '🔴';
+    case 'degraded':
+      return '🟡';
+    default:
+      return '❓';
   }
 };
 
 const evaluateResourceThresholds = (
-  usage: any, 
+  usage: any,
   thresholds: ResourceThresholds
 ): { status: 'healthy' | 'warning' | 'critical'; alerts: string[] } => {
   const alerts: string[] = [];
@@ -159,7 +173,7 @@ export function createSystemHealthTools(getClient: () => N8nClient | null, serve
 
         // Get health check data
         const healthCheck = await monitoringClient.getHealthCheck();
-        
+
         let diagnostics = null;
         if (args.includeDiagnostics) {
           diagnostics = await monitoringClient.getSystemDiagnostics();
@@ -173,7 +187,7 @@ export function createSystemHealthTools(getClient: () => N8nClient | null, serve
         response += `**🔗 Database:** ${healthCheck.database.status} (${healthCheck.database.responseTime}ms)\n`;
         response += `**📁 Filesystem:** ${healthCheck.filesystem.status} (${healthCheck.filesystem.permissions})\n`;
         response += `**⏱️ Uptime:** ${formatUptime(healthCheck.uptime)}\n`;
-        
+
         if (healthCheck.version && healthCheck.version !== 'unknown') {
           response += `**📦 Version:** ${healthCheck.version}\n`;
         }
@@ -209,7 +223,9 @@ export function createSystemHealthTools(getClient: () => N8nClient | null, serve
         if (error instanceof UserError) {
           throw error;
         }
-        throw new UserError(`Failed to check system health: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        throw new UserError(
+          `Failed to check system health: ${error instanceof Error ? error.message : 'Unknown error'}`
+        );
       }
     },
   });
@@ -256,7 +272,7 @@ export function createSystemHealthTools(getClient: () => N8nClient | null, serve
           response += `• CPU: ${resources.cpu.totalUsage.toFixed(1)}% (${resources.cpu.coreCount} cores)\n`;
           response += `• Memory: ${formatBytes(resources.memory.usedMemory)} / ${formatBytes(resources.memory.totalMemory)} (${resources.memory.utilization.toFixed(1)}%)\n`;
           response += `• Process Memory: ${formatBytes(resources.memory.processMemory.rss)} RSS, ${formatBytes(resources.memory.processMemory.heapUsed)} heap\n`;
-          
+
           if (resources.disk.totalSpace > 0) {
             response += `• Disk: ${formatBytes(resources.disk.usedSpace)} / ${formatBytes(resources.disk.totalSpace)} (${resources.disk.utilization.toFixed(1)}%)\n`;
           }
@@ -284,7 +300,9 @@ export function createSystemHealthTools(getClient: () => N8nClient | null, serve
         if (error instanceof UserError) {
           throw error;
         }
-        throw new UserError(`Failed to get system diagnostics: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        throw new UserError(
+          `Failed to get system diagnostics: ${error instanceof Error ? error.message : 'Unknown error'}`
+        );
       }
     },
   });
@@ -303,7 +321,7 @@ export function createSystemHealthTools(getClient: () => N8nClient | null, serve
         let response = `${statusIcon} **Workflow Health: ${diagnostics.workflowName}**\n\n`;
         response += `**Status:** ${diagnostics.health.status.toUpperCase()}\n`;
         response += `**Success Rate:** ${diagnostics.performance.successRate.toFixed(1)}%\n`;
-        
+
         if (diagnostics.performance.averageExecutionTime > 0) {
           response += `**Avg Execution Time:** ${(diagnostics.performance.averageExecutionTime / 1000).toFixed(2)}s\n`;
         }
@@ -327,13 +345,13 @@ export function createSystemHealthTools(getClient: () => N8nClient | null, serve
         // Recent executions
         if (args.includeRecentExecutions && diagnostics.performance.recentExecutions.length > 0) {
           response += `\n**📈 Recent Executions (${Math.min(diagnostics.performance.recentExecutions.length, args.executionLimit)}):**\n`;
-          diagnostics.performance.recentExecutions
-            .slice(0, args.executionLimit)
-            .forEach(exec => {
-              const timeStr = exec.executionTime > 0 ? ` (${(exec.executionTime / 1000).toFixed(2)}s)` : '';
-              const statusEmoji = exec.status === 'success' ? '✅' : exec.status === 'failed' ? '❌' : '⏳';
-              response += `• ${statusEmoji} ${exec.status}${timeStr} - ${new Date(exec.timestamp).toLocaleString()}\n`;
-            });
+          diagnostics.performance.recentExecutions.slice(0, args.executionLimit).forEach(exec => {
+            const timeStr =
+              exec.executionTime > 0 ? ` (${(exec.executionTime / 1000).toFixed(2)}s)` : '';
+            const statusEmoji =
+              exec.status === 'success' ? '✅' : exec.status === 'failed' ? '❌' : '⏳';
+            response += `• ${statusEmoji} ${exec.status}${timeStr} - ${new Date(exec.timestamp).toLocaleString()}\n`;
+          });
         }
 
         // Node analysis
@@ -355,7 +373,9 @@ export function createSystemHealthTools(getClient: () => N8nClient | null, serve
         if (error instanceof UserError) {
           throw error;
         }
-        throw new UserError(`Failed to check workflow health: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        throw new UserError(
+          `Failed to check workflow health: ${error instanceof Error ? error.message : 'Unknown error'}`
+        );
       }
     },
   });
@@ -368,12 +388,12 @@ export function createSystemHealthTools(getClient: () => N8nClient | null, serve
     handler: async (args: z.infer<typeof ConnectivityTestSchema>) => {
       try {
         const monitoringClient = getMonitoringClient(getClient);
-        
+
         const tests = [];
         for (let i = 0; i <= args.retries; i++) {
           const result = await monitoringClient.testConnectivity();
           tests.push(result);
-          
+
           if (i < args.retries && !result.success) {
             // Wait before retry
             await new Promise(resolve => setTimeout(resolve, 1000));
@@ -382,21 +402,23 @@ export function createSystemHealthTools(getClient: () => N8nClient | null, serve
 
         const successfulTests = tests.filter(t => t.success);
         const failedTests = tests.filter(t => !t.success);
-        
+
         let response = `🌐 **Connectivity Test Results**\n\n`;
         response += `**Tests:** ${tests.length} (${successfulTests.length} successful, ${failedTests.length} failed)\n`;
 
         if (successfulTests.length > 0) {
-          const avgResponseTime = successfulTests.reduce((sum, test) => sum + test.responseTime, 0) / successfulTests.length;
+          const avgResponseTime =
+            successfulTests.reduce((sum, test) => sum + test.responseTime, 0) /
+            successfulTests.length;
           const minResponseTime = Math.min(...successfulTests.map(t => t.responseTime));
           const maxResponseTime = Math.max(...successfulTests.map(t => t.responseTime));
-          
-          response += `**Success Rate:** ${(successfulTests.length / tests.length * 100).toFixed(1)}%\n`;
+
+          response += `**Success Rate:** ${((successfulTests.length / tests.length) * 100).toFixed(1)}%\n`;
           response += `**Response Times:**\n`;
           response += `• Average: ${avgResponseTime.toFixed(0)}ms\n`;
           response += `• Min: ${minResponseTime}ms\n`;
           response += `• Max: ${maxResponseTime}ms\n`;
-          
+
           // Assess response time
           if (avgResponseTime > 3000) {
             response += `⚠️ **High response times detected - consider checking network or server performance**\n`;
@@ -419,7 +441,9 @@ export function createSystemHealthTools(getClient: () => N8nClient | null, serve
         if (error instanceof UserError) {
           throw error;
         }
-        throw new UserError(`Failed to test connectivity: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        throw new UserError(
+          `Failed to test connectivity: ${error instanceof Error ? error.message : 'Unknown error'}`
+        );
       }
     },
   });
@@ -456,7 +480,7 @@ export function createSystemHealthTools(getClient: () => N8nClient | null, serve
         response += `• CPU: ${systemUsage.cpu.totalUsage.toFixed(1)}% (${systemUsage.cpu.coreCount} cores)\n`;
         response += `• Memory: ${systemUsage.memory.utilization.toFixed(1)}% (${formatBytes(systemUsage.memory.usedMemory)} / ${formatBytes(systemUsage.memory.totalMemory)})\n`;
         response += `• Process: ${formatBytes(systemUsage.memory.processMemory.rss)} RSS, ${formatBytes(systemUsage.memory.processMemory.heapUsed)} heap\n`;
-        
+
         if (systemUsage.disk.totalSpace > 0) {
           response += `• Disk: ${systemUsage.disk.utilization.toFixed(1)}% (${formatBytes(systemUsage.disk.usedSpace)} / ${formatBytes(systemUsage.disk.totalSpace)})\n`;
         }
@@ -483,7 +507,9 @@ export function createSystemHealthTools(getClient: () => N8nClient | null, serve
         if (error instanceof UserError) {
           throw error;
         }
-        throw new UserError(`Failed to monitor resources: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        throw new UserError(
+          `Failed to monitor resources: ${error instanceof Error ? error.message : 'Unknown error'}`
+        );
       }
     },
   });

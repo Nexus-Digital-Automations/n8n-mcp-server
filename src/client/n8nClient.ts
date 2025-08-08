@@ -29,17 +29,48 @@ import {
   ResourceLocatorResult,
   AINodeClassification,
   AINodeSuggestion,
+  ProjectUserRequest,
+  ProjectUserResponse,
+  WorkflowTransferRequest,
+  CredentialTransferRequest,
+  UserRoleUpdateRequest,
+  SourceControlStatus,
+  SourceControlCommit,
+  SourceControlPullRequest,
+  SourceControlBranchRequest,
+  AuthenticationConfig,
+  SessionInfo,
+  LoginRequest,
+  LoginResponse,
+  OAuth2Config,
+  OAuth2Token,
+  VariableUpdateRequest,
 } from '../types/n8n.js';
 
 export class N8nClient {
+  private authConfig: AuthenticationConfig;
+
   constructor(
     private baseUrl: string,
-    private apiKey: string
+    private apiKey: string,
+    authConfig?: AuthenticationConfig
   ) {
     // Remove trailing slash if present
     this.baseUrl = baseUrl.replace(/\/$/, '');
     // Ensure apiKey is properly assigned
     this.apiKey = apiKey;
+    // Set up authentication configuration
+    this.authConfig = authConfig || { type: 'api-key' };
+  }
+
+  // Method to update authentication configuration
+  setAuthConfig(config: AuthenticationConfig): void {
+    this.authConfig = config;
+  }
+
+  // Method to get current authentication configuration
+  getAuthConfig(): AuthenticationConfig {
+    return this.authConfig;
   }
 
   private async makeRequest<T>(
@@ -47,11 +78,38 @@ export class N8nClient {
     options: Record<string, unknown> = {}
   ): Promise<T> {
     const url = `${this.baseUrl}/api/v1${endpoint}`;
-    const headers = {
-      'X-N8N-API-KEY': this.apiKey,
+    const headers: Record<string, string> = {
       Accept: 'application/json',
       'Content-Type': 'application/json',
     };
+
+    // Apply authentication based on configuration
+    switch (this.authConfig.type) {
+      case 'api-key':
+        headers['X-N8N-API-KEY'] = this.apiKey;
+        break;
+      case 'session':
+        if (this.authConfig.sessionToken) {
+          headers['Cookie'] = `n8n-auth=${this.authConfig.sessionToken}`;
+        }
+        break;
+      case 'oauth2':
+        if (this.authConfig.credentials?.accessToken) {
+          headers['Authorization'] = `Bearer ${this.authConfig.credentials.accessToken}`;
+        }
+        break;
+      case 'saml':
+      case 'oidc':
+      case 'ldap':
+        // These typically use session-based auth after initial login
+        if (this.authConfig.sessionToken) {
+          headers['Cookie'] = `n8n-auth=${this.authConfig.sessionToken}`;
+        }
+        break;
+      default:
+        // Fallback to API key
+        headers['X-N8N-API-KEY'] = this.apiKey;
+    }
 
     try {
       const response = await fetch(url, {
@@ -376,6 +434,206 @@ export class N8nClient {
       method: 'POST',
       body: JSON.stringify(options),
     });
+  }
+
+  // Enhanced User Management (n8n fork)
+  async updateUserRole(id: string, roleData: UserRoleUpdateRequest): Promise<N8nUser> {
+    return this.makeRequest<N8nUser>(`/users/${id}/role`, {
+      method: 'PUT',
+      body: JSON.stringify(roleData),
+    });
+  }
+
+  // Enhanced Project Management (n8n fork)
+  async getProjectUsers(projectId: string): Promise<ProjectUserResponse[]> {
+    return this.makeRequest<ProjectUserResponse[]>(`/projects/${projectId}/users`);
+  }
+
+  async addUserToProject(projectId: string, userData: ProjectUserRequest): Promise<ProjectUserResponse> {
+    return this.makeRequest<ProjectUserResponse>(`/projects/${projectId}/users`, {
+      method: 'POST',
+      body: JSON.stringify(userData),
+    });
+  }
+
+  async updateProjectUser(projectId: string, userId: string, roleData: ProjectUserRequest): Promise<ProjectUserResponse> {
+    return this.makeRequest<ProjectUserResponse>(`/projects/${projectId}/users/${userId}`, {
+      method: 'PUT',
+      body: JSON.stringify(roleData),
+    });
+  }
+
+  async removeUserFromProject(projectId: string, userId: string): Promise<void> {
+    await this.makeRequest<void>(`/projects/${projectId}/users/${userId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // Enhanced Workflow Management (n8n fork)
+  async transferWorkflow(id: string, transferData: WorkflowTransferRequest): Promise<N8nWorkflow> {
+    return this.makeRequest<N8nWorkflow>(`/workflows/${id}/transfer`, {
+      method: 'PUT',
+      body: JSON.stringify(transferData),
+    });
+  }
+
+  // Enhanced Credential Management (n8n fork)  
+  async updateCredential(id: string, credentialData: Partial<CreateCredentialRequest>): Promise<N8nCredential> {
+    return this.makeRequest<N8nCredential>(`/credentials/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(credentialData),
+    });
+  }
+
+  async transferCredential(id: string, transferData: CredentialTransferRequest): Promise<N8nCredential> {
+    return this.makeRequest<N8nCredential>(`/credentials/${id}/transfer`, {
+      method: 'PUT',
+      body: JSON.stringify(transferData),
+    });
+  }
+
+  // Enhanced Variable Management (n8n fork)
+  async getVariable(id: string): Promise<N8nVariable> {
+    return this.makeRequest<N8nVariable>(`/variables/${id}`);
+  }
+
+  async updateVariable(id: string, variableData: VariableUpdateRequest): Promise<N8nVariable> {
+    return this.makeRequest<N8nVariable>(`/variables/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(variableData),
+    });
+  }
+
+  // Source Control Integration (Enterprise n8n fork)
+  async getSourceControlStatus(): Promise<SourceControlStatus> {
+    return this.makeRequest<SourceControlStatus>('/source-control/repository-status');
+  }
+
+  async pullFromRepository(pullData: SourceControlPullRequest = {}): Promise<SourceControlStatus> {
+    return this.makeRequest<SourceControlStatus>('/source-control/pull', {
+      method: 'POST',
+      body: JSON.stringify(pullData),
+    });
+  }
+
+  async setBranch(branchData: SourceControlBranchRequest): Promise<SourceControlStatus> {
+    return this.makeRequest<SourceControlStatus>('/source-control/set-branch', {
+      method: 'POST',
+      body: JSON.stringify(branchData),
+    });
+  }
+
+  async getCommitHistory(): Promise<SourceControlCommit[]> {
+    return this.makeRequest<SourceControlCommit[]>('/source-control/commit-history');
+  }
+
+  async checkSyncStatus(): Promise<SourceControlStatus> {
+    return this.makeRequest<SourceControlStatus>('/source-control/sync-check');
+  }
+
+  // Authentication Methods (n8n fork)
+  async login(loginData: LoginRequest): Promise<LoginResponse> {
+    return this.makeRequest<LoginResponse>('/login', {
+      method: 'POST',
+      body: JSON.stringify(loginData),
+    });
+  }
+
+  async logout(): Promise<void> {
+    await this.makeRequest<void>('/logout', {
+      method: 'POST',
+    });
+  }
+
+  async getSessionInfo(): Promise<SessionInfo> {
+    return this.makeRequest<SessionInfo>('/session');
+  }
+
+  async refreshSession(): Promise<SessionInfo> {
+    return this.makeRequest<SessionInfo>('/session/refresh', {
+      method: 'POST',
+    });
+  }
+
+  // OAuth2 Helper Methods (n8n fork)
+  generateOAuth2AuthUrl(config: OAuth2Config, state?: string): string {
+    const params = new URLSearchParams({
+      response_type: 'code',
+      client_id: config.clientId,
+      redirect_uri: config.redirectUri,
+      scope: config.scope?.join(' ') || '',
+    });
+
+    if (state) {
+      params.append('state', state);
+    }
+
+    return `${config.authorizationUrl}?${params.toString()}`;
+  }
+
+  async exchangeOAuth2Code(config: OAuth2Config, code: string): Promise<OAuth2Token> {
+    const tokenUrl = config.tokenUrl;
+    const params = new URLSearchParams({
+      grant_type: 'authorization_code',
+      client_id: config.clientId,
+      client_secret: config.clientSecret,
+      code,
+      redirect_uri: config.redirectUri,
+    });
+
+    const response = await fetch(tokenUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Accept: 'application/json',
+      },
+      body: params.toString(),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`OAuth2 token exchange failed: ${errorText}`);
+    }
+
+    const tokenData = await response.json() as any;
+    return {
+      accessToken: tokenData.access_token,
+      refreshToken: tokenData.refresh_token,
+      expiresIn: tokenData.expires_in,
+      tokenType: tokenData.token_type || 'Bearer',
+    };
+  }
+
+  async refreshOAuth2Token(config: OAuth2Config, refreshToken: string): Promise<OAuth2Token> {
+    const tokenUrl = config.tokenUrl;
+    const params = new URLSearchParams({
+      grant_type: 'refresh_token',
+      client_id: config.clientId,
+      client_secret: config.clientSecret,
+      refresh_token: refreshToken,
+    });
+
+    const response = await fetch(tokenUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Accept: 'application/json',
+      },
+      body: params.toString(),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`OAuth2 token refresh failed: ${errorText}`);
+    }
+
+    const tokenData = await response.json() as any;
+    return {
+      accessToken: tokenData.access_token,
+      refreshToken: tokenData.refresh_token || refreshToken, // Keep old refresh token if new one not provided
+      expiresIn: tokenData.expires_in,
+      tokenType: tokenData.token_type || 'Bearer',
+    };
   }
 
   // AI Node Features

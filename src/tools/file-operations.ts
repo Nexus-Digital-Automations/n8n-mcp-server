@@ -53,11 +53,13 @@ const BatchFileOperationSchema = z.object({
   operation: z.enum(['copy', 'move', 'delete', 'validate']),
   files: z.array(z.string()).min(1, 'At least one file required'),
   targetDirectory: z.string().optional(),
-  options: z.object({
-    createDirectories: z.boolean().default(true),
-    overwrite: z.boolean().default(false),
-    preserveTimestamps: z.boolean().default(false),
-  }).optional(),
+  options: z
+    .object({
+      createDirectories: z.boolean().default(true),
+      overwrite: z.boolean().default(false),
+      preserveTimestamps: z.boolean().default(false),
+    })
+    .optional(),
 });
 
 const ArchiveFilesSchema = z.object({
@@ -117,7 +119,10 @@ const getFileHandler = (): FileHandlingUtils => {
 };
 
 // Helper functions
-const calculateFileHash = async (filePath: string, algorithm: string = 'sha256'): Promise<string> => {
+const calculateFileHash = async (
+  filePath: string,
+  algorithm: string = 'sha256'
+): Promise<string> => {
   const fileBuffer = await fs.readFile(filePath);
   const hashSum = crypto.createHash(algorithm);
   hashSum.update(fileBuffer);
@@ -128,7 +133,7 @@ const getMimeTypeFromBuffer = async (buffer: Buffer): Promise<string> => {
   // Simple MIME type detection based on file signatures
   const signatures: Record<string, string> = {
     '89504E47': 'image/png',
-    'FFD8FF': 'image/jpeg',
+    FFD8FF: 'image/jpeg',
     '47494638': 'image/gif',
     '25504446': 'application/pdf',
     '504B0304': 'application/zip',
@@ -139,7 +144,7 @@ const getMimeTypeFromBuffer = async (buffer: Buffer): Promise<string> => {
   };
 
   const header = buffer.subarray(0, 8).toString('hex').toUpperCase();
-  
+
   for (const [signature, mimeType] of Object.entries(signatures)) {
     if (header.startsWith(signature)) {
       return mimeType;
@@ -148,8 +153,10 @@ const getMimeTypeFromBuffer = async (buffer: Buffer): Promise<string> => {
 
   // Check for text files
   const textSample = buffer.subarray(0, 100);
-  const isText = textSample.every(byte => byte === 0x09 || byte === 0x0A || byte === 0x0D || (byte >= 0x20 && byte <= 0x7E));
-  
+  const isText = textSample.every(
+    byte => byte === 0x09 || byte === 0x0a || byte === 0x0d || (byte >= 0x20 && byte <= 0x7e)
+  );
+
   return isText ? 'text/plain' : 'application/octet-stream';
 };
 
@@ -180,17 +187,12 @@ export function createFileOperationsTools(server: any) {
         const detectedMimeType = await getMimeTypeFromBuffer(buffer);
 
         // Validate file
-        const validation = await fileHandler.validateFile(
-          fileName,
-          detectedMimeType,
-          stats.size,
-          {
-            maxFileSize: args.maxFileSize,
-            allowedMimeTypes: args.allowedMimeTypes,
-            allowedExtensions: args.allowedExtensions,
-            virusScan: args.checkVirusScan,
-          }
-        );
+        const validation = await fileHandler.validateFile(fileName, detectedMimeType, stats.size, {
+          maxFileSize: args.maxFileSize,
+          allowedMimeTypes: args.allowedMimeTypes,
+          allowedExtensions: args.allowedExtensions,
+          virusScan: args.checkVirusScan,
+        });
 
         return {
           success: validation.isValid,
@@ -208,7 +210,9 @@ export function createFileOperationsTools(server: any) {
         if (error instanceof UserError) {
           throw error;
         }
-        throw new UserError(`Failed to validate file: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        throw new UserError(
+          `Failed to validate file: ${error instanceof Error ? error.message : 'Unknown error'}`
+        );
       }
     },
   });
@@ -229,7 +233,7 @@ export function createFileOperationsTools(server: any) {
           success: true,
           result,
           dryRun: args.dryRun,
-          message: args.dryRun 
+          message: args.dryRun
             ? `Would delete ${result.deletedFiles} files, freeing ${result.freedSpace} bytes`
             : `Deleted ${result.deletedFiles} files, freed ${result.freedSpace} bytes`,
         };
@@ -237,7 +241,9 @@ export function createFileOperationsTools(server: any) {
         if (error instanceof UserError) {
           throw error;
         }
-        throw new UserError(`Failed to cleanup files: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        throw new UserError(
+          `Failed to cleanup files: ${error instanceof Error ? error.message : 'Unknown error'}`
+        );
       }
     },
   });
@@ -270,7 +276,9 @@ export function createFileOperationsTools(server: any) {
         if (error instanceof UserError) {
           throw error;
         }
-        throw new UserError(`Failed to create file manifest: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        throw new UserError(
+          `Failed to create file manifest: ${error instanceof Error ? error.message : 'Unknown error'}`
+        );
       }
     },
   });
@@ -326,7 +334,8 @@ export function createFileOperationsTools(server: any) {
 
         // If requested and files are small enough, compare content line by line
         let contentDifferences: any = null;
-        if (args.compareContent && stats1.size < 1024 * 1024 && stats2.size < 1024 * 1024) { // Max 1MB
+        if (args.compareContent && stats1.size < 1024 * 1024 && stats2.size < 1024 * 1024) {
+          // Max 1MB
           const [content1, content2] = await Promise.all([
             fs.readFile(args.filePath1, 'utf-8'),
             fs.readFile(args.filePath2, 'utf-8'),
@@ -367,7 +376,9 @@ export function createFileOperationsTools(server: any) {
         if (error instanceof UserError) {
           throw error;
         }
-        throw new UserError(`Failed to compare files: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        throw new UserError(
+          `Failed to compare files: ${error instanceof Error ? error.message : 'Unknown error'}`
+        );
       }
     },
   });
@@ -427,7 +438,9 @@ export function createFileOperationsTools(server: any) {
         if (error instanceof UserError) {
           throw error;
         }
-        throw new UserError(`Failed to get file info: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        throw new UserError(
+          `Failed to get file info: ${error instanceof Error ? error.message : 'Unknown error'}`
+        );
       }
     },
   });
@@ -458,7 +471,7 @@ export function createFileOperationsTools(server: any) {
 
           for (const entry of entries) {
             const fullPath = path.join(dirPath, entry.name);
-            
+
             // Skip hidden files unless requested
             if (!args.includeHidden && entry.name.startsWith('.')) {
               continue;
@@ -471,7 +484,7 @@ export function createFileOperationsTools(server: any) {
                 totalFiles += subStats.totalFiles;
                 totalDirectories += subStats.totalDirectories;
                 totalSize += subStats.totalSize;
-                
+
                 // Merge extensions
                 for (const [ext, data] of Object.entries(subStats.extensions)) {
                   if (!extensions[ext]) {
@@ -505,14 +518,17 @@ export function createFileOperationsTools(server: any) {
         // Sort extensions by count
         const sortedExtensions = Object.entries(stats.extensions)
           .sort(([, a], [, b]) => (b as { count: number }).count - (a as { count: number }).count)
-          .reduce((acc, [ext, data]) => {
-            const typedData = data as { count: number; size: number };
-            acc[ext] = {
-              ...typedData,
-              sizeFormatted: `${(typedData.size / 1024 / 1024).toFixed(2)} MB`,
-            };
-            return acc;
-          }, {} as Record<string, any>);
+          .reduce(
+            (acc, [ext, data]) => {
+              const typedData = data as { count: number; size: number };
+              acc[ext] = {
+                ...typedData,
+                sizeFormatted: `${(typedData.size / 1024 / 1024).toFixed(2)} MB`,
+              };
+              return acc;
+            },
+            {} as Record<string, any>
+          );
 
         return {
           success: true,
@@ -534,7 +550,9 @@ export function createFileOperationsTools(server: any) {
         if (error instanceof UserError) {
           throw error;
         }
-        throw new UserError(`Failed to get directory stats: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        throw new UserError(
+          `Failed to get directory stats: ${error instanceof Error ? error.message : 'Unknown error'}`
+        );
       }
     },
   });

@@ -10,40 +10,43 @@ export default [
       parser: tsParser,
       parserOptions: {
         ecmaVersion: 2022,
-        sourceType: 'module'
+        sourceType: 'module',
       },
       globals: {
         Buffer: 'readonly',
         console: 'readonly',
         URLSearchParams: 'readonly',
-        process: 'readonly'
-      }
+        process: 'readonly',
+      },
     },
     plugins: {
-      '@typescript-eslint': tseslint
+      '@typescript-eslint': tseslint,
     },
     rules: {
       // Recommended JavaScript rules
       ...js.configs.recommended.rules,
-      
+
       // TypeScript specific rules
       'no-unused-vars': 'off', // Turn off base rule for TypeScript files
-      '@typescript-eslint/no-unused-vars': ['error', { 
-        argsIgnorePattern: '^_',
-        varsIgnorePattern: '^_'
-      }],
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+        },
+      ],
       '@typescript-eslint/no-explicit-any': 'off', // Disabled during FastMCP refactoring
       '@typescript-eslint/no-non-null-assertion': 'warn',
-      
+
       // Code quality rules
       'no-console': 'off', // Allow console in application code
       'no-debugger': 'error',
       'no-duplicate-imports': 'error',
       'prefer-const': 'error',
-      'no-var': 'error'
-    }
+      'no-var': 'error',
+    },
   },
-  
+
   // Apply to test files (Jest environment)
   {
     files: ['**/*.test.ts', '**/*.spec.ts', '**/tests/**/*.ts', '**/__tests__/**/*.ts'],
@@ -51,7 +54,7 @@ export default [
       parser: tsParser,
       parserOptions: {
         ecmaVersion: 2022,
-        sourceType: 'module'
+        sourceType: 'module',
       },
       globals: {
         Buffer: 'readonly',
@@ -70,31 +73,31 @@ export default [
         afterAll: 'readonly',
         afterEach: 'readonly',
         // Node.js globals for test files
-        require: 'readonly'
-      }
+        require: 'readonly',
+      },
     },
     plugins: {
-      '@typescript-eslint': tseslint
+      '@typescript-eslint': tseslint,
     },
     rules: {
       // Recommended JavaScript rules
       ...js.configs.recommended.rules,
-      
+
       // TypeScript specific rules - more permissive for test files
       '@typescript-eslint/no-unused-vars': 'off', // Disable for test files
       'no-unused-vars': 'off', // Turn off base rule
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-non-null-assertion': 'warn',
-      
+
       // Code quality rules
       'no-console': 'off',
       'no-debugger': 'error',
       'no-duplicate-imports': 'error',
       'prefer-const': 'error',
-      'no-var': 'error'
-    }
+      'no-var': 'error',
+    },
   },
-  
+
   // Apply to JavaScript files (excluding Jest config which has its own config)
   {
     files: ['**/*.js', '**/*.mjs'],
@@ -106,18 +109,18 @@ export default [
         Buffer: 'readonly',
         console: 'readonly',
         URLSearchParams: 'readonly',
-        process: 'readonly'
-      }
+        process: 'readonly',
+      },
     },
     rules: {
       ...js.configs.recommended.rules,
       'no-console': 'warn',
       'no-debugger': 'error',
       'prefer-const': 'error',
-      'no-var': 'error'
-    }
+      'no-var': 'error',
+    },
   },
-  
+
   // Apply to Jest configuration file specifically (must come after JS config to override)
   {
     files: ['jest.config.js', '**/jest.config.js'],
@@ -135,8 +138,8 @@ export default [
         __filename: 'readonly',
         // Additional Node.js globals that might be used in Jest config
         global: 'readonly',
-        exports: 'readonly'
-      }
+        exports: 'readonly',
+      },
     },
     rules: {
       ...js.configs.recommended.rules,
@@ -144,10 +147,10 @@ export default [
       'no-debugger': 'error',
       'prefer-const': 'error',
       'no-var': 'error',
-      'no-undef': 'error' // Explicitly enable no-undef rule
-    }
+      'no-undef': 'error', // Explicitly enable no-undef rule
+    },
   },
-  
+
   // Apply to CommonJS files
   {
     files: ['**/*.cjs', '**/create-quality-tasks.js'],
@@ -161,18 +164,18 @@ export default [
         console: 'readonly',
         process: 'readonly',
         __dirname: 'readonly',
-        __filename: 'readonly'
-      }
+        __filename: 'readonly',
+      },
     },
     rules: {
       ...js.configs.recommended.rules,
       'no-console': 'off', // Allow console in CommonJS utility scripts
       'no-debugger': 'error',
       'prefer-const': 'error',
-      'no-var': 'error'
-    }
+      'no-var': 'error',
+    },
   },
-  
+
   // Ignore patterns
   {
     ignores: [
@@ -195,7 +198,7 @@ export default [
       'src/tools/ai-testing.ts',
       'src/tools/analytics.ts',
       'src/tools/monitoring.ts',
-      'src/tools/templates.ts'
-    ]
-  }
+      'src/tools/templates.ts',
+    ],
+  },
 ];

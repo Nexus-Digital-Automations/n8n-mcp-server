@@ -1,9 +1,6 @@
 import fetch from 'node-fetch';
 import { N8nClient } from './n8nClient.js';
-import {
-  SystemResourceUsage,
-  SystemDiagnostics,
-} from '../types/monitoringTypes.js';
+import { SystemResourceUsage, SystemDiagnostics } from '../types/monitoringTypes.js';
 
 export interface HealthCheckResponse {
   status: 'healthy' | 'warning' | 'critical' | 'degraded';
@@ -201,7 +198,6 @@ export class MonitoringClient {
    * Get comprehensive system metrics
    */
   async getMetrics(): Promise<MetricsResponse> {
-
     try {
       // Fetch data in parallel
       const [workflowsResponse, executionsResponse] = await Promise.all([
@@ -215,7 +211,9 @@ export class MonitoringClient {
 
       // Analyze workflow states
       const activeWorkflows = workflows.filter(w => w.active);
-      const workflowsWithIssues = workflows.filter(w => !w.active && w.nodes && w.nodes.length === 0);
+      const workflowsWithIssues = workflows.filter(
+        w => !w.active && w.nodes && w.nodes.length === 0
+      );
 
       // Analyze execution stats
       const successfulExecutions = executions.filter(e => e.finished && !e.stoppedAt);
@@ -227,19 +225,17 @@ export class MonitoringClient {
         .filter(e => e.finished && e.startedAt && e.stoppedAt)
         .map(e => new Date(e.stoppedAt!).getTime() - new Date(e.startedAt).getTime());
 
-      const averageExecutionTime = executionTimes.length > 0 
-        ? executionTimes.reduce((sum, time) => sum + time, 0) / executionTimes.length
-        : 0;
+      const averageExecutionTime =
+        executionTimes.length > 0
+          ? executionTimes.reduce((sum, time) => sum + time, 0) / executionTimes.length
+          : 0;
 
-      const errorRate = executions.length > 0 
-        ? (failedExecutions.length / executions.length) * 100 
-        : 0;
+      const errorRate =
+        executions.length > 0 ? (failedExecutions.length / executions.length) * 100 : 0;
 
       // Calculate throughput (executions per minute in last hour)
       const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
-      const recentExecutions = executions.filter(e => 
-        new Date(e.startedAt) > oneHourAgo
-      );
+      const recentExecutions = executions.filter(e => new Date(e.startedAt) > oneHourAgo);
       const throughput = recentExecutions.length / 60; // per minute
 
       // Get system resource usage
@@ -268,7 +264,9 @@ export class MonitoringClient {
         system: systemUsage,
       };
     } catch (error) {
-      throw new Error(`Failed to get metrics: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Failed to get metrics: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
@@ -304,9 +302,10 @@ export class MonitoringClient {
       const recentExecutions = executions.slice(0, 10).map(e => ({
         id: e.id!,
         status: e.finished ? (e.stoppedAt ? 'failed' : 'success') : 'running',
-        executionTime: e.finished && e.startedAt && e.stoppedAt 
-          ? new Date(e.stoppedAt).getTime() - new Date(e.startedAt).getTime()
-          : 0,
+        executionTime:
+          e.finished && e.startedAt && e.stoppedAt
+            ? new Date(e.stoppedAt).getTime() - new Date(e.startedAt).getTime()
+            : 0,
         timestamp: e.startedAt,
         error: e.stoppedAt ? 'Execution stopped' : undefined,
       }));
@@ -314,17 +313,19 @@ export class MonitoringClient {
       // Calculate success rate
       const finishedExecutions = executions.filter(e => e.finished);
       const successfulExecutions = finishedExecutions.filter(e => !e.stoppedAt);
-      const successRate = finishedExecutions.length > 0 
-        ? (successfulExecutions.length / finishedExecutions.length) * 100 
-        : 100;
+      const successRate =
+        finishedExecutions.length > 0
+          ? (successfulExecutions.length / finishedExecutions.length) * 100
+          : 100;
 
       // Calculate average execution time
       const executionTimes = recentExecutions
         .filter(e => e.status === 'success' && e.executionTime > 0)
         .map(e => e.executionTime);
-      const averageExecutionTime = executionTimes.length > 0 
-        ? executionTimes.reduce((sum, time) => sum + time, 0) / executionTimes.length
-        : 0;
+      const averageExecutionTime =
+        executionTimes.length > 0
+          ? executionTimes.reduce((sum, time) => sum + time, 0) / executionTimes.length
+          : 0;
 
       // Determine health status
       let healthStatus: 'healthy' | 'warning' | 'critical' = 'healthy';
@@ -362,7 +363,9 @@ export class MonitoringClient {
         nodes: nodeAnalysis,
       };
     } catch (error) {
-      throw new Error(`Failed to get workflow diagnostics: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Failed to get workflow diagnostics: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
@@ -372,9 +375,9 @@ export class MonitoringClient {
   getSystemResourceUsage(): SystemResourceUsage {
     const memUsage = process.memoryUsage();
     const cpuUsage = process.cpuUsage();
-    
+
     // Convert CPU usage to percentage (simplified)
-    const cpuPercent = ((cpuUsage.user + cpuUsage.system) / 1000000) / process.uptime() * 100;
+    const cpuPercent = ((cpuUsage.user + cpuUsage.system) / 1000000 / process.uptime()) * 100;
 
     return {
       cpu: {
@@ -393,7 +396,8 @@ export class MonitoringClient {
           external: memUsage.external,
           rss: memUsage.rss,
         },
-        utilization: ((require('os').totalmem() - require('os').freemem()) / require('os').totalmem()) * 100,
+        utilization:
+          ((require('os').totalmem() - require('os').freemem()) / require('os').totalmem()) * 100,
       },
       disk: {
         totalSpace: 0, // Would need filesystem API to get real values
@@ -417,7 +421,7 @@ export class MonitoringClient {
    */
   async testConnectivity(): Promise<{ success: boolean; responseTime: number; error?: string }> {
     const startTime = Date.now();
-    
+
     try {
       await this.client.getWorkflows({ limit: 1 });
       return {

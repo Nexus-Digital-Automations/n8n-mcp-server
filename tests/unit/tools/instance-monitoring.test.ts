@@ -238,13 +238,19 @@ describe('Instance Monitoring Tools', () => {
     // Set up mock implementations
     MockedResourceMonitor.mockClear();
     MockedResourceMonitor.mockImplementation(() => mockResourceMonitor);
-    
+
     // Don't reset modules as it breaks the tool creation
 
     // Reset all mocks with default values
-    mockResourceMonitor.getSystemResourceUsage.mockReset().mockResolvedValue(mockSystemResourceUsage);
-    mockResourceMonitor.getWorkflowResourceUsage.mockReset().mockResolvedValue(mockWorkflowResourceUsage);
-    mockResourceMonitor.getInstanceHealthMetrics.mockReset().mockResolvedValue(mockInstanceHealthMetrics);
+    mockResourceMonitor.getSystemResourceUsage
+      .mockReset()
+      .mockResolvedValue(mockSystemResourceUsage);
+    mockResourceMonitor.getWorkflowResourceUsage
+      .mockReset()
+      .mockResolvedValue(mockWorkflowResourceUsage);
+    mockResourceMonitor.getInstanceHealthMetrics
+      .mockReset()
+      .mockResolvedValue(mockInstanceHealthMetrics);
     mockResourceMonitor.getAlerts.mockReset().mockReturnValue([mockPerformanceAlert]);
     mockResourceMonitor.resolveAlert.mockReset().mockReturnValue(true);
     mockResourceMonitor.startMonitoring.mockReset().mockResolvedValue(undefined);
@@ -359,7 +365,9 @@ describe('Instance Monitoring Tools', () => {
       const tool = getTool('get-system-resources');
 
       await expect(tool.execute({})).rejects.toThrow(UserError);
-      await expect(tool.execute({})).rejects.toThrow('Failed to get system resources: System error');
+      await expect(tool.execute({})).rejects.toThrow(
+        'Failed to get system resources: System error'
+      );
     });
 
     it.skip('should handle unknown errors', async () => {
@@ -367,7 +375,9 @@ describe('Instance Monitoring Tools', () => {
 
       const tool = getTool('get-system-resources');
 
-      await expect(tool.execute({})).rejects.toThrow('Failed to get system resources with unknown error');
+      await expect(tool.execute({})).rejects.toThrow(
+        'Failed to get system resources with unknown error'
+      );
     });
   });
 
@@ -446,11 +456,15 @@ describe('Instance Monitoring Tools', () => {
     });
 
     it('should handle instance health check errors', async () => {
-      mockResourceMonitor.getInstanceHealthMetrics.mockRejectedValueOnce(new Error('Health check failed'));
+      mockResourceMonitor.getInstanceHealthMetrics.mockRejectedValueOnce(
+        new Error('Health check failed')
+      );
 
       const tool = getTool('check-instance-health');
 
-      await expect(tool.execute({})).rejects.toThrow('Failed to check instance health: Health check failed');
+      await expect(tool.execute({})).rejects.toThrow(
+        'Failed to check instance health: Health check failed'
+      );
     });
 
     it('should format different health statuses correctly', async () => {
@@ -540,7 +554,9 @@ describe('Instance Monitoring Tools', () => {
 
       const tool = getTool('get-performance-alerts');
 
-      await expect(tool.execute({})).rejects.toThrow('Failed to get performance alerts: Alert retrieval failed');
+      await expect(tool.execute({})).rejects.toThrow(
+        'Failed to get performance alerts: Alert retrieval failed'
+      );
     });
   });
 
@@ -571,7 +587,9 @@ describe('Instance Monitoring Tools', () => {
 
       const tool = getTool('resolve-performance-alert');
 
-      await expect(tool.execute({ alertId: 'alert_123' })).rejects.toThrow('Failed to resolve alert: Resolution failed');
+      await expect(tool.execute({ alertId: 'alert_123' })).rejects.toThrow(
+        'Failed to resolve alert: Resolution failed'
+      );
     });
   });
 
@@ -601,7 +619,7 @@ describe('Instance Monitoring Tools', () => {
 
       expect(mockResourceMonitor.stopMonitoring).toHaveBeenCalled();
       expect(mockResourceMonitor.updateConfig).toHaveBeenCalledWith({
-        monitoring: { ...mockMonitoringConfig.monitoring, intervalMs: 60000 }
+        monitoring: { ...mockMonitoringConfig.monitoring, intervalMs: 60000 },
       });
       expect(mockResourceMonitor.startMonitoring).toHaveBeenCalled();
       expect(result).toContain('🔄 Resource monitoring restarted successfully');
@@ -632,7 +650,9 @@ describe('Instance Monitoring Tools', () => {
 
       const tool = getTool('control-monitoring');
 
-      await expect(tool.execute({ action: 'start' })).rejects.toThrow('Failed to control monitoring: Start failed');
+      await expect(tool.execute({ action: 'start' })).rejects.toThrow(
+        'Failed to control monitoring: Start failed'
+      );
     });
   });
 
@@ -646,7 +666,11 @@ describe('Instance Monitoring Tools', () => {
         success: true,
       });
 
-      expect(mockResourceMonitor.recordWorkflowExecution).toHaveBeenCalledWith('workflow_123', 2500, true);
+      expect(mockResourceMonitor.recordWorkflowExecution).toHaveBeenCalledWith(
+        'workflow_123',
+        2500,
+        true
+      );
       expect(result).toContain('📊 Execution metrics recorded for workflow workflow_123');
       expect(result).toContain('2500ms (success)');
     });
@@ -660,7 +684,11 @@ describe('Instance Monitoring Tools', () => {
         success: false,
       });
 
-      expect(mockResourceMonitor.recordWorkflowExecution).toHaveBeenCalledWith('workflow_456', 1800, false);
+      expect(mockResourceMonitor.recordWorkflowExecution).toHaveBeenCalledWith(
+        'workflow_456',
+        1800,
+        false
+      );
       expect(result).toContain('workflow_456');
       expect(result).toContain('1800ms (failure)');
     });
@@ -672,11 +700,13 @@ describe('Instance Monitoring Tools', () => {
 
       const tool = getTool('record-execution-metrics');
 
-      await expect(tool.execute({
-        workflowId: 'workflow_123',
-        duration: 2500,
-        success: true,
-      })).rejects.toThrow('Failed to record execution metrics: Recording failed');
+      await expect(
+        tool.execute({
+          workflowId: 'workflow_123',
+          duration: 2500,
+          success: true,
+        })
+      ).rejects.toThrow('Failed to record execution metrics: Recording failed');
     });
   });
 
@@ -689,16 +719,22 @@ describe('Instance Monitoring Tools', () => {
       const addToolCalls = (server.addTool as jest.Mock).mock.calls;
       const tool = getTool('get-system-resources');
 
-      await expect(tool.execute({})).rejects.toThrow('Failed to get system resources: Monitor creation failed');
+      await expect(tool.execute({})).rejects.toThrow(
+        'Failed to get system resources: Monitor creation failed'
+      );
     });
 
     it('should handle all unknown error types consistently', async () => {
-      mockResourceMonitor.getSystemResourceUsage.mockRejectedValueOnce({ message: 'Not an Error instance' });
+      mockResourceMonitor.getSystemResourceUsage.mockRejectedValueOnce({
+        message: 'Not an Error instance',
+      });
 
       const addToolCalls = (server.addTool as jest.Mock).mock.calls;
       const tool = getTool('get-system-resources');
 
-      await expect(tool.execute({})).rejects.toThrow('Failed to get system resources with unknown error');
+      await expect(tool.execute({})).rejects.toThrow(
+        'Failed to get system resources with unknown error'
+      );
     });
   });
 

@@ -72,7 +72,7 @@ export class SuggestionEngine {
     connections: Record<string, unknown>
   ): NodeFlowAnalysis {
     const nodeTypeInfo = this.nodeTypeRegistry.get(node.type);
-    
+
     const analysis: NodeFlowAnalysis = {
       nodeId: node.id,
       nodeType: node.type,
@@ -91,11 +91,7 @@ export class SuggestionEngine {
     );
 
     // Generate parameter mappings
-    analysis.parameterMappings = this.generateParameterMappings(
-      node,
-      allNodes,
-      nodeTypeInfo
-    );
+    analysis.parameterMappings = this.generateParameterMappings(node, allNodes, nodeTypeInfo);
 
     return analysis;
   }
@@ -106,13 +102,13 @@ export class SuggestionEngine {
     connections?: Record<string, unknown>
   ) {
     const inputs = [];
-    
+
     if (nodeTypeInfo) {
       // Use node type information to determine expected inputs
       const inputProperties = nodeTypeInfo.properties.filter(
         prop => prop.type !== 'hidden' && prop.type !== 'notice'
       );
-      
+
       for (const prop of inputProperties) {
         inputs.push({
           name: prop.name,
@@ -136,7 +132,7 @@ export class SuggestionEngine {
 
   private analyzeNodeOutputs(node: N8nNode, nodeTypeInfo?: N8nNodeTypeDescription) {
     const outputs = [];
-    
+
     if (nodeTypeInfo) {
       // Most n8n nodes have a 'main' output
       outputs.push({
@@ -193,7 +189,12 @@ export class SuggestionEngine {
   ): NodeConnectionSuggestion | null {
     let confidence = 0;
     let reasoning = '';
-    const dataTypeMatch = this.checkDataTypeCompatibility(sourceNode, targetNode, sourceTypeInfo, targetTypeInfo);
+    const dataTypeMatch = this.checkDataTypeCompatibility(
+      sourceNode,
+      targetNode,
+      sourceTypeInfo,
+      targetTypeInfo
+    );
 
     // Rule-based scoring
     confidence += this.scoreBasedOnNodeTypes(sourceNode.type, targetNode.type);
@@ -208,7 +209,12 @@ export class SuggestionEngine {
     }
 
     // Generate reasoning
-    reasoning += this.generateConnectionReasoning(sourceNode, targetNode, sourceTypeInfo, targetTypeInfo);
+    reasoning += this.generateConnectionReasoning(
+      sourceNode,
+      targetNode,
+      sourceTypeInfo,
+      targetTypeInfo
+    );
 
     if (confidence <= 0) {
       return null;
@@ -222,7 +228,12 @@ export class SuggestionEngine {
       confidence: Math.min(confidence, 1),
       reasoning: reasoning.trim(),
       dataTypeMatch,
-      suggestedParameters: this.generateSuggestedParameters(sourceNode, targetNode, sourceTypeInfo, targetTypeInfo),
+      suggestedParameters: this.generateSuggestedParameters(
+        sourceNode,
+        targetNode,
+        sourceTypeInfo,
+        targetTypeInfo
+      ),
     };
   }
 
@@ -237,8 +248,10 @@ export class SuggestionEngine {
     ];
 
     for (const pattern of connectionPatterns) {
-      if (sourceType.toLowerCase().includes(pattern.source) && 
-          targetType.toLowerCase().includes(pattern.target)) {
+      if (
+        sourceType.toLowerCase().includes(pattern.source) &&
+        targetType.toLowerCase().includes(pattern.target)
+      ) {
         return pattern.score;
       }
     }
@@ -250,7 +263,7 @@ export class SuggestionEngine {
     // Score based on semantic similarity of node names
     const sourceWords = sourceName.toLowerCase().split(/\s+/);
     const targetWords = targetName.toLowerCase().split(/\s+/);
-    
+
     let commonWords = 0;
     for (const sourceWord of sourceWords) {
       if (targetWords.includes(sourceWord)) {
@@ -265,9 +278,9 @@ export class SuggestionEngine {
     const distance = Math.sqrt(
       Math.pow(targetPos[0] - sourcePos[0], 2) + Math.pow(targetPos[1] - sourcePos[1], 2)
     );
-    
+
     // Closer nodes are more likely to be connected
-    return Math.max(0, 0.2 - (distance / 1000));
+    return Math.max(0, 0.2 - distance / 1000);
   }
 
   private checkDataTypeCompatibility(
@@ -297,13 +310,16 @@ export class SuggestionEngine {
       reasons.push('Target accepts HTTP data, compatible with most outputs');
     }
 
-    if (sourceNode.name.toLowerCase().includes('get') && targetNode.name.toLowerCase().includes('set')) {
+    if (
+      sourceNode.name.toLowerCase().includes('get') &&
+      targetNode.name.toLowerCase().includes('set')
+    ) {
       reasons.push('Data flow pattern: retrieve then process/store');
     }
 
     const distance = Math.sqrt(
-      Math.pow(targetNode.position[0] - sourceNode.position[0], 2) + 
-      Math.pow(targetNode.position[1] - sourceNode.position[1], 2)
+      Math.pow(targetNode.position[0] - sourceNode.position[0], 2) +
+        Math.pow(targetNode.position[1] - sourceNode.position[1], 2)
     );
 
     if (distance < 300) {
@@ -323,9 +339,7 @@ export class SuggestionEngine {
     if (!nodeTypeInfo) return mappings;
 
     // Find upstream nodes that could provide data
-    const upstreamNodes = allNodes.filter(n => 
-      n.id !== node.id && this.isUpstreamNode(n, node)
-    );
+    const upstreamNodes = allNodes.filter(n => n.id !== node.id && this.isUpstreamNode(n, node));
 
     for (const prop of nodeTypeInfo.properties) {
       if (prop.type === 'hidden' || prop.type === 'notice') continue;
@@ -347,7 +361,7 @@ export class SuggestionEngine {
     // Generate mappings based on parameter names and types
     for (const upstreamNode of upstreamNodes) {
       const similarity = this.calculateParameterSimilarity(property.name, upstreamNode);
-      
+
       if (similarity > 0.5) {
         return {
           sourceParameter: `{{$node["${upstreamNode.name}"].json["${this.findBestSourceParameter(property.name, upstreamNode)}"]}}`,
@@ -365,15 +379,15 @@ export class SuggestionEngine {
   private calculateParameterSimilarity(paramName: string, sourceNode: N8nNode): number {
     // Simple similarity based on common parameter names
     const commonMappings = {
-      'email': ['email', 'mail', 'emailAddress'],
-      'name': ['name', 'title', 'displayName'],
-      'url': ['url', 'link', 'href'],
-      'id': ['id', 'identifier', 'key'],
-      'data': ['data', 'payload', 'content'],
+      email: ['email', 'mail', 'emailAddress'],
+      name: ['name', 'title', 'displayName'],
+      url: ['url', 'link', 'href'],
+      id: ['id', 'identifier', 'key'],
+      data: ['data', 'payload', 'content'],
     };
 
     const paramLower = paramName.toLowerCase();
-    
+
     for (const [target, sources] of Object.entries(commonMappings)) {
       if (paramLower.includes(target)) {
         // Check if source node likely produces this type of data
@@ -389,13 +403,13 @@ export class SuggestionEngine {
   private findBestSourceParameter(targetParam: string, sourceNode: N8nNode): string {
     // Try to match parameter names
     const targetLower = targetParam.toLowerCase();
-    
+
     const commonMatches = {
-      'email': 'email',
-      'name': 'name',
-      'url': 'url',
-      'id': 'id',
-      'data': 'data',
+      email: 'email',
+      name: 'name',
+      url: 'url',
+      id: 'id',
+      data: 'data',
     };
 
     for (const [pattern, param] of Object.entries(commonMatches)) {
@@ -411,7 +425,7 @@ export class SuggestionEngine {
     if (property.type === 'string' && sourceNode.type.includes('json')) {
       return 'JSON.stringify()';
     }
-    
+
     if (property.type === 'number' && sourceNode.name.toLowerCase().includes('string')) {
       return 'parseInt()';
     }
@@ -421,13 +435,19 @@ export class SuggestionEngine {
 
   private isUpstreamNode(sourceNode: N8nNode, targetNode: N8nNode): boolean {
     // Simple position-based heuristic
-    return sourceNode.position[0] < targetNode.position[0] || 
-           sourceNode.position[1] < targetNode.position[1];
+    return (
+      sourceNode.position[0] < targetNode.position[0] ||
+      sourceNode.position[1] < targetNode.position[1]
+    );
   }
 
-  private findConnectionSource(nodeId: string, inputName: string, connections?: Record<string, unknown>): string | undefined {
+  private findConnectionSource(
+    nodeId: string,
+    inputName: string,
+    connections?: Record<string, unknown>
+  ): string | undefined {
     if (!connections) return undefined;
-    
+
     // Parse n8n connections format to find source
     for (const [sourceNodeName, sourceConnections] of Object.entries(connections)) {
       if (typeof sourceConnections === 'object' && sourceConnections !== null) {
@@ -436,13 +456,17 @@ export class SuggestionEngine {
         return sourceNodeName;
       }
     }
-    
+
     return undefined;
   }
 
-  private areNodesConnected(sourceId: string, targetId: string, connections?: Record<string, unknown>): boolean {
+  private areNodesConnected(
+    sourceId: string,
+    targetId: string,
+    connections?: Record<string, unknown>
+  ): boolean {
     if (!connections) return false;
-    
+
     // Simplified connection check
     for (const [nodeId, nodeConnections] of Object.entries(connections)) {
       if (nodeId === sourceId && typeof nodeConnections === 'object' && nodeConnections !== null) {
@@ -450,14 +474,17 @@ export class SuggestionEngine {
         return JSON.stringify(nodeConnections).includes(targetId);
       }
     }
-    
+
     return false;
   }
 
-  private predictOutputStructure(node: N8nNode, nodeTypeInfo: N8nNodeTypeDescription): Record<string, unknown> {
+  private predictOutputStructure(
+    node: N8nNode,
+    nodeTypeInfo: N8nNodeTypeDescription
+  ): Record<string, unknown> {
     // Predict the likely output structure based on node type
     const outputStructure: Record<string, unknown> = {};
-    
+
     if (node.type.includes('http')) {
       outputStructure.data = {};
       outputStructure.headers = {};
@@ -485,11 +512,12 @@ export class SuggestionEngine {
     if (!targetTypeInfo) return undefined;
 
     const suggestions: Record<string, unknown> = {};
-    
+
     // Generate parameter suggestions based on source node data
-    for (const property of targetTypeInfo.properties.slice(0, 3)) { // Limit to prevent large responses
+    for (const property of targetTypeInfo.properties.slice(0, 3)) {
+      // Limit to prevent large responses
       if (property.type === 'hidden' || property.type === 'notice') continue;
-      
+
       const suggestion = this.suggestParameterFromSource(property, sourceNode, sourceTypeInfo);
       if (suggestion !== undefined) {
         suggestions[property.name] = suggestion;
@@ -505,16 +533,16 @@ export class SuggestionEngine {
     sourceTypeInfo?: N8nNodeTypeDescription
   ): unknown {
     const paramName = property.name.toLowerCase();
-    
+
     // Common parameter mapping patterns
     if (paramName.includes('url') && sourceNode.type.includes('http')) {
       return `{{$node["${sourceNode.name}"].json["url"]}}`;
     }
-    
+
     if (paramName.includes('data') || paramName.includes('body')) {
       return `{{$node["${sourceNode.name}"].json}}`;
     }
-    
+
     if (paramName.includes('id') && sourceNode.parameters?.id) {
       return `{{$node["${sourceNode.name}"].json["id"]}}`;
     }
@@ -539,7 +567,9 @@ export class SuggestionEngine {
 
     // Generate optimization suggestions
     if (workflow.nodes && workflow.nodes.length > 10) {
-      optimizationSuggestions.push('Consider breaking this large workflow into smaller, reusable workflows');
+      optimizationSuggestions.push(
+        'Consider breaking this large workflow into smaller, reusable workflows'
+      );
     }
 
     const triggerNodes = workflow.nodes?.filter(n => n.type.includes('trigger')) || [];
@@ -547,13 +577,18 @@ export class SuggestionEngine {
       optimizationSuggestions.push('This workflow appears to be missing a trigger node');
     }
 
-    const disconnectedNodes = workflow.nodes?.filter(n => {
-      const hasConnections = missingConnections.some(c => c.sourceNodeId === n.id || c.targetNodeId === n.id);
-      return !hasConnections;
-    }) || [];
+    const disconnectedNodes =
+      workflow.nodes?.filter(n => {
+        const hasConnections = missingConnections.some(
+          c => c.sourceNodeId === n.id || c.targetNodeId === n.id
+        );
+        return !hasConnections;
+      }) || [];
 
     if (disconnectedNodes.length > 0) {
-      optimizationSuggestions.push(`${disconnectedNodes.length} nodes appear to be disconnected from the workflow`);
+      optimizationSuggestions.push(
+        `${disconnectedNodes.length} nodes appear to be disconnected from the workflow`
+      );
     }
 
     return {

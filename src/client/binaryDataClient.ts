@@ -10,7 +10,11 @@ import {
 } from '../types/fileTypes.js';
 
 export class BinaryDataClient {
-  constructor(private client: N8nClient, private baseUrl: string, private apiKey: string) {
+  constructor(
+    private client: N8nClient,
+    private baseUrl: string,
+    private apiKey: string
+  ) {
     // Remove trailing slash if present
     this.baseUrl = baseUrl.replace(/\/$/, '');
   }
@@ -41,7 +45,11 @@ export class BinaryDataClient {
       const contentType = response.headers.get('content-type') || '';
       if (contentType.includes('application/json')) {
         return (await response.json()) as T;
-      } else if (contentType.includes('application/octet-stream') || contentType.startsWith('image/') || contentType.startsWith('video/')) {
+      } else if (
+        contentType.includes('application/octet-stream') ||
+        contentType.startsWith('image/') ||
+        contentType.startsWith('video/')
+      ) {
         // Return buffer for binary data
         return (await response.buffer()) as unknown as T;
       } else {
@@ -100,16 +108,16 @@ export class BinaryDataClient {
   async uploadBinaryData(request: FileUploadRequest): Promise<StaticFileInfo> {
     // Convert base64 to Buffer
     const buffer = Buffer.from(request.data, 'base64');
-    
+
     // Create FormData for multipart upload
     const FormData = (await import('form-data')).default;
     const form = new FormData();
-    
+
     form.append('file', buffer, {
       filename: request.fileName,
       contentType: request.mimeType,
     });
-    
+
     if (request.workflowId) form.append('workflowId', request.workflowId);
     if (request.executionId) form.append('executionId', request.executionId);
     if (request.nodeId) form.append('nodeId', request.nodeId);
@@ -125,10 +133,10 @@ export class BinaryDataClient {
     if (request.workflowId) queryParams.append('workflowId', request.workflowId);
     if (request.executionId) queryParams.append('executionId', request.executionId);
     if (request.nodeId) queryParams.append('nodeId', request.nodeId);
-    
+
     const query = queryParams.toString();
     const endpoint = `/binary-data/${encodeURIComponent(request.fileId)}${query ? `?${query}` : ''}`;
-    
+
     return this.makeRequest<N8nBinaryDataResponse>(endpoint);
   }
 
@@ -136,9 +144,9 @@ export class BinaryDataClient {
    * Get binary data from execution output
    */
   async getExecutionBinaryData(
-    executionId: string, 
-    nodeId: string, 
-    outputIndex: number = 0, 
+    executionId: string,
+    nodeId: string,
+    outputIndex: number = 0,
     itemIndex: number = 0,
     propertyName: string = 'data'
   ): Promise<Buffer> {
@@ -149,7 +157,7 @@ export class BinaryDataClient {
       itemIndex: itemIndex.toString(),
       propertyName,
     });
-    
+
     return this.makeRequest<Buffer>(`${endpoint}?${queryParams.toString()}`);
   }
 
@@ -166,7 +174,7 @@ export class BinaryDataClient {
   ): Promise<StaticFileInfo> {
     const FormData = (await import('form-data')).default;
     const form = new FormData();
-    
+
     form.append('file', data, {
       filename: fileName,
       contentType: mimeType,
@@ -182,32 +190,37 @@ export class BinaryDataClient {
    * Delete binary data
    */
   async deleteBinaryData(fileId: string): Promise<{ success: boolean; message: string }> {
-    return this.makeRequest<{ success: boolean; message: string }>(`/binary-data/${encodeURIComponent(fileId)}`, {
-      method: 'DELETE',
-    });
+    return this.makeRequest<{ success: boolean; message: string }>(
+      `/binary-data/${encodeURIComponent(fileId)}`,
+      {
+        method: 'DELETE',
+      }
+    );
   }
 
   /**
    * List binary data files
    */
-  async listBinaryData(options: {
-    workflowId?: string;
-    executionId?: string;
-    nodeId?: string;
-    limit?: number;
-    offset?: number;
-  } = {}): Promise<StaticFileInfo[]> {
+  async listBinaryData(
+    options: {
+      workflowId?: string;
+      executionId?: string;
+      nodeId?: string;
+      limit?: number;
+      offset?: number;
+    } = {}
+  ): Promise<StaticFileInfo[]> {
     const queryParams = new URLSearchParams();
-    
+
     if (options.workflowId) queryParams.append('workflowId', options.workflowId);
     if (options.executionId) queryParams.append('executionId', options.executionId);
     if (options.nodeId) queryParams.append('nodeId', options.nodeId);
     if (options.limit) queryParams.append('limit', options.limit.toString());
     if (options.offset) queryParams.append('offset', options.offset.toString());
-    
+
     const query = queryParams.toString();
     const endpoint = `/binary-data${query ? `?${query}` : ''}`;
-    
+
     return this.makeRequest<StaticFileInfo[]>(endpoint);
   }
 
@@ -236,7 +249,7 @@ export class BinaryDataClient {
     const chunkSize = options.chunkSize || 1024 * 1024; // 1MB chunks
     const totalSize = data.length;
     const transferId = `upload_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    
+
     // Initialize progress tracking
     const progress: FileTransferProgress = {
       transferId,
@@ -255,19 +268,19 @@ export class BinaryDataClient {
       // For now, upload as single chunk (can be enhanced for true chunked upload)
       const FormData = (await import('form-data')).default;
       const form = new FormData();
-      
+
       form.append('file', data, {
         filename: fileName,
         contentType: mimeType,
       });
-      
+
       if (options.workflowId) form.append('workflowId', options.workflowId);
       if (options.executionId) form.append('executionId', options.executionId);
       if (options.nodeId) form.append('nodeId', options.nodeId);
       form.append('transferId', transferId);
 
       const result = await this.makeFormDataRequest<StaticFileInfo>('/binary-data/upload', form);
-      
+
       progress.status = 'completed';
       progress.transferredBytes = totalSize;
       progress.percentComplete = 100;

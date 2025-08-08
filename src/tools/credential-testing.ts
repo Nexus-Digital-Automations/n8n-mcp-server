@@ -5,7 +5,6 @@
  * and authentication flow validation.
  */
 
- 
 declare const fetch: typeof globalThis.fetch;
 declare const AbortController: typeof globalThis.AbortController;
 declare const AbortSignal: typeof globalThis.AbortSignal;

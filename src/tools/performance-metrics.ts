@@ -20,7 +20,9 @@ const MetricsQuerySchema = z.object({
 });
 
 const PerformanceAnalysisSchema = z.object({
-  analysisType: z.enum(['execution-times', 'resource-usage', 'error-rates', 'throughput']).default('execution-times'),
+  analysisType: z
+    .enum(['execution-times', 'resource-usage', 'error-rates', 'throughput'])
+    .default('execution-times'),
   timeRange: z.enum(['1h', '6h', '24h', '7d', '30d']).default('24h'),
   workflowId: z.string().optional(),
   includeRecommendations: z.boolean().default(true),
@@ -28,7 +30,9 @@ const PerformanceAnalysisSchema = z.object({
 });
 
 const BenchmarkTestSchema = z.object({
-  testType: z.enum(['api-response', 'workflow-execution', 'resource-load', 'concurrent-executions']).default('api-response'),
+  testType: z
+    .enum(['api-response', 'workflow-execution', 'resource-load', 'concurrent-executions'])
+    .default('api-response'),
   duration: z.number().min(10).max(300).default(60), // seconds
   concurrency: z.number().min(1).max(20).default(1),
   workflowId: z.string().optional(),
@@ -38,13 +42,24 @@ const BenchmarkTestSchema = z.object({
 const AlertsConfigSchema = z.object({
   type: z.enum(['create', 'update', 'delete', 'list']).default('list'),
   alertId: z.string().optional(),
-  configuration: z.object({
-    name: z.string().optional(),
-    metric: z.enum(['cpu-usage', 'memory-usage', 'disk-usage', 'execution-time', 'error-rate', 'response-time']).optional(),
-    threshold: z.number().optional(),
-    severity: z.enum(['low', 'medium', 'high', 'critical']).optional(),
-    enabled: z.boolean().optional(),
-  }).optional(),
+  configuration: z
+    .object({
+      name: z.string().optional(),
+      metric: z
+        .enum([
+          'cpu-usage',
+          'memory-usage',
+          'disk-usage',
+          'execution-time',
+          'error-rate',
+          'response-time',
+        ])
+        .optional(),
+      threshold: z.number().optional(),
+      severity: z.enum(['low', 'medium', 'high', 'critical']).optional(),
+      enabled: z.boolean().optional(),
+    })
+    .optional(),
 });
 
 const ReportGenerationSchema = z.object({
@@ -57,7 +72,9 @@ const ReportGenerationSchema = z.object({
 });
 
 const TrendAnalysisSchema = z.object({
-  metric: z.enum(['execution-times', 'success-rates', 'resource-usage', 'throughput']).default('execution-times'),
+  metric: z
+    .enum(['execution-times', 'success-rates', 'resource-usage', 'throughput'])
+    .default('execution-times'),
   timeRange: z.enum(['24h', '7d', '30d', '90d']).default('7d'),
   workflowId: z.string().optional(),
   includeForecasting: z.boolean().default(false),
@@ -79,7 +96,7 @@ const getMonitoringClient = (getClient: () => N8nClient | null): MonitoringClien
     }
     const baseUrl = (client as any).baseUrl || process.env.N8N_BASE_URL || 'http://localhost:5678';
     const apiKey = (client as any).apiKey || process.env.N8N_API_KEY || '';
-    
+
     monitoringClient = new MonitoringClient(client, baseUrl, apiKey);
   }
   return monitoringClient;
@@ -106,42 +123,48 @@ const formatBytes = (bytes: number): string => {
 
 const calculateTrend = (values: number[]): 'increasing' | 'decreasing' | 'stable' => {
   if (values.length < 2) return 'stable';
-  
+
   const firstHalf = values.slice(0, Math.floor(values.length / 2));
   const secondHalf = values.slice(Math.floor(values.length / 2));
-  
+
   const firstAvg = firstHalf.reduce((sum, val) => sum + val, 0) / firstHalf.length;
   const secondAvg = secondHalf.reduce((sum, val) => sum + val, 0) / secondHalf.length;
-  
+
   const changePercent = ((secondAvg - firstAvg) / firstAvg) * 100;
-  
+
   if (Math.abs(changePercent) < 5) return 'stable';
   return changePercent > 0 ? 'increasing' : 'decreasing';
 };
 
 const generateRecommendations = (metrics: any): string[] => {
   const recommendations: string[] = [];
-  
+
   if (metrics.performance?.errorRate > 10) {
-    recommendations.push('High error rate detected - review failing workflows and fix common issues');
+    recommendations.push(
+      'High error rate detected - review failing workflows and fix common issues'
+    );
   }
-  
+
   if (metrics.performance?.averageExecutionTime > 60000) {
     recommendations.push('Long execution times detected - consider optimizing slow workflows');
   }
-  
+
   if (metrics.system?.memory?.utilization > 85) {
-    recommendations.push('High memory usage - consider increasing available memory or optimizing workflows');
+    recommendations.push(
+      'High memory usage - consider increasing available memory or optimizing workflows'
+    );
   }
-  
+
   if (metrics.system?.cpu?.totalUsage > 80) {
     recommendations.push('High CPU usage - check for resource-intensive workflows');
   }
-  
+
   if (metrics.workflows?.inactive > metrics.workflows?.active) {
-    recommendations.push('Many inactive workflows - consider cleanup or activation based on business needs');
+    recommendations.push(
+      'Many inactive workflows - consider cleanup or activation based on business needs'
+    );
   }
-  
+
   return recommendations;
 };
 
@@ -153,9 +176,9 @@ const storeDataPoint = (type: string, data: any, tags: Record<string, string> = 
     data,
     tags,
   };
-  
+
   performanceData.push(dataPoint);
-  
+
   // Keep only last 10000 data points to prevent memory issues
   if (performanceData.length > 10000) {
     performanceData.shift();
@@ -240,7 +263,9 @@ export function createPerformanceMetricsTools(getClient: () => N8nClient | null,
         if (error instanceof UserError) {
           throw error;
         }
-        throw new UserError(`Failed to get performance metrics: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        throw new UserError(
+          `Failed to get performance metrics: ${error instanceof Error ? error.message : 'Unknown error'}`
+        );
       }
     },
   });
@@ -258,10 +283,10 @@ export function createPerformanceMetricsTools(getClient: () => N8nClient | null,
         }
 
         // Get executions for analysis
-        const executionsResponse = await client.getExecutions({ 
-          limit: 100
+        const executionsResponse = await client.getExecutions({
+          limit: 100,
         });
-        
+
         // Extract data from API response wrapper and filter by workflowId if specified
         let executions = executionsResponse.data;
         if (args.workflowId) {
@@ -277,7 +302,7 @@ export function createPerformanceMetricsTools(getClient: () => N8nClient | null,
               .map(e => ({
                 duration: new Date(e.stoppedAt!).getTime() - new Date(e.startedAt).getTime(),
                 workflowId: e.workflowId || 'unknown',
-                status: e.stoppedAt ? 'failed' : 'success'
+                status: e.stoppedAt ? 'failed' : 'success',
               }));
 
             if (executionTimes.length === 0) {
@@ -285,10 +310,14 @@ export function createPerformanceMetricsTools(getClient: () => N8nClient | null,
               break;
             }
 
-            const avgTime = executionTimes.reduce((sum, e) => sum + e.duration, 0) / executionTimes.length;
+            const avgTime =
+              executionTimes.reduce((sum, e) => sum + e.duration, 0) / executionTimes.length;
             const minTime = Math.min(...executionTimes.map(e => e.duration));
             const maxTime = Math.max(...executionTimes.map(e => e.duration));
-            const medianTime = executionTimes.sort((a, b) => a.duration - b.duration)[Math.floor(executionTimes.length / 2)]?.duration || 0;
+            const medianTime =
+              executionTimes.sort((a, b) => a.duration - b.duration)[
+                Math.floor(executionTimes.length / 2)
+              ]?.duration || 0;
 
             response += `**📊 Execution Time Analysis (${executionTimes.length} executions):**\n`;
             response += `• Average: ${formatDuration(avgTime)}\n`;
@@ -299,7 +328,7 @@ export function createPerformanceMetricsTools(getClient: () => N8nClient | null,
             // Identify slow executions
             const slowThreshold = args.threshold || avgTime * 2;
             const slowExecutions = executionTimes.filter(e => e.duration > slowThreshold);
-            
+
             if (slowExecutions.length > 0) {
               response += `\n⚠️ **Slow Executions (>${formatDuration(slowThreshold)}):** ${slowExecutions.length}\n`;
             }
@@ -346,7 +375,7 @@ export function createPerformanceMetricsTools(getClient: () => N8nClient | null,
           case 'resource-usage': {
             const monitoringClient = getMonitoringClient(getClient);
             const systemUsage = monitoringClient.getSystemResourceUsage();
-            
+
             response += `**💻 Resource Usage Analysis:**\n`;
             response += `• CPU: ${formatPercentage(systemUsage.cpu.totalUsage)} (${systemUsage.cpu.coreCount} cores)\n`;
             response += `• Memory: ${formatPercentage(systemUsage.memory.utilization)}\n`;
@@ -361,7 +390,7 @@ export function createPerformanceMetricsTools(getClient: () => N8nClient | null,
           const monitoringClient = getMonitoringClient(getClient);
           const metrics = await monitoringClient.getMetrics();
           const recommendations = generateRecommendations(metrics);
-          
+
           if (recommendations.length > 0) {
             response += `\n**💡 Recommendations:**\n`;
             recommendations.forEach(rec => {
@@ -375,7 +404,9 @@ export function createPerformanceMetricsTools(getClient: () => N8nClient | null,
         if (error instanceof UserError) {
           throw error;
         }
-        throw new UserError(`Failed to analyze performance: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        throw new UserError(
+          `Failed to analyze performance: ${error instanceof Error ? error.message : 'Unknown error'}`
+        );
       }
     },
   });
@@ -388,7 +419,7 @@ export function createPerformanceMetricsTools(getClient: () => N8nClient | null,
     handler: async (args: z.infer<typeof BenchmarkTestSchema>) => {
       try {
         const monitoringClient = getMonitoringClient(getClient);
-        
+
         let response = `🏁 **Benchmark Test: ${args.testType}**\n\n`;
         response += `**Configuration:**\n`;
         response += `• Duration: ${args.duration}s\n`;
@@ -407,7 +438,7 @@ export function createPerformanceMetricsTools(getClient: () => N8nClient | null,
         };
 
         const startTime = Date.now();
-        const endTime = startTime + (args.duration * 1000);
+        const endTime = startTime + args.duration * 1000;
 
         response += `**Running benchmark...**\n`;
 
@@ -419,24 +450,27 @@ export function createPerformanceMetricsTools(getClient: () => N8nClient | null,
                 const promises = [];
                 for (let i = 0; i < args.concurrency; i++) {
                   promises.push(
-                    monitoringClient.testConnectivity().then(result => {
-                      results.totalRequests++;
-                      if (result.success) {
-                        results.successfulRequests++;
-                        results.responseTimes.push(result.responseTime);
-                      } else {
+                    monitoringClient
+                      .testConnectivity()
+                      .then(result => {
+                        results.totalRequests++;
+                        if (result.success) {
+                          results.successfulRequests++;
+                          results.responseTimes.push(result.responseTime);
+                        } else {
+                          results.failedRequests++;
+                          if (result.error) results.errors.push(result.error);
+                        }
+                      })
+                      .catch(error => {
+                        results.totalRequests++;
                         results.failedRequests++;
-                        if (result.error) results.errors.push(result.error);
-                      }
-                    }).catch(error => {
-                      results.totalRequests++;
-                      results.failedRequests++;
-                      results.errors.push(error.message);
-                    })
+                        results.errors.push(error.message);
+                      })
                   );
                 }
                 await Promise.all(promises);
-                
+
                 // Small delay between batches
                 await new Promise(resolve => setTimeout(resolve, 100));
               }
@@ -447,7 +481,7 @@ export function createPerformanceMetricsTools(getClient: () => N8nClient | null,
               if (!args.workflowId) {
                 throw new UserError('Workflow ID is required for workflow execution benchmark');
               }
-              
+
               // This would trigger workflow executions for benchmarking
               // For now, simulate the benchmark
               response += `*Note: Workflow execution benchmarking requires careful consideration of side effects.*\n`;
@@ -461,7 +495,7 @@ export function createPerformanceMetricsTools(getClient: () => N8nClient | null,
             case 'resource-load': {
               // Monitor resource usage during load
               const loadStartUsage = monitoringClient.getSystemResourceUsage();
-              
+
               // Simulate some load by making multiple API calls
               while (Date.now() < endTime) {
                 const promises = [];
@@ -480,7 +514,7 @@ export function createPerformanceMetricsTools(getClient: () => N8nClient | null,
                 await Promise.all(promises);
                 await new Promise(resolve => setTimeout(resolve, 200));
               }
-              
+
               const loadEndUsage = monitoringClient.getSystemResourceUsage();
               response += `**Resource Impact:**\n`;
               response += `• CPU Change: ${(loadEndUsage.cpu.totalUsage - loadStartUsage.cpu.totalUsage).toFixed(1)}%\n`;
@@ -495,7 +529,10 @@ export function createPerformanceMetricsTools(getClient: () => N8nClient | null,
           // Calculate statistics
           const actualDuration = (Date.now() - startTime) / 1000;
           const requestsPerSecond = results.totalRequests / actualDuration;
-          const successRate = results.totalRequests > 0 ? (results.successfulRequests / results.totalRequests) * 100 : 0;
+          const successRate =
+            results.totalRequests > 0
+              ? (results.successfulRequests / results.totalRequests) * 100
+              : 0;
 
           response += `\n**📊 Results:**\n`;
           response += `• Duration: ${actualDuration.toFixed(1)}s\n`;
@@ -506,7 +543,9 @@ export function createPerformanceMetricsTools(getClient: () => N8nClient | null,
           response += `• Requests/second: ${requestsPerSecond.toFixed(2)}\n`;
 
           if (results.responseTimes.length > 0) {
-            const avgResponseTime = results.responseTimes.reduce((sum, time) => sum + time, 0) / results.responseTimes.length;
+            const avgResponseTime =
+              results.responseTimes.reduce((sum, time) => sum + time, 0) /
+              results.responseTimes.length;
             const minResponseTime = Math.min(...results.responseTimes);
             const maxResponseTime = Math.max(...results.responseTimes);
             const sortedTimes = results.responseTimes.sort((a, b) => a - b);
@@ -527,20 +566,25 @@ export function createPerformanceMetricsTools(getClient: () => N8nClient | null,
           }
 
           // Store benchmark results
-          storeDataPoint('performance', {
-            benchmarkType: args.testType,
-            duration: actualDuration,
-            totalRequests: results.totalRequests,
-            successRate,
-            requestsPerSecond,
-            averageResponseTime: results.responseTimes.length > 0 
-              ? results.responseTimes.reduce((sum, time) => sum + time, 0) / results.responseTimes.length 
-              : 0
-          }, {
-            testType: args.testType,
-            concurrency: args.concurrency.toString(),
-          });
-
+          storeDataPoint(
+            'performance',
+            {
+              benchmarkType: args.testType,
+              duration: actualDuration,
+              totalRequests: results.totalRequests,
+              successRate,
+              requestsPerSecond,
+              averageResponseTime:
+                results.responseTimes.length > 0
+                  ? results.responseTimes.reduce((sum, time) => sum + time, 0) /
+                    results.responseTimes.length
+                  : 0,
+            },
+            {
+              testType: args.testType,
+              concurrency: args.concurrency.toString(),
+            }
+          );
         } catch (error) {
           response += `\n❌ **Benchmark failed:** ${error instanceof Error ? error.message : 'Unknown error'}\n`;
         }
@@ -550,7 +594,9 @@ export function createPerformanceMetricsTools(getClient: () => N8nClient | null,
         if (error instanceof UserError) {
           throw error;
         }
-        throw new UserError(`Failed to run benchmark: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        throw new UserError(
+          `Failed to run benchmark: ${error instanceof Error ? error.message : 'Unknown error'}`
+        );
       }
     },
   });
@@ -564,7 +610,7 @@ export function createPerformanceMetricsTools(getClient: () => N8nClient | null,
       try {
         const monitoringClient = getMonitoringClient(getClient);
         const metrics = await monitoringClient.getMetrics();
-        
+
         let response = `📊 **Performance Report**\n\n`;
         response += `**Generated:** ${new Date().toLocaleString()}\n`;
         response += `**Time Range:** ${args.timeRange}\n`;
@@ -593,7 +639,16 @@ export function createPerformanceMetricsTools(getClient: () => N8nClient | null,
 
         // Trend Analysis
         const recentDataPoints = performanceData.filter(dp => {
-          const hoursAgo = args.timeRange === '1h' ? 1 : args.timeRange === '6h' ? 6 : args.timeRange === '24h' ? 24 : args.timeRange === '7d' ? 168 : 720;
+          const hoursAgo =
+            args.timeRange === '1h'
+              ? 1
+              : args.timeRange === '6h'
+                ? 6
+                : args.timeRange === '24h'
+                  ? 24
+                  : args.timeRange === '7d'
+                    ? 168
+                    : 720;
           return new Date(dp.timestamp) > new Date(Date.now() - hoursAgo * 60 * 60 * 1000);
         });
 
@@ -601,7 +656,7 @@ export function createPerformanceMetricsTools(getClient: () => N8nClient | null,
           const executionTimes = recentDataPoints
             .filter(dp => (dp.data as any).performance?.averageExecutionTime)
             .map(dp => (dp.data as any).performance.averageExecutionTime);
-          
+
           if (executionTimes.length > 1) {
             const trend = calculateTrend(executionTimes);
             response += `**📊 Performance Trends:**\n`;
@@ -621,22 +676,28 @@ export function createPerformanceMetricsTools(getClient: () => N8nClient | null,
         }
 
         // Store the report generation
-        storeDataPoint('performance', {
-          reportType: 'performance-report',
-          timeRange: args.timeRange,
-          format: args.format,
-          metricsSnapshot: metrics,
-        }, {
-          reportFormat: args.format,
-          timeRange: args.timeRange,
-        });
+        storeDataPoint(
+          'performance',
+          {
+            reportType: 'performance-report',
+            timeRange: args.timeRange,
+            format: args.format,
+            metricsSnapshot: metrics,
+          },
+          {
+            reportFormat: args.format,
+            timeRange: args.timeRange,
+          }
+        );
 
         return response;
       } catch (error) {
         if (error instanceof UserError) {
           throw error;
         }
-        throw new UserError(`Failed to generate performance report: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        throw new UserError(
+          `Failed to generate performance report: ${error instanceof Error ? error.message : 'Unknown error'}`
+        );
       }
     },
   });
@@ -648,12 +709,18 @@ export function createPerformanceMetricsTools(getClient: () => N8nClient | null,
     parameters: TrendAnalysisSchema,
     handler: async (args: z.infer<typeof TrendAnalysisSchema>) => {
       try {
-        const hoursBack = args.timeRange === '24h' ? 24 : args.timeRange === '7d' ? 168 : args.timeRange === '30d' ? 720 : 2160;
+        const hoursBack =
+          args.timeRange === '24h'
+            ? 24
+            : args.timeRange === '7d'
+              ? 168
+              : args.timeRange === '30d'
+                ? 720
+                : 2160;
         const cutoffTime = new Date(Date.now() - hoursBack * 60 * 60 * 1000);
-        
-        const relevantData = performanceData.filter(dp => 
-          new Date(dp.timestamp) > cutoffTime && 
-          dp.data[args.metric] !== undefined
+
+        const relevantData = performanceData.filter(
+          dp => new Date(dp.timestamp) > cutoffTime && dp.data[args.metric] !== undefined
         );
 
         let response = `📈 **Trend Analysis: ${args.metric}**\n\n`;
@@ -679,7 +746,10 @@ export function createPerformanceMetricsTools(getClient: () => N8nClient | null,
           case 'success-rates':
             values = relevantData
               .filter(dp => (dp.data as any).executions)
-              .map(dp => ((dp.data as any).executions.successful / (dp.data as any).executions.total) * 100);
+              .map(
+                dp =>
+                  ((dp.data as any).executions.successful / (dp.data as any).executions.total) * 100
+              );
             unit = '%';
             break;
           case 'resource-usage':
@@ -706,12 +776,13 @@ export function createPerformanceMetricsTools(getClient: () => N8nClient | null,
         const firstValue = values[0];
         const lastValue = values[values.length - 1];
         const changePercent = ((lastValue - firstValue) / firstValue) * 100;
-        
+
         // Calculate statistics
         const average = values.reduce((sum, val) => sum + val, 0) / values.length;
         const min = Math.min(...values);
         const max = Math.max(...values);
-        const variance = values.reduce((sum, val) => sum + Math.pow(val - average, 2), 0) / values.length;
+        const variance =
+          values.reduce((sum, val) => sum + Math.pow(val - average, 2), 0) / values.length;
         const standardDeviation = Math.sqrt(variance);
 
         response += `**📊 Trend Analysis Results:**\n`;
@@ -742,18 +813,18 @@ export function createPerformanceMetricsTools(getClient: () => N8nClient | null,
           const sumY = values.reduce((sum, val) => sum + val, 0);
           const sumXY = x.reduce((sum, val, i) => sum + val * values[i], 0);
           const sumXX = x.reduce((sum, val) => sum + val * val, 0);
-          
+
           const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
           const intercept = (sumY - slope * sumX) / n;
-          
+
           const nextValue = slope * n + intercept;
           const futureValue = slope * (n + 5) + intercept; // 5 periods ahead
-          
+
           response += `\n**🔮 Forecast (Simple Linear Projection):**\n`;
           response += `• Next Expected Value: ${nextValue.toFixed(2)}${unit}\n`;
           response += `• 5 Periods Ahead: ${futureValue.toFixed(2)}${unit}\n`;
           response += `• Trend Slope: ${slope > 0 ? '+' : ''}${slope.toFixed(4)}${unit}/period\n`;
-          
+
           response += `\n*Note: Forecasting is based on simple linear regression and should be used as guidance only.*\n`;
         }
 
@@ -762,7 +833,9 @@ export function createPerformanceMetricsTools(getClient: () => N8nClient | null,
         if (error instanceof UserError) {
           throw error;
         }
-        throw new UserError(`Failed to analyze trends: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        throw new UserError(
+          `Failed to analyze trends: ${error instanceof Error ? error.message : 'Unknown error'}`
+        );
       }
     },
   });

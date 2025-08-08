@@ -146,7 +146,7 @@ export class EventClient extends EventEmitter {
     } catch (error) {
       this.isConnected = false;
       this.emit('error', error);
-      
+
       // Attempt reconnection if configured
       if (this.reconnectAttempts < (this.config.maxReconnectAttempts || 10)) {
         setTimeout(() => this.reconnect(), this.config.reconnectInterval);
@@ -168,9 +168,13 @@ export class EventClient extends EventEmitter {
   /**
    * Subscribe to specific event types
    */
-  subscribe(eventTypes: string[], webhook?: WebhookConfig, filters?: Record<string, unknown>): string {
+  subscribe(
+    eventTypes: string[],
+    webhook?: WebhookConfig,
+    filters?: Record<string, unknown>
+  ): string {
     const subscriptionId = `sub_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    
+
     const subscription: EventSubscription = {
       id: subscriptionId,
       eventTypes,
@@ -184,7 +188,7 @@ export class EventClient extends EventEmitter {
 
     this.subscriptions.set(subscriptionId, subscription);
     this.emit('subscribed', subscription);
-    
+
     return subscriptionId;
   }
 
@@ -257,48 +261,50 @@ export class EventClient extends EventEmitter {
       // Calculate basic metrics
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      
-      const todaysExecutions = executionsData.filter(e => 
-        new Date(e.startedAt) >= today
-      );
-      
+
+      const todaysExecutions = executionsData.filter(e => new Date(e.startedAt) >= today);
+
       const activeExecutions = executionsData.filter(e => !e.finished).length;
-      const successfulExecutions = executionsData.filter(e => 
-        e.finished && !e.stoppedAt
-      );
-      
-      const successRate = executionsData.length > 0 
-        ? (successfulExecutions.length / executionsData.length) * 100 
-        : 100;
+      const successfulExecutions = executionsData.filter(e => e.finished && !e.stoppedAt);
+
+      const successRate =
+        executionsData.length > 0
+          ? (successfulExecutions.length / executionsData.length) * 100
+          : 100;
 
       // Calculate average execution time
-      const completedExecutions = executionsData.filter(e => 
-        e.finished && e.startedAt && e.stoppedAt
+      const completedExecutions = executionsData.filter(
+        e => e.finished && e.startedAt && e.stoppedAt
       );
-      
-      const avgTime = completedExecutions.length > 0
-        ? completedExecutions.reduce((sum, e) => {
-            const duration = new Date(e.stoppedAt!).getTime() - new Date(e.startedAt).getTime();
-            return sum + duration;
-          }, 0) / completedExecutions.length
-        : 0;
+
+      const avgTime =
+        completedExecutions.length > 0
+          ? completedExecutions.reduce((sum, e) => {
+              const duration = new Date(e.stoppedAt!).getTime() - new Date(e.startedAt).getTime();
+              return sum + duration;
+            }, 0) / completedExecutions.length
+          : 0;
 
       // Get top workflows by execution count
-      const workflowStats = new Map<string, { name: string; executions: number; totalTime: number }>();
-      
+      const workflowStats = new Map<
+        string,
+        { name: string; executions: number; totalTime: number }
+      >();
+
       executionsData.forEach(exec => {
         if (exec.workflowId) {
-          const stats = workflowStats.get(exec.workflowId) || { 
+          const stats = workflowStats.get(exec.workflowId) || {
             name: workflowsData.find(w => w.id === exec.workflowId)?.name || 'Unknown',
-            executions: 0, 
-            totalTime: 0 
+            executions: 0,
+            totalTime: 0,
           };
-          
+
           stats.executions++;
           if (exec.finished && exec.startedAt && exec.stoppedAt) {
-            stats.totalTime += new Date(exec.stoppedAt).getTime() - new Date(exec.startedAt).getTime();
+            stats.totalTime +=
+              new Date(exec.stoppedAt).getTime() - new Date(exec.startedAt).getTime();
           }
-          
+
           workflowStats.set(exec.workflowId, stats);
         }
       });
@@ -328,7 +334,9 @@ export class EventClient extends EventEmitter {
         topWorkflows,
       };
     } catch (error) {
-      throw new Error(`Failed to get realtime stats: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Failed to get realtime stats: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
@@ -357,9 +365,11 @@ export class EventClient extends EventEmitter {
   /**
    * Test webhook configuration
    */
-  async testWebhook(webhook: WebhookConfig): Promise<{ success: boolean; responseTime: number; error?: string }> {
+  async testWebhook(
+    webhook: WebhookConfig
+  ): Promise<{ success: boolean; responseTime: number; error?: string }> {
     const startTime = Date.now();
-    
+
     try {
       const testPayload = {
         type: 'webhook_test',
@@ -396,7 +406,7 @@ export class EventClient extends EventEmitter {
   private async reconnect(): Promise<void> {
     this.reconnectAttempts++;
     this.emit('reconnecting', { attempt: this.reconnectAttempts });
-    
+
     try {
       await this.connect();
     } catch {
@@ -471,7 +481,10 @@ export class EventClient extends EventEmitter {
     return true;
   }
 
-  private async handleSubscription(event: EventData, subscription: EventSubscription): Promise<void> {
+  private async handleSubscription(
+    event: EventData,
+    subscription: EventSubscription
+  ): Promise<void> {
     subscription.lastTriggered = new Date();
 
     if (subscription.webhook) {
@@ -513,7 +526,10 @@ export class EventClient extends EventEmitter {
         }
 
         // Check if we should retry on this status code
-        if (webhook.retryConfig?.retryOnStatusCodes?.includes(response.status) && attempt < maxRetries) {
+        if (
+          webhook.retryConfig?.retryOnStatusCodes?.includes(response.status) &&
+          attempt < maxRetries
+        ) {
           attempt++;
           await this.delay(webhook.retryConfig.backoffMs * attempt);
           continue;

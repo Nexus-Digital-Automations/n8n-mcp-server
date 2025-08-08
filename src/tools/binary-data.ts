@@ -78,7 +78,11 @@ const UploadLargeFileSchema = z.object({
   workflowId: z.string().optional(),
   executionId: z.string().optional(),
   nodeId: z.string().optional(),
-  chunkSize: z.number().min(1024).max(10 * 1024 * 1024).default(1024 * 1024), // 1MB default, max 10MB
+  chunkSize: z
+    .number()
+    .min(1024)
+    .max(10 * 1024 * 1024)
+    .default(1024 * 1024), // 1MB default, max 10MB
   showProgress: z.boolean().default(true),
 });
 
@@ -96,7 +100,7 @@ const getBinaryDataClient = (getClient: () => N8nClient | null): BinaryDataClien
     // Extract baseUrl and apiKey from client (assuming they're accessible)
     const baseUrl = (client as any).baseUrl || process.env.N8N_BASE_URL || 'http://localhost:5678';
     const apiKey = (client as any).apiKey || process.env.N8N_API_KEY || '';
-    
+
     binaryDataClient = new BinaryDataClient(client, baseUrl, apiKey);
   }
   return binaryDataClient;
@@ -199,7 +203,9 @@ export function createBinaryDataTools(getClient: () => N8nClient | null, server:
         if (error instanceof UserError) {
           throw error;
         }
-        throw new UserError(`Failed to upload binary data: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        throw new UserError(
+          `Failed to upload binary data: ${error instanceof Error ? error.message : 'Unknown error'}`
+        );
       }
     },
   });
@@ -222,10 +228,10 @@ export function createBinaryDataTools(getClient: () => N8nClient | null, server:
         };
 
         const result = await binaryClient.downloadBinaryData(downloadRequest);
-        
+
         // Convert base64 to buffer and save
         const fileData = Buffer.from(result.data, 'base64');
-        
+
         // Ensure output directory exists
         const outputDir = path.dirname(args.outputPath);
         await fs.mkdir(outputDir, { recursive: true });
@@ -244,7 +250,9 @@ export function createBinaryDataTools(getClient: () => N8nClient | null, server:
         if (error instanceof UserError) {
           throw error;
         }
-        throw new UserError(`Failed to download binary data: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        throw new UserError(
+          `Failed to download binary data: ${error instanceof Error ? error.message : 'Unknown error'}`
+        );
       }
     },
   });
@@ -286,7 +294,9 @@ export function createBinaryDataTools(getClient: () => N8nClient | null, server:
         if (error instanceof UserError) {
           throw error;
         }
-        throw new UserError(`Failed to upload from base64: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        throw new UserError(
+          `Failed to upload from base64: ${error instanceof Error ? error.message : 'Unknown error'}`
+        );
       }
     },
   });
@@ -327,7 +337,9 @@ export function createBinaryDataTools(getClient: () => N8nClient | null, server:
         if (error instanceof UserError) {
           throw error;
         }
-        throw new UserError(`Failed to download execution binary data: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        throw new UserError(
+          `Failed to download execution binary data: ${error instanceof Error ? error.message : 'Unknown error'}`
+        );
       }
     },
   });
@@ -381,7 +393,9 @@ export function createBinaryDataTools(getClient: () => N8nClient | null, server:
         if (error instanceof UserError) {
           throw error;
         }
-        throw new UserError(`Failed to upload workflow binary data: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        throw new UserError(
+          `Failed to upload workflow binary data: ${error instanceof Error ? error.message : 'Unknown error'}`
+        );
       }
     },
   });
@@ -421,7 +435,9 @@ export function createBinaryDataTools(getClient: () => N8nClient | null, server:
         if (error instanceof UserError) {
           throw error;
         }
-        throw new UserError(`Failed to list binary data: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        throw new UserError(
+          `Failed to list binary data: ${error instanceof Error ? error.message : 'Unknown error'}`
+        );
       }
     },
   });
@@ -446,7 +462,9 @@ export function createBinaryDataTools(getClient: () => N8nClient | null, server:
         if (error instanceof UserError) {
           throw error;
         }
-        throw new UserError(`Failed to delete binary data: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        throw new UserError(
+          `Failed to delete binary data: ${error instanceof Error ? error.message : 'Unknown error'}`
+        );
       }
     },
   });
@@ -470,7 +488,9 @@ export function createBinaryDataTools(getClient: () => N8nClient | null, server:
         if (error instanceof UserError) {
           throw error;
         }
-        throw new UserError(`Failed to get binary metadata: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        throw new UserError(
+          `Failed to get binary metadata: ${error instanceof Error ? error.message : 'Unknown error'}`
+        );
       }
     },
   });
@@ -511,9 +531,11 @@ export function createBinaryDataTools(getClient: () => N8nClient | null, server:
           executionId: args.executionId,
           nodeId: args.nodeId,
           chunkSize: args.chunkSize,
-          onProgress: args.showProgress ? (progress) => {
-            progressUpdates.push({ ...progress });
-          } : undefined,
+          onProgress: args.showProgress
+            ? progress => {
+                progressUpdates.push({ ...progress });
+              }
+            : undefined,
         });
 
         return {
@@ -529,7 +551,9 @@ export function createBinaryDataTools(getClient: () => N8nClient | null, server:
         if (error instanceof UserError) {
           throw error;
         }
-        throw new UserError(`Failed to upload large file: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        throw new UserError(
+          `Failed to upload large file: ${error instanceof Error ? error.message : 'Unknown error'}`
+        );
       }
     },
   });

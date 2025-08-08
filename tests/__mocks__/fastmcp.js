@@ -49,7 +49,7 @@ class MockUserError extends Error {
 module.exports = {
   FastMCP: MockFastMCP,
   UserError: MockUserError,
-  default: MockFastMCP
+  default: MockFastMCP,
 };
 
 // Also support named imports

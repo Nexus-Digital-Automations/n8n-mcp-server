@@ -286,7 +286,20 @@ export interface N8nNodeTypeDescription {
 export interface N8nNodeProperty {
   displayName: string;
   name: string;
-  type: 'string' | 'number' | 'boolean' | 'options' | 'multiOptions' | 'json' | 'dateTime' | 'resourceLocator' | 'fixedCollection' | 'collection' | 'color' | 'hidden' | 'notice';
+  type:
+    | 'string'
+    | 'number'
+    | 'boolean'
+    | 'options'
+    | 'multiOptions'
+    | 'json'
+    | 'dateTime'
+    | 'resourceLocator'
+    | 'fixedCollection'
+    | 'collection'
+    | 'color'
+    | 'hidden'
+    | 'notice';
   default?: unknown;
   description?: string;
   placeholder?: string;
@@ -419,4 +432,106 @@ export interface AINodeSuggestion {
   reasoning: string;
   confidence: number;
   alternativeNodes: string[];
+}
+
+// Enhanced n8n fork API types
+export interface ProjectUserRequest {
+  userId: string;
+  role: string;
+}
+
+export interface ProjectUserResponse {
+  id: string;
+  userId: string;
+  projectId: string;
+  role: string;
+  createdAt: string;
+  updatedAt: string;
+  user: N8nUser;
+}
+
+export interface WorkflowTransferRequest {
+  projectId: string;
+}
+
+export interface CredentialTransferRequest {
+  projectId: string;
+}
+
+export interface UserRoleUpdateRequest {
+  role: string;
+}
+
+export interface SourceControlStatus {
+  branchName: string;
+  ahead: number;
+  behind: number;
+  current: string;
+  modified: string[];
+  untracked: string[];
+  staged: string[];
+}
+
+export interface SourceControlCommit {
+  id: string;
+  message: string;
+  author: string;
+  date: string;
+}
+
+export interface SourceControlPullRequest {
+  force?: boolean;
+  branch?: string;
+}
+
+export interface SourceControlBranchRequest {
+  branch: string;
+}
+
+export interface AuthenticationConfig {
+  type: 'api-key' | 'oauth2' | 'session' | 'saml' | 'oidc' | 'ldap';
+  credentials?: Record<string, any>;
+  sessionToken?: string;
+  refreshToken?: string;
+}
+
+export interface SessionInfo {
+  authenticated: boolean;
+  user?: N8nUser;
+  expiresAt?: string;
+  permissions?: string[];
+}
+
+export interface LoginRequest {
+  email: string;
+  password: string;
+  mfaCode?: string;
+}
+
+export interface LoginResponse {
+  user: N8nUser;
+  sessionToken?: string;
+  mfaRequired?: boolean;
+}
+
+export interface OAuth2Config {
+  authorizationUrl: string;
+  tokenUrl: string;
+  clientId: string;
+  clientSecret: string;
+  scope?: string[];
+  redirectUri: string;
+}
+
+export interface OAuth2Token {
+  accessToken: string;
+  refreshToken?: string;
+  expiresIn?: number;
+  tokenType: string;
+}
+
+export interface VariableUpdateRequest {
+  key?: string;
+  value?: string;
+  type?: 'string' | 'number' | 'boolean' | 'json';
 }

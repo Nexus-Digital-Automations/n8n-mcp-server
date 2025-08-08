@@ -5,7 +5,6 @@
  * for enhanced security and integration with OAuth2-enabled services.
  */
 
- 
 declare const fetch: typeof globalThis.fetch;
 
 import * as crypto from 'crypto';

@@ -16,10 +16,12 @@ describe('Binary Data Operations', () => {
     // Create test directory
     const testDir = path.join(process.cwd(), 'test-data');
     await fs.mkdir(testDir, { recursive: true });
-    
+
     // Create test file
     testFilePath = path.join(testDir, testFileName);
-    testFileContent = Buffer.from('This is a test file for binary data operations.\nIt contains multiple lines.\nAnd some test data: 12345');
+    testFileContent = Buffer.from(
+      'This is a test file for binary data operations.\nIt contains multiple lines.\nAnd some test data: 12345'
+    );
     await fs.writeFile(testFilePath, testFileContent);
 
     // Initialize file handler
@@ -62,7 +64,9 @@ describe('Binary Data Operations', () => {
       );
 
       expect(validation.isValid).toBe(false);
-      expect(validation.errors.some(error => error.includes('exceeds maximum allowed size'))).toBe(true);
+      expect(validation.errors.some(error => error.includes('exceeds maximum allowed size'))).toBe(
+        true
+      );
     });
 
     it('should reject invalid MIME types', async () => {
@@ -80,7 +84,10 @@ describe('Binary Data Operations', () => {
 
   describe('File Operations', () => {
     it('should read file correctly', async () => {
-      const fileExists = await fs.access(testFilePath).then(() => true).catch(() => false);
+      const fileExists = await fs
+        .access(testFilePath)
+        .then(() => true)
+        .catch(() => false);
       expect(fileExists).toBe(true);
 
       const content = await fs.readFile(testFilePath);
@@ -90,11 +97,11 @@ describe('Binary Data Operations', () => {
     it('should calculate file hash correctly', async () => {
       const crypto = await import('crypto');
       const hash1 = crypto.createHash('sha256').update(testFileContent).digest('hex');
-      
+
       // Read file and calculate hash
       const fileContent = await fs.readFile(testFilePath);
       const hash2 = crypto.createHash('sha256').update(fileContent).digest('hex');
-      
+
       expect(hash1).toBe(hash2);
     });
 
@@ -110,7 +117,7 @@ describe('Binary Data Operations', () => {
       for (const [ext, expectedMime] of Object.entries(mimeTypes)) {
         const fileName = `test${ext}`;
         const ext_lower = path.extname(fileName).toLowerCase();
-        
+
         // This mimics the logic from binary-data.ts
         const detectedMime = mimeTypes[ext_lower] || 'application/octet-stream';
         expect(detectedMime).toBe(expectedMime);
@@ -142,7 +149,7 @@ describe('Binary Data Operations', () => {
       const totalBytes = 1000;
       const transferredBytes = 250;
       const percentComplete = Math.round((transferredBytes / totalBytes) * 100);
-      
+
       expect(percentComplete).toBe(25);
     });
   });
@@ -152,7 +159,7 @@ describe('Binary Data Operations', () => {
       const originalData = testFileContent;
       const base64Data = originalData.toString('base64');
       const decodedData = Buffer.from(base64Data, 'base64');
-      
+
       expect(decodedData.equals(originalData)).toBe(true);
     });
 
@@ -160,7 +167,7 @@ describe('Binary Data Operations', () => {
       const emptyBuffer = Buffer.alloc(0);
       const base64Empty = emptyBuffer.toString('base64');
       const decodedEmpty = Buffer.from(base64Empty, 'base64');
-      
+
       expect(base64Empty).toBe('');
       expect(decodedEmpty.length).toBe(0);
     });
@@ -169,7 +176,7 @@ describe('Binary Data Operations', () => {
   describe('Error Handling', () => {
     it('should handle non-existent files gracefully', async () => {
       const nonExistentPath = path.join(process.cwd(), 'non-existent-file.txt');
-      
+
       try {
         await fs.access(nonExistentPath);
         // Should not reach this point
@@ -181,16 +188,16 @@ describe('Binary Data Operations', () => {
 
     it('should validate required parameters', () => {
       const requiredFields = ['fileName', 'mimeType', 'data'];
-      
+
       requiredFields.forEach(field => {
         const testObject: any = {
           fileName: 'test.txt',
           mimeType: 'text/plain',
           data: 'test-data',
         };
-        
+
         delete testObject[field];
-        
+
         // In a real scenario, this would be validated by Zod schemas
         expect(testObject[field]).toBeUndefined();
       });
@@ -202,7 +209,7 @@ describe('Binary Data Operations', () => {
       const originalSize = 1000;
       const base64Size = Math.ceil((originalSize * 4) / 3);
       const estimatedOriginalSize = Math.floor((base64Size * 3) / 4);
-      
+
       // Should be close to original (within base64 padding)
       expect(Math.abs(estimatedOriginalSize - originalSize)).toBeLessThanOrEqual(3);
     });
@@ -237,12 +244,14 @@ describe('Binary Data Client (Mock Tests)', () => {
       const baseUrl = 'http://localhost:5678';
       const fileId = 'test-file-id';
       const workflowId = 'workflow-123';
-      
+
       const queryParams = new URLSearchParams();
       queryParams.append('workflowId', workflowId);
-      
+
       const expectedUrl = `${baseUrl}/api/v1/binary-data/${encodeURIComponent(fileId)}?${queryParams.toString()}`;
-      expect(expectedUrl).toBe('http://localhost:5678/api/v1/binary-data/test-file-id?workflowId=workflow-123');
+      expect(expectedUrl).toBe(
+        'http://localhost:5678/api/v1/binary-data/test-file-id?workflowId=workflow-123'
+      );
     });
 
     it('should handle URL encoding correctly', () => {
@@ -259,7 +268,7 @@ describe('Binary Data Client (Mock Tests)', () => {
         'X-N8N-API-KEY': apiKey,
         'Content-Type': 'application/json',
       };
-      
+
       expect(headers['X-N8N-API-KEY']).toBe(apiKey);
       expect(headers['Content-Type']).toBe('application/json');
     });
@@ -270,7 +279,7 @@ describe('Binary Data Client (Mock Tests)', () => {
         'X-N8N-API-KEY': apiKey,
         // Content-Type should not be set for FormData to allow boundary setting
       };
-      
+
       expect(headers['X-N8N-API-KEY']).toBe(apiKey);
       expect(headers['Content-Type']).toBeUndefined();
     });

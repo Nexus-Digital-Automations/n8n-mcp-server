@@ -490,7 +490,7 @@ describe('Analytics Dashboard Tools', () => {
   describe('error handling', () => {
     it('should handle client not available error', async () => {
       const getClientError = jest.fn().mockReturnValue(null);
-      
+
       // Create new server with error-prone client
       const errorServer = new FastMCP({ name: 'error-server', version: '1.0.0' });
       createAnalyticsDashboardTools(getClientError, errorServer);

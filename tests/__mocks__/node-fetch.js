@@ -10,7 +10,7 @@ class MockResponse {
     this.status = options.status || 200;
     this.statusText = options.statusText || 'OK';
     this.headers = {
-      get: jest.fn().mockReturnValue(options.contentType || 'application/json')
+      get: jest.fn().mockReturnValue(options.contentType || 'application/json'),
     };
   }
 

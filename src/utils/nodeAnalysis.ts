@@ -1,5 +1,10 @@
 import { N8nNode, N8nWorkflow, N8nNodeTypeDescription } from '../types/n8n.js';
-import { SuggestionEngine, NodeFlowAnalysis, NodeConnectionSuggestion, ParameterMapping } from '../ai/suggestionEngine.js';
+import {
+  SuggestionEngine,
+  NodeFlowAnalysis,
+  NodeConnectionSuggestion,
+  ParameterMapping,
+} from '../ai/suggestionEngine.js';
 
 export interface WorkflowAnalysisResult {
   workflowId: string;
@@ -112,8 +117,12 @@ export class NodeAnalyzer {
   ): NodeCompatibilityResult {
     const issues: string[] = [];
     const suggestions: string[] = [];
-    const requiredTransformations: Array<{ parameter: string; transformation: string; reason: string }> = [];
-    
+    const requiredTransformations: Array<{
+      parameter: string;
+      transformation: string;
+      reason: string;
+    }> = [];
+
     let compatibilityScore = 1.0;
 
     // Check data type compatibility
@@ -125,7 +134,11 @@ export class NodeAnalyzer {
 
     // Check parameter compatibility
     if (targetNodeType) {
-      const parameterAnalysis = this.analyzeParameterCompatibility(sourceNode, targetNode, targetNodeType);
+      const parameterAnalysis = this.analyzeParameterCompatibility(
+        sourceNode,
+        targetNode,
+        targetNodeType
+      );
       requiredTransformations.push(...parameterAnalysis.transformations);
       suggestions.push(...parameterAnalysis.suggestions);
       compatibilityScore *= parameterAnalysis.compatibilityFactor;
@@ -144,7 +157,9 @@ export class NodeAnalyzer {
     }
 
     if (requiredTransformations.length > 3) {
-      suggestions.push('Multiple transformations required - consider using a Function node for complex data processing');
+      suggestions.push(
+        'Multiple transformations required - consider using a Function node for complex data processing'
+      );
     }
 
     return {
@@ -193,7 +208,7 @@ export class NodeAnalyzer {
       }
 
       const suggestedValue = this.generateParameterSuggestion(node, property, nodeType);
-      
+
       parameters.push({
         name: property.name,
         currentValue,
@@ -224,13 +239,13 @@ export class NodeAnalyzer {
   analyzeDataFlow(workflow: N8nWorkflow, startNodeId?: string): DataFlowAnalysis {
     const nodes = workflow.nodes || [];
     const connections = workflow.connections || {};
-    
+
     // Build execution path
     const path = this.buildExecutionPath(nodes, connections, startNodeId);
-    
+
     // Analyze data types at each step
     const dataTypes = this.analyzeDataTypesInPath(path, connections);
-    
+
     // Identify bottlenecks
     const bottlenecks = this.identifyDataFlowBottlenecks(path, nodes);
 
@@ -244,22 +259,22 @@ export class NodeAnalyzer {
   private calculateComplexityScore(workflow: N8nWorkflow): number {
     const nodeCount = workflow.nodes?.length || 0;
     const connectionCount = this.countConnections(workflow.connections || {});
-    
+
     // Base complexity on nodes and connections
     let complexity = nodeCount * 0.5 + connectionCount * 0.3;
-    
+
     // Add complexity for conditional logic
-    const conditionalNodes = workflow.nodes?.filter(n => 
-      n.type.includes('if') || n.type.includes('switch') || n.type.includes('merge')
-    ) || [];
+    const conditionalNodes =
+      workflow.nodes?.filter(
+        n => n.type.includes('if') || n.type.includes('switch') || n.type.includes('merge')
+      ) || [];
     complexity += conditionalNodes.length * 1.5;
-    
+
     // Add complexity for loops
-    const loopNodes = workflow.nodes?.filter(n => 
-      n.type.includes('loop') || n.type.includes('split')
-    ) || [];
+    const loopNodes =
+      workflow.nodes?.filter(n => n.type.includes('loop') || n.type.includes('split')) || [];
     complexity += loopNodes.length * 2.0;
-    
+
     // Normalize to 0-10 scale
     return Math.min(complexity / 3, 10);
   }
@@ -277,11 +292,13 @@ export class NodeAnalyzer {
   private identifyWorkflowIssues(workflow: N8nWorkflow): WorkflowIssue[] {
     const issues: WorkflowIssue[] = [];
     const nodes = workflow.nodes || [];
-    
+
     // Check for common issues
-    
+
     // 1. Missing trigger nodes
-    const triggerNodes = nodes.filter(n => n.type.includes('trigger') || n.type.includes('webhook'));
+    const triggerNodes = nodes.filter(
+      n => n.type.includes('trigger') || n.type.includes('webhook')
+    );
     if (triggerNodes.length === 0 && workflow.active) {
       issues.push({
         severity: 'high',
@@ -290,7 +307,7 @@ export class NodeAnalyzer {
         suggestion: 'Add a trigger node to start the workflow execution',
       });
     }
-    
+
     // 2. Disabled nodes in critical path
     const disabledNodes = nodes.filter(n => n.disabled);
     for (const node of disabledNodes) {
@@ -302,10 +319,10 @@ export class NodeAnalyzer {
         suggestion: 'Review if this node should be enabled or removed',
       });
     }
-    
+
     // 3. Missing error handling
-    const errorHandlingNodes = nodes.filter(n => 
-      n.type.includes('error') || n.name.toLowerCase().includes('error')
+    const errorHandlingNodes = nodes.filter(
+      n => n.type.includes('error') || n.name.toLowerCase().includes('error')
     );
     if (nodes.length > 5 && errorHandlingNodes.length === 0) {
       issues.push({
@@ -315,7 +332,7 @@ export class NodeAnalyzer {
         suggestion: 'Consider adding error handling for robust workflow execution',
       });
     }
-    
+
     // 4. Performance concerns
     const httpNodes = nodes.filter(n => n.type.includes('http'));
     if (httpNodes.length > 10) {
@@ -326,10 +343,10 @@ export class NodeAnalyzer {
         suggestion: 'Consider batching requests or using pagination',
       });
     }
-    
+
     // 5. Security concerns
-    const credentialNodes = nodes.filter(n => 
-      n.credentials && Object.keys(n.credentials).length > 0
+    const credentialNodes = nodes.filter(
+      n => n.credentials && Object.keys(n.credentials).length > 0
     );
     for (const node of credentialNodes) {
       if (node.parameters && JSON.stringify(node.parameters).includes('password')) {
@@ -356,7 +373,7 @@ export class NodeAnalyzer {
     // Check common incompatibility patterns
     const sourceIsArray = sourceNodeType.name.toLowerCase().includes('split');
     const targetExpectsSingle = !targetNodeType.name.toLowerCase().includes('merge');
-    
+
     if (sourceIsArray && targetExpectsSingle) {
       issues.push('Source produces array data but target expects single items');
       compatibilityFactor *= 0.6;
@@ -369,8 +386,13 @@ export class NodeAnalyzer {
     sourceNode: N8nNode,
     targetNode: N8nNode,
     targetNodeType: N8nNodeTypeDescription
-  ): { transformations: Array<{ parameter: string; transformation: string; reason: string }>; suggestions: string[]; compatibilityFactor: number } {
-    const transformations: Array<{ parameter: string; transformation: string; reason: string }> = [];
+  ): {
+    transformations: Array<{ parameter: string; transformation: string; reason: string }>;
+    suggestions: string[];
+    compatibilityFactor: number;
+  } {
+    const transformations: Array<{ parameter: string; transformation: string; reason: string }> =
+      [];
     const suggestions: string[] = [];
     let compatibilityFactor = 1.0;
 
@@ -389,7 +411,10 @@ export class NodeAnalyzer {
     return { transformations, suggestions, compatibilityFactor };
   }
 
-  private analyzeConnectionPatterns(sourceType: string, targetType: string): { isCommonPattern: boolean; confidence: number } {
+  private analyzeConnectionPatterns(
+    sourceType: string,
+    targetType: string
+  ): { isCommonPattern: boolean; confidence: number } {
     const commonPatterns = [
       { source: 'trigger', target: 'http', confidence: 0.9 },
       { source: 'http', target: 'json', confidence: 0.8 },
@@ -399,8 +424,10 @@ export class NodeAnalyzer {
     ];
 
     for (const pattern of commonPatterns) {
-      if (sourceType.toLowerCase().includes(pattern.source) && 
-          targetType.toLowerCase().includes(pattern.target)) {
+      if (
+        sourceType.toLowerCase().includes(pattern.source) &&
+        targetType.toLowerCase().includes(pattern.target)
+      ) {
         return { isCommonPattern: true, confidence: pattern.confidence };
       }
     }
@@ -414,7 +441,7 @@ export class NodeAnalyzer {
     nodeType: N8nNodeTypeDescription
   ): { value: unknown; confidence: number; reasoning: string } {
     // Generate smart parameter suggestions based on context
-    
+
     if (property.type === 'options' && property.options) {
       const defaultOption = property.options.find((opt: any) => opt.value === property.default);
       if (defaultOption) {
@@ -445,7 +472,8 @@ export class NodeAnalyzer {
     return {
       value: property.default,
       confidence: property.default !== undefined ? 0.8 : 0.3,
-      reasoning: property.default !== undefined ? 'Using default value' : 'No specific suggestion available',
+      reasoning:
+        property.default !== undefined ? 'Using default value' : 'No specific suggestion available',
     };
   }
 
@@ -488,13 +516,14 @@ export class NodeAnalyzer {
     startNodeId?: string
   ): Array<{ nodeId: string; nodeName: string; nodeType: string; dataTransformation: string }> {
     const path = [];
-    
+
     // Simple linear path building (could be enhanced for complex branching)
-    let currentNode = startNodeId 
+    let currentNode = startNodeId
       ? nodes.find(n => n.id === startNodeId)
       : nodes.find(n => n.type.includes('trigger'));
 
-    while (currentNode && path.length < 50) { // Prevent infinite loops
+    while (currentNode && path.length < 50) {
+      // Prevent infinite loops
       path.push({
         nodeId: currentNode.id,
         nodeName: currentNode.name,
@@ -513,7 +542,13 @@ export class NodeAnalyzer {
   private analyzeDataTypesInPath(
     path: Array<{ nodeId: string; nodeName: string; nodeType: string; dataTransformation: string }>,
     connections: Record<string, unknown>
-  ): Array<{ step: number; nodeId: string; expectedType: string; actualType?: string; schema?: Record<string, unknown> }> {
+  ): Array<{
+    step: number;
+    nodeId: string;
+    expectedType: string;
+    actualType?: string;
+    schema?: Record<string, unknown>;
+  }> {
     return path.map((step, index) => ({
       step: index,
       nodeId: step.nodeId,
@@ -525,7 +560,12 @@ export class NodeAnalyzer {
   private identifyDataFlowBottlenecks(
     path: Array<{ nodeId: string; nodeName: string; nodeType: string; dataTransformation: string }>,
     nodes: N8nNode[]
-  ): Array<{ nodeId: string; reason: string; impact: 'low' | 'medium' | 'high'; suggestion: string }> {
+  ): Array<{
+    nodeId: string;
+    reason: string;
+    impact: 'low' | 'medium' | 'high';
+    suggestion: string;
+  }> {
     const bottlenecks = [];
 
     for (const step of path) {
@@ -553,20 +593,27 @@ export class NodeAnalyzer {
 
   private describeDataTransformation(node: N8nNode): string {
     const nodeType = node.type.toLowerCase();
-    
+
     if (nodeType.includes('set')) return 'Transforms data by setting specific fields';
     if (nodeType.includes('json')) return 'Parses or converts JSON data';
     if (nodeType.includes('http')) return 'Fetches data from HTTP endpoint';
     if (nodeType.includes('if')) return 'Conditionally routes data based on criteria';
     if (nodeType.includes('function')) return 'Applies custom JavaScript transformation';
-    
+
     return 'Processes data according to node configuration';
   }
 
-  private findNextNode(currentNodeId: string, connections: Record<string, unknown>): string | undefined {
+  private findNextNode(
+    currentNodeId: string,
+    connections: Record<string, unknown>
+  ): string | undefined {
     // Simplified next node finding (real implementation would parse n8n connection format)
     for (const [nodeId, nodeConnections] of Object.entries(connections)) {
-      if (nodeId === currentNodeId && typeof nodeConnections === 'object' && nodeConnections !== null) {
+      if (
+        nodeId === currentNodeId &&
+        typeof nodeConnections === 'object' &&
+        nodeConnections !== null
+      ) {
         // Return first connected node (simplified)
         const connectionKeys = Object.keys(nodeConnections);
         return connectionKeys.length > 0 ? connectionKeys[0] : undefined;

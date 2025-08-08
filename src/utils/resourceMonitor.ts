@@ -21,7 +21,10 @@ export class ResourceMonitor {
   private alerts: PerformanceAlert[] = [];
   private monitoringInterval: NodeJS.Timeout | null = null;
   private startTime: number;
-  private executionHistory: Map<string, Array<{ timestamp: number; duration: number; success: boolean }>> = new Map();
+  private executionHistory: Map<
+    string,
+    Array<{ timestamp: number; duration: number; success: boolean }>
+  > = new Map();
 
   constructor(config?: Partial<ResourceMonitoringConfig>) {
     this.startTime = Date.now();
@@ -93,7 +96,7 @@ export class ResourceMonitor {
         data: systemMetrics as unknown as Record<string, unknown>,
         tags: { source: 'system' },
       });
-      
+
       await this.checkResourceThresholds(systemMetrics);
     }
 
@@ -129,14 +132,14 @@ export class ResourceMonitor {
   }
 
   private async getCPUUsage(): Promise<{ totalUsage: number; processUsage: number }> {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       const startUsage = process.cpuUsage();
       const startTime = process.hrtime();
 
       setTimeout(() => {
         const currentUsage = process.cpuUsage(startUsage);
         const currentTime = process.hrtime(startTime);
-        
+
         const elapsedTime = currentTime[0] * 1000000 + currentTime[1] / 1000; // microseconds
         const totalCPUTime = currentUsage.user + currentUsage.system;
         const processUsage = (totalCPUTime / elapsedTime) * 100;
@@ -167,13 +170,13 @@ export class ResourceMonitor {
   private async getDiskUsage(): Promise<SystemResourceUsage['disk']> {
     try {
       const stats = await stat(process.cwd());
-      
+
       // This is a simplified implementation
       // In production, you'd use platform-specific methods to get actual disk usage
       const totalSpace = 1000000000000; // 1TB placeholder
       const freeSpace = 500000000000; // 500GB placeholder
       const usedSpace = totalSpace - freeSpace;
-      
+
       return {
         totalSpace,
         freeSpace,
@@ -201,10 +204,14 @@ export class ResourceMonitor {
     };
   }
 
-  async getWorkflowResourceUsage(workflowId: string, workflowName: string, isActive: boolean): Promise<WorkflowResourceUsage> {
+  async getWorkflowResourceUsage(
+    workflowId: string,
+    workflowName: string,
+    isActive: boolean
+  ): Promise<WorkflowResourceUsage> {
     const executionHistory = this.executionHistory.get(workflowId) || [];
-    const recentExecutions = executionHistory.filter(exec => 
-      Date.now() - exec.timestamp < 24 * 60 * 60 * 1000 // Last 24 hours
+    const recentExecutions = executionHistory.filter(
+      exec => Date.now() - exec.timestamp < 24 * 60 * 60 * 1000 // Last 24 hours
     );
 
     const successfulRuns = recentExecutions.filter(exec => exec.success).length;
@@ -219,7 +226,8 @@ export class ResourceMonitor {
       executionCount: totalRuns,
       resourceMetrics: {
         averageExecutionTime: Math.round(averageExecutionTime),
-        lastExecutionTime: recentExecutions.length > 0 ? recentExecutions[recentExecutions.length - 1].duration : 0,
+        lastExecutionTime:
+          recentExecutions.length > 0 ? recentExecutions[recentExecutions.length - 1].duration : 0,
         totalExecutionTime: Math.round(totalExecutionTime),
         memoryUsage: {
           average: 50000000, // 50MB placeholder
@@ -237,18 +245,21 @@ export class ResourceMonitor {
         failedRuns: totalRuns - successfulRuns,
         totalRuns,
         successRate: totalRuns > 0 ? (successfulRuns / totalRuns) * 100 : 100,
-        lastExecution: recentExecutions.length > 0 
-          ? new Date(recentExecutions[recentExecutions.length - 1].timestamp).toISOString()
-          : new Date().toISOString(),
+        lastExecution:
+          recentExecutions.length > 0
+            ? new Date(recentExecutions[recentExecutions.length - 1].timestamp).toISOString()
+            : new Date().toISOString(),
         averageRunsPerHour: this.calculateRunsPerHour(recentExecutions),
       },
       nodePerformance: [], // Would be populated with actual node performance data
     };
   }
 
-  private calculateRunsPerHour(executions: Array<{ timestamp: number; duration: number; success: boolean }>): number {
+  private calculateRunsPerHour(
+    executions: Array<{ timestamp: number; duration: number; success: boolean }>
+  ): number {
     if (executions.length === 0) return 0;
-    
+
     const timeSpanHours = (Date.now() - executions[0].timestamp) / (1000 * 60 * 60);
     return timeSpanHours > 0 ? executions.length / timeSpanHours : 0;
   }
@@ -257,18 +268,20 @@ export class ResourceMonitor {
     const systemUsage = await this.getSystemResourceUsage();
     const issues: string[] = [];
     const recommendations: string[] = [];
-    
+
     // Analyze system health
     if (systemUsage.cpu.totalUsage > 80) {
       issues.push('High CPU usage detected');
       recommendations.push('Consider scaling horizontally or optimizing workflow execution');
     }
-    
+
     if (systemUsage.memory.utilization > 85) {
       issues.push('High memory usage detected');
-      recommendations.push('Monitor memory-intensive workflows and consider increasing available memory');
+      recommendations.push(
+        'Monitor memory-intensive workflows and consider increasing available memory'
+      );
     }
-    
+
     if (systemUsage.disk.utilization > 90) {
       issues.push('Low disk space warning');
       recommendations.push('Clean up old execution data and logs');
@@ -312,31 +325,36 @@ export class ResourceMonitor {
           errorCount: 0,
         },
       ],
-      alerts: this.alerts.filter(alert => !alert.resolvedAt).map(alert => ({
-        id: alert.id,
-        severity: alert.severity as 'info' | 'warning' | 'error' | 'critical',
-        message: alert.description,
-        timestamp: alert.triggeredAt,
-        resolved: Boolean(alert.resolvedAt),
-      })),
+      alerts: this.alerts
+        .filter(alert => !alert.resolvedAt)
+        .map(alert => ({
+          id: alert.id,
+          severity: alert.severity as 'info' | 'warning' | 'error' | 'critical',
+          message: alert.description,
+          timestamp: alert.triggeredAt,
+          resolved: Boolean(alert.resolvedAt),
+        })),
     };
   }
 
   private calculateHealthScore(systemUsage: SystemResourceUsage, issueCount: number): number {
     let score = 100;
-    
+
     // Deduct points based on resource usage
     score -= Math.max(0, systemUsage.cpu.totalUsage - 50) * 0.5;
     score -= Math.max(0, systemUsage.memory.utilization - 60) * 0.3;
     score -= Math.max(0, systemUsage.disk.utilization - 70) * 0.2;
-    
+
     // Deduct points for issues
     score -= issueCount * 10;
-    
+
     return Math.max(0, Math.min(100, Math.round(score)));
   }
 
-  private determineHealthStatus(score: number, issueCount: number): 'healthy' | 'warning' | 'critical' | 'degraded' {
+  private determineHealthStatus(
+    score: number,
+    issueCount: number
+  ): 'healthy' | 'warning' | 'critical' | 'degraded' {
     if (score >= 90 && issueCount === 0) return 'healthy';
     if (score >= 70 && issueCount <= 1) return 'warning';
     if (score >= 50) return 'degraded';
@@ -345,7 +363,7 @@ export class ResourceMonitor {
 
   private async checkResourceThresholds(systemUsage: SystemResourceUsage): Promise<void> {
     const thresholds = this.config.monitoring.alertThresholds;
-    
+
     if (systemUsage.cpu.totalUsage > thresholds.cpuUsage) {
       await this.createAlert({
         type: 'resource_threshold',
@@ -358,7 +376,7 @@ export class ResourceMonitor {
         },
       });
     }
-    
+
     if (systemUsage.memory.utilization > thresholds.memoryUsage) {
       await this.createAlert({
         type: 'resource_threshold',
@@ -384,12 +402,12 @@ export class ResourceMonitor {
       metadata: alertData.metadata || {},
       actions: [],
     };
-    
+
     this.alerts.push(alert);
-    
+
     // Keep only recent alerts
-    this.alerts = this.alerts.filter(a => 
-      Date.now() - new Date(a.triggeredAt).getTime() < 24 * 60 * 60 * 1000
+    this.alerts = this.alerts.filter(
+      a => Date.now() - new Date(a.triggeredAt).getTime() < 24 * 60 * 60 * 1000
     );
   }
 
@@ -397,14 +415,14 @@ export class ResourceMonitor {
     if (!this.executionHistory.has(workflowId)) {
       this.executionHistory.set(workflowId, []);
     }
-    
+
     const history = this.executionHistory.get(workflowId)!;
     history.push({
       timestamp: Date.now(),
       duration,
       success,
     });
-    
+
     // Keep only last 1000 executions per workflow
     if (history.length > 1000) {
       history.splice(0, history.length - 1000);
@@ -413,7 +431,7 @@ export class ResourceMonitor {
 
   private addDataPoint(dataPoint: MonitoringDataPoint): void {
     this.dataPoints.push(dataPoint);
-    
+
     // Enforce max data points limit
     if (this.dataPoints.length > this.config.storage.maxDataPoints) {
       this.dataPoints.splice(0, this.dataPoints.length - this.config.storage.maxDataPoints);
@@ -421,17 +439,15 @@ export class ResourceMonitor {
   }
 
   private cleanupOldDataPoints(): void {
-    const cutoffTime = Date.now() - (this.config.monitoring.retentionDays * 24 * 60 * 60 * 1000);
-    this.dataPoints = this.dataPoints.filter(dp => 
-      new Date(dp.timestamp).getTime() > cutoffTime
-    );
+    const cutoffTime = Date.now() - this.config.monitoring.retentionDays * 24 * 60 * 60 * 1000;
+    this.dataPoints = this.dataPoints.filter(dp => new Date(dp.timestamp).getTime() > cutoffTime);
   }
 
   getMetrics(): MonitoringMetrics {
     return {
-      system: (this.dataPoints
-        .filter(dp => dp.metricType === 'system')
-        .slice(-1)[0]?.data as unknown as SystemResourceUsage) || {} as SystemResourceUsage,
+      system:
+        (this.dataPoints.filter(dp => dp.metricType === 'system').slice(-1)[0]
+          ?.data as unknown as SystemResourceUsage) || ({} as SystemResourceUsage),
       workflows: [],
       health: {} as InstanceHealthMetrics,
       alerts: this.alerts,
@@ -441,31 +457,31 @@ export class ResourceMonitor {
 
   getDataPoints(metricType?: string, limit?: number): MonitoringDataPoint[] {
     let points = this.dataPoints;
-    
+
     if (metricType) {
       points = points.filter(dp => dp.metricType === metricType);
     }
-    
+
     if (limit) {
       points = points.slice(-limit);
     }
-    
+
     return points;
   }
 
   getAlerts(severity?: string, resolved?: boolean): PerformanceAlert[] {
     let alerts = this.alerts;
-    
+
     if (severity) {
       alerts = alerts.filter(alert => alert.severity === severity);
     }
-    
+
     if (resolved !== undefined) {
       alerts = alerts.filter(alert => Boolean(alert.resolvedAt) === resolved);
     }
-    
-    return alerts.sort((a, b) => 
-      new Date(b.triggeredAt).getTime() - new Date(a.triggeredAt).getTime()
+
+    return alerts.sort(
+      (a, b) => new Date(b.triggeredAt).getTime() - new Date(a.triggeredAt).getTime()
     );
   }
 
@@ -480,7 +496,7 @@ export class ResourceMonitor {
 
   updateConfig(newConfig: Partial<ResourceMonitoringConfig>): void {
     this.config = { ...this.config, ...newConfig };
-    
+
     if (this.monitoringInterval) {
       this.stopMonitoring();
       this.startMonitoring();

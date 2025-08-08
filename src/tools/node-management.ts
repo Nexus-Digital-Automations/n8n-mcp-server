@@ -66,11 +66,13 @@ function formatPackageList(packages: N8nCommunityPackage[]): string {
     return 'No community packages installed.';
   }
 
-  return packages.map(pkg => {
-    const nodeCount = pkg.installedNodes?.length || 0;
-    const status = pkg.failedLoading ? ' (⚠️ Failed Loading)' : '';
-    return `• ${pkg.packageName}@${pkg.installedVersion}${status}\n  ${nodeCount} node(s) installed\n  Updated: ${new Date(pkg.updatedAt).toLocaleString()}`;
-  }).join('\n\n');
+  return packages
+    .map(pkg => {
+      const nodeCount = pkg.installedNodes?.length || 0;
+      const status = pkg.failedLoading ? ' (⚠️ Failed Loading)' : '';
+      return `• ${pkg.packageName}@${pkg.installedVersion}${status}\n  ${nodeCount} node(s) installed\n  Updated: ${new Date(pkg.updatedAt).toLocaleString()}`;
+    })
+    .join('\n\n');
 }
 
 function formatNodeTypeList(nodeTypes: N8nNodeTypeDescription[]): string {
@@ -78,11 +80,15 @@ function formatNodeTypeList(nodeTypes: N8nNodeTypeDescription[]): string {
     return 'No node types found.';
   }
 
-  return nodeTypes.map(node => {
-    const groups = node.group.join(', ');
-    const credentials = node.credentials?.length ? `\n  Credentials: ${node.credentials.map(c => c.name).join(', ')}` : '';
-    return `• ${node.displayName} (${node.name})\n  Version: ${node.version}\n  Groups: ${groups}${credentials}\n  ${node.description}`;
-  }).join('\n\n');
+  return nodeTypes
+    .map(node => {
+      const groups = node.group.join(', ');
+      const credentials = node.credentials?.length
+        ? `\n  Credentials: ${node.credentials.map(c => c.name).join(', ')}`
+        : '';
+      return `• ${node.displayName} (${node.name})\n  Version: ${node.version}\n  Groups: ${groups}${credentials}\n  ${node.description}`;
+    })
+    .join('\n\n');
 }
 
 function formatSearchResults(results: NodeSearchResult[]): string {
@@ -90,11 +96,13 @@ function formatSearchResults(results: NodeSearchResult[]): string {
     return 'No nodes found matching the search criteria.';
   }
 
-  return results.map(result => {
-    const status = result.isWorkflowActive ? '✅ Active' : '❌ Inactive';
-    const disabled = result.node.disabled ? ' (Disabled)' : '';
-    return `• ${result.node.name} (${result.node.type})${disabled}\n  Workflow: ${result.workflowName} (${result.workflowId})\n  Status: ${status}\n  Position: [${result.node.position.join(', ')}]`;
-  }).join('\n\n');
+  return results
+    .map(result => {
+      const status = result.isWorkflowActive ? '✅ Active' : '❌ Inactive';
+      const disabled = result.node.disabled ? ' (Disabled)' : '';
+      return `• ${result.node.name} (${result.node.type})${disabled}\n  Workflow: ${result.workflowName} (${result.workflowId})\n  Status: ${status}\n  Position: [${result.node.position.join(', ')}]`;
+    })
+    .join('\n\n');
 }
 
 function formatUsageStats(stats: NodeUsageStats[]): string {
@@ -102,10 +110,14 @@ function formatUsageStats(stats: NodeUsageStats[]): string {
     return 'No usage statistics found.';
   }
 
-  return stats.map(stat => {
-    const lastUsed = stat.lastUsed ? `\n  Last Used: ${new Date(stat.lastUsed).toLocaleString()}` : '';
-    return `• ${stat.nodeType}\n  Total Usage: ${stat.totalCount} times\n  Active Workflows: ${stat.activeWorkflowCount}${lastUsed}`;
-  }).join('\n\n');
+  return stats
+    .map(stat => {
+      const lastUsed = stat.lastUsed
+        ? `\n  Last Used: ${new Date(stat.lastUsed).toLocaleString()}`
+        : '';
+      return `• ${stat.nodeType}\n  Total Usage: ${stat.totalCount} times\n  Active Workflows: ${stat.activeWorkflowCount}${lastUsed}`;
+    })
+    .join('\n\n');
 }
 
 export function createNodeManagementTools(getClient: () => N8nClient | null, server: any) {
@@ -161,15 +173,17 @@ export function createNodeManagementTools(getClient: () => N8nClient | null, ser
           name: args.name,
           version: args.version,
         };
-        
+
         const installedPackage = await client.installCommunityPackage(packageData);
         const nodeCount = installedPackage.installedNodes?.length || 0;
-        
+
         return `✅ Successfully installed package: ${installedPackage.packageName}@${installedPackage.installedVersion}\n\nInstalled ${nodeCount} new node type(s):\n${installedPackage.installedNodes?.map(node => `• ${node.displayName} (${node.name})`).join('\n') || 'No nodes listed'}`;
       } catch (error) {
         if (error instanceof Error) {
           if (error.message.includes('already installed')) {
-            throw new UserError(`Package ${args.name} is already installed. Use update-community-package to update it.`);
+            throw new UserError(
+              `Package ${args.name} is already installed. Use update-community-package to update it.`
+            );
           }
           throw new UserError(`Failed to install package: ${error.message}`);
         }
@@ -200,15 +214,17 @@ export function createNodeManagementTools(getClient: () => N8nClient | null, ser
           name: args.name,
           version: args.version,
         };
-        
+
         const updatedPackage = await client.updateCommunityPackage(args.name, packageData);
         const nodeCount = updatedPackage.installedNodes?.length || 0;
-        
+
         return `✅ Successfully updated package: ${updatedPackage.packageName}@${updatedPackage.installedVersion}\n\nPackage contains ${nodeCount} node type(s):\n${updatedPackage.installedNodes?.map(node => `• ${node.displayName} (${node.name})`).join('\n') || 'No nodes listed'}`;
       } catch (error) {
         if (error instanceof Error) {
           if (error.message.includes('not found') || error.message.includes('not installed')) {
-            throw new UserError(`Package ${args.name} is not installed. Use install-community-package to install it first.`);
+            throw new UserError(
+              `Package ${args.name} is not installed. Use install-community-package to install it first.`
+            );
           }
           throw new UserError(`Failed to update package: ${error.message}`);
         }
@@ -271,18 +287,18 @@ export function createNodeManagementTools(getClient: () => N8nClient | null, ser
       }
 
       try {
-        const nodeTypes = args.communityOnly 
+        const nodeTypes = args.communityOnly
           ? await client.getCommunityNodeTypes()
           : await client.getNodeTypes();
-        
+
         const limitedResults = nodeTypes.slice(0, args.limit);
         const hasMore = nodeTypes.length > (args.limit || 100);
-        
+
         let result = formatNodeTypeList(limitedResults);
         if (hasMore) {
           result += `\n\n... and ${nodeTypes.length - (args.limit || 100)} more node types. Use a higher limit to see more.`;
         }
-        
+
         return result;
       } catch (error) {
         if (error instanceof Error) {
@@ -295,7 +311,8 @@ export function createNodeManagementTools(getClient: () => N8nClient | null, ser
 
   server.addTool({
     name: 'get-node-type-details',
-    description: 'Get detailed information about a specific node type including parameters and credentials',
+    description:
+      'Get detailed information about a specific node type including parameters and credentials',
     parameters: NodeTypeSchema,
     annotations: {
       title: 'Get Node Type Details',
@@ -312,18 +329,24 @@ export function createNodeManagementTools(getClient: () => N8nClient | null, ser
 
       try {
         const nodeType = await client.getNodeType(args.nodeType);
-        
-        const credentials = nodeType.credentials?.map(cred => 
-          `• ${cred.name}${cred.required ? ' (Required)' : ' (Optional)'}`
-        ).join('\n') || 'None';
-        
-        const properties = nodeType.properties.slice(0, 10).map(prop => 
-          `• ${prop.displayName} (${prop.name}): ${prop.type}${prop.required ? ' *' : ''}\n  ${prop.description || 'No description'}`
-        ).join('\n');
-        
+
+        const credentials =
+          nodeType.credentials
+            ?.map(cred => `• ${cred.name}${cred.required ? ' (Required)' : ' (Optional)'}`)
+            .join('\n') || 'None';
+
+        const properties = nodeType.properties
+          .slice(0, 10)
+          .map(
+            prop =>
+              `• ${prop.displayName} (${prop.name}): ${prop.type}${prop.required ? ' *' : ''}\n  ${prop.description || 'No description'}`
+          )
+          .join('\n');
+
         const hasMoreProps = nodeType.properties.length > 10;
-        
-        return `📋 Node Type: ${nodeType.displayName}\n\n` +
+
+        return (
+          `📋 Node Type: ${nodeType.displayName}\n\n` +
           `🔧 Technical Name: ${nodeType.name}\n` +
           `📦 Version: ${nodeType.version}\n` +
           `📁 Groups: ${nodeType.group.join(', ')}\n` +
@@ -331,11 +354,14 @@ export function createNodeManagementTools(getClient: () => N8nClient | null, ser
           `🔐 Credentials:\n${credentials}\n\n` +
           `⚙️ Parameters${hasMoreProps ? ' (showing first 10)' : ''}:\n${properties}` +
           (hasMoreProps ? '\n\n... and more parameters available' : '') +
-          (nodeType.documentationUrl ? `\n\n📖 Documentation: ${nodeType.documentationUrl}` : '');
+          (nodeType.documentationUrl ? `\n\n📖 Documentation: ${nodeType.documentationUrl}` : '')
+        );
       } catch (error) {
         if (error instanceof Error) {
           if (error.message.includes('not found')) {
-            throw new UserError(`Node type '${args.nodeType}' not found. Check the name and try again.`);
+            throw new UserError(
+              `Node type '${args.nodeType}' not found. Check the name and try again.`
+            );
           }
           throw new UserError(`Failed to get node type details: ${error.message}`);
         }
@@ -364,46 +390,48 @@ export function createNodeManagementTools(getClient: () => N8nClient | null, ser
 
       try {
         const results: NodeSearchResult[] = [];
-        
+
         if (args.workflowId) {
           // Search within specific workflow
           const workflow = await client.getWorkflow(args.workflowId);
           const nodes = workflow.nodes || [];
-          
-          const filteredNodes = nodes.filter(node => 
-            !args.nodeType || node.type.includes(args.nodeType)
+
+          const filteredNodes = nodes.filter(
+            node => !args.nodeType || node.type.includes(args.nodeType)
           );
-          
-          results.push(...filteredNodes.map(node => ({
-            workflowId: workflow.id,
-            workflowName: workflow.name,
-            node,
-            isWorkflowActive: workflow.active,
-          })));
-        } else {
-          // Search across all workflows
-          const workflowsResponse = await client.getWorkflows({ limit: args.limit });
-          const workflows = workflowsResponse.data.filter(wf => 
-            !args.activeOnly || wf.active
-          );
-          
-          for (const workflow of workflows) {
-            const fullWorkflow = await client.getWorkflow(workflow.id);
-            const nodes = fullWorkflow.nodes || [];
-            
-            const filteredNodes = nodes.filter(node => 
-              !args.nodeType || node.type.includes(args.nodeType)
-            );
-            
-            results.push(...filteredNodes.map(node => ({
+
+          results.push(
+            ...filteredNodes.map(node => ({
               workflowId: workflow.id,
               workflowName: workflow.name,
               node,
               isWorkflowActive: workflow.active,
-            })));
+            }))
+          );
+        } else {
+          // Search across all workflows
+          const workflowsResponse = await client.getWorkflows({ limit: args.limit });
+          const workflows = workflowsResponse.data.filter(wf => !args.activeOnly || wf.active);
+
+          for (const workflow of workflows) {
+            const fullWorkflow = await client.getWorkflow(workflow.id);
+            const nodes = fullWorkflow.nodes || [];
+
+            const filteredNodes = nodes.filter(
+              node => !args.nodeType || node.type.includes(args.nodeType)
+            );
+
+            results.push(
+              ...filteredNodes.map(node => ({
+                workflowId: workflow.id,
+                workflowName: workflow.name,
+                node,
+                isWorkflowActive: workflow.active,
+              }))
+            );
           }
         }
-        
+
         const limitedResults = results.slice(0, args.limit);
         return formatSearchResults(limitedResults);
       } catch (error) {
@@ -439,16 +467,16 @@ export function createNodeManagementTools(getClient: () => N8nClient | null, ser
         const workflowsResponse = await client.getWorkflows({ limit: 100 });
         const workflows = workflowsResponse.data;
         const usageMap: Record<string, NodeUsageStats> = {};
-        
+
         for (const workflow of workflows) {
           if (!args.includeInactive && !workflow.active) continue;
-          
+
           const fullWorkflow = await client.getWorkflow(workflow.id);
           const nodes = fullWorkflow.nodes || [];
-          
+
           for (const node of nodes) {
             if (args.nodeType && !node.type.includes(args.nodeType)) continue;
-            
+
             if (!usageMap[node.type]) {
               usageMap[node.type] = {
                 nodeType: node.type,
@@ -457,7 +485,7 @@ export function createNodeManagementTools(getClient: () => N8nClient | null, ser
                 workflowIds: [],
               };
             }
-            
+
             usageMap[node.type].totalCount++;
             if (workflow.active) {
               usageMap[node.type].activeWorkflowCount++;
@@ -467,7 +495,7 @@ export function createNodeManagementTools(getClient: () => N8nClient | null, ser
             }
           }
         }
-        
+
         const stats = Object.values(usageMap).sort((a, b) => b.totalCount - a.totalCount);
         return formatUsageStats(stats);
       } catch (error) {
@@ -499,12 +527,14 @@ export function createNodeManagementTools(getClient: () => N8nClient | null, ser
       try {
         const workflow = await client.getWorkflow(args.workflowId);
         const nodes = workflow.nodes || [];
-        
+
         const nodeIndex = nodes.findIndex(node => node.id === args.nodeId);
         if (nodeIndex === -1) {
-          throw new UserError(`Node with ID '${args.nodeId}' not found in workflow '${args.workflowId}'`);
+          throw new UserError(
+            `Node with ID '${args.nodeId}' not found in workflow '${args.workflowId}'`
+          );
         }
-        
+
         const originalNode = nodes[nodeIndex];
         const updatedNode = {
           ...originalNode,
@@ -512,17 +542,20 @@ export function createNodeManagementTools(getClient: () => N8nClient | null, ser
           id: originalNode.id, // Preserve original ID
           type: originalNode.type, // Preserve original type
         };
-        
+
         nodes[nodeIndex] = updatedNode;
-        
+
         await client.updateWorkflow(args.workflowId, {
           nodes: nodes as Array<Record<string, unknown>>,
         });
-        
-        const changes = Object.keys(args.updates).map(key => 
-          `• ${key}: ${JSON.stringify((originalNode as any)[key])} → ${JSON.stringify((args.updates as any)[key])}`
-        ).join('\n');
-        
+
+        const changes = Object.keys(args.updates)
+          .map(
+            key =>
+              `• ${key}: ${JSON.stringify((originalNode as any)[key])} → ${JSON.stringify((args.updates as any)[key])}`
+          )
+          .join('\n');
+
         return `✅ Successfully updated node '${originalNode.name}' in workflow '${workflow.name}'\n\nChanges made:\n${changes}`;
       } catch (error) {
         if (error instanceof Error) {
@@ -560,17 +593,19 @@ export function createNodeManagementTools(getClient: () => N8nClient | null, ser
           methodName: args.methodName,
           loadOptionsMethod: args.loadOptionsMethod,
         };
-        
+
         const parameters = await client.getDynamicNodeParameters(options);
-        
+
         if (parameters.length === 0) {
           return `No dynamic parameters found for property '${args.property}' on node type '${args.nodeType}'`;
         }
-        
-        const formatted = parameters.map(param => 
-          `• ${param.displayName}: ${param.value}${param.type ? ` (${param.type})` : ''}`
-        ).join('\n');
-        
+
+        const formatted = parameters
+          .map(
+            param => `• ${param.displayName}: ${param.value}${param.type ? ` (${param.type})` : ''}`
+          )
+          .join('\n');
+
         return `🔧 Dynamic parameters for '${args.property}':\n\n${formatted}`;
       } catch (error) {
         if (error instanceof Error) {
@@ -600,20 +635,24 @@ export function createNodeManagementTools(getClient: () => N8nClient | null, ser
 
       try {
         const classification = await client.classifyAINode(args.nodeType);
-        
-        const capabilities = classification.aiCapabilities.length > 0 
-          ? classification.aiCapabilities.map(cap => `• ${cap}`).join('\n')
-          : 'None identified';
-          
-        const integrations = classification.suggestedIntegrations.length > 0
-          ? classification.suggestedIntegrations.map(int => `• ${int}`).join('\n')
-          : 'None suggested';
-        
-        return `🤖 AI Classification for ${args.nodeType}\n\n` +
+
+        const capabilities =
+          classification.aiCapabilities.length > 0
+            ? classification.aiCapabilities.map(cap => `• ${cap}`).join('\n')
+            : 'None identified';
+
+        const integrations =
+          classification.suggestedIntegrations.length > 0
+            ? classification.suggestedIntegrations.map(int => `• ${int}`).join('\n')
+            : 'None suggested';
+
+        return (
+          `🤖 AI Classification for ${args.nodeType}\n\n` +
           `Is AI Node: ${classification.isAINode ? '✅ Yes' : '❌ No'}\n` +
           `Confidence Score: ${Math.round(classification.confidenceScore * 100)}%\n\n` +
           `🎯 AI Capabilities:\n${capabilities}\n\n` +
-          `🔗 Suggested Integrations:\n${integrations}`;
+          `🔗 Suggested Integrations:\n${integrations}`
+        );
       } catch (error) {
         if (error instanceof Error) {
           throw new UserError(`Failed to classify AI node: ${error.message}`);
@@ -642,21 +681,26 @@ export function createNodeManagementTools(getClient: () => N8nClient | null, ser
 
       try {
         const suggestions = await client.getAINodeSuggestions(args.nodeType);
-        
+
         if (suggestions.length === 0) {
           return `No AI suggestions available for node type '${args.nodeType}'`;
         }
-        
-        const formatted = suggestions.map((suggestion, index) => {
-          const alternatives = suggestion.alternativeNodes.length > 0
-            ? `\n  Alternative nodes: ${suggestion.alternativeNodes.join(', ')}`
-            : '';
-          
-          return `${index + 1}. ${suggestion.suggestion}\n` +
-            `   Reasoning: ${suggestion.reasoning}\n` +
-            `   Confidence: ${Math.round(suggestion.confidence * 100)}%${alternatives}`;
-        }).join('\n\n');
-        
+
+        const formatted = suggestions
+          .map((suggestion, index) => {
+            const alternatives =
+              suggestion.alternativeNodes.length > 0
+                ? `\n  Alternative nodes: ${suggestion.alternativeNodes.join(', ')}`
+                : '';
+
+            return (
+              `${index + 1}. ${suggestion.suggestion}\n` +
+              `   Reasoning: ${suggestion.reasoning}\n` +
+              `   Confidence: ${Math.round(suggestion.confidence * 100)}%${alternatives}`
+            );
+          })
+          .join('\n\n');
+
         return `💡 AI Suggestions for ${args.nodeType}:\n\n${formatted}`;
       } catch (error) {
         if (error instanceof Error) {
