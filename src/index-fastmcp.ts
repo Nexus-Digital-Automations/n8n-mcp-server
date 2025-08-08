@@ -32,15 +32,24 @@ import { createSystemHealthTools } from './tools/system-health.js';
 import { createPerformanceMetricsTools } from './tools/performance-metrics.js';
 import { createEventStreamingTools } from './tools/event-streaming.js';
 import { createAnalyticsDashboardTools } from './tools/analytics-dashboard.js';
+import { registerWorkflowManagementTools } from './tools/workflow-management.js';
 import {
   detectTransportConfig,
   validateTransportConfig,
   getServerUrl,
 } from './transport/transportConfig.js';
 import { createSSETransport, SSEUtils } from './transport/sseTransport.js';
+import { createDiscoveryManager } from './discovery/discoveryManager.js';
+import { EventStreamingManager } from './transport/eventStreamingManager.js';
+import { ConnectionManager } from './transport/connectionManager.js';
 
 // Global client instance
 let n8nClient: N8nClient | null = null;
+
+// Global discovery system components
+let discoveryManager: any = null;
+let eventStreamingManager: EventStreamingManager | null = null;
+let connectionManager: ConnectionManager | null = null;
 
 // FastMCP server instance
 const server = new FastMCP({
@@ -51,11 +60,13 @@ This server provides comprehensive access to n8n workflows, executions, users, p
 
 Key Features:
 - Complete workflow management (create, read, update, delete, activate/deactivate)
+- Advanced workflow management with programmatic creation, execution control, and progress tracking
 - User and project management (Enterprise features)
 - Execution monitoring and management
 - Sophisticated execution control (cancel, retry, partial execution with checkpoints)
 - Credential and variable management
-- Tag system for organization
+- Tag system for organization with project-based workflow management
+- Collaboration features including workflow sharing, permissions, and team management
 - Audit and security reporting
 - AI-centric features for AI node configuration and testing
 - AI model management and recommendations
@@ -99,6 +110,14 @@ Key Features:
 - Analytics dashboard with comprehensive usage insights, performance reports, and trend analysis
 - Event-driven architecture with webhook management and authentication support
 - Advanced analytics export capabilities with JSON/CSV formats for external analysis
+- Comprehensive workflow analytics with execution tracking, success rates, and performance metrics
+- Bulk workflow operations including activation, export, and cross-project management
+- Dynamic MCP tool discovery system with automatic server capability detection
+- Real-time capability synchronization and hot-reloading of MCP tools without server restart
+- MCP server registry with support for stdio and SSE transports
+- Automatic tool-to-node conversion for seamless n8n integration
+- Capability versioning and conflict resolution for multiple MCP servers
+- Live synchronization of MCP tool changes with WebSocket/SSE infrastructure
 
 Getting Started:
 1. Initialize connection: Use 'init-n8n' with your n8n instance URL and API key
@@ -106,6 +125,8 @@ Getting Started:
 3. Manage workflows: Create, update, activate/deactivate workflows as needed
 4. Explore AI features: Use 'list-ai-models' to see available AI models and 'list-ai-nodes' to find AI nodes in workflows
 5. Monitor system health: Use 'get-monitoring-dashboard' for real-time system overview and 'check-workflow-health' for detailed analysis
+6. Dynamic MCP discovery: Use 'register-mcp-server' to connect external MCP servers, 'list-discovered-tools' to see available tools, and 'execute-mcp-tool' to run discovered tools
+7. Capability synchronization: Use 'get-sync-status' to monitor real-time synchronization and 'force-capability-sync' to manually refresh capabilities
 
 The server supports both Community and Enterprise n8n features. Enterprise features (projects, variables) will return appropriate errors if not available in your n8n instance.
 
@@ -183,6 +204,55 @@ createAnalyticsTools(getClient, server);
 
 // Register template and pattern management tools (Phase 3)
 createTemplateTools(getClient, server);
+
+// Register comprehensive workflow management tools (Phase 2)
+// Note: These are advanced workflow tools that complement the basic workflow tools
+// They provide enhanced functionality for programmatic workflow management
+try {
+  registerWorkflowManagementTools(server);
+} catch (error) {
+  console.error('⚠️ Advanced workflow management tools not available - requires n8n fork API extensions');
+}
+
+// Initialize discovery system components
+function initializeDiscoverySystem() {
+  try {
+    // Initialize transport components (using mock implementations for now)
+    eventStreamingManager = new EventStreamingManager({
+      enableEventStreaming: true,
+      maxConnections: 100,
+      heartbeatInterval: 30000,
+    });
+    connectionManager = new ConnectionManager({
+      maxConnections: 50,
+      connectionTimeout: 30000,
+    });
+    
+    // Create discovery manager
+    discoveryManager = createDiscoveryManager(
+      eventStreamingManager,
+      connectionManager,
+      {
+        enableAutoDiscovery: true,
+        enableHotReloading: true,
+        enableRealTimeSync: true,
+        enableCapabilityVersioning: true,
+        enableMetrics: true,
+      }
+    );
+    
+    // Register discovery tools with FastMCP server
+    discoveryManager.registerWithFastMCP(server);
+    
+    console.error('🔧 Dynamic MCP tool discovery system initialized');
+  } catch (error) {
+    console.error('⚠️ Discovery system initialization failed:', error);
+    // Don't prevent server startup if discovery system fails
+  }
+}
+
+// Initialize discovery system
+initializeDiscoverySystem();
 
 // Override the init-n8n tool to properly set the global client
 server.addTool({
@@ -296,12 +366,38 @@ async function startServer() {
 startServer();
 
 // Handle graceful shutdown
-process.on('SIGINT', () => {
+process.on('SIGINT', async () => {
   console.error('Received SIGINT, shutting down gracefully...');
+  await cleanup();
   process.exit(0);
 });
 
-process.on('SIGTERM', () => {
+process.on('SIGTERM', async () => {
   console.error('Received SIGTERM, shutting down gracefully...');
+  await cleanup();
   process.exit(0);
 });
+
+// Cleanup function
+async function cleanup() {
+  try {
+    if (discoveryManager) {
+      console.error('🧹 Cleaning up discovery system...');
+      await discoveryManager.cleanup();
+    }
+    
+    if (eventStreamingManager && typeof eventStreamingManager.cleanup === 'function') {
+      console.error('🧹 Cleaning up event streaming...');
+      await eventStreamingManager.cleanup();
+    }
+    
+    if (connectionManager && typeof connectionManager.cleanup === 'function') {
+      console.error('🧹 Cleaning up connection manager...');
+      await connectionManager.cleanup();
+    }
+    
+    console.error('✅ Cleanup completed');
+  } catch (error) {
+    console.error('⚠️ Error during cleanup:', error);
+  }
+}
